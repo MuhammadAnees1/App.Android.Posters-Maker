@@ -1,0 +1,118 @@
+package com.example.postersmaker;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+public class EmojiFragment extends BottomSheetDialogFragment {
+
+    private EmojiListener mEmojiListener;
+
+    public interface EmojiListener {
+        void onEmojiClick(String emojiUnicode);
+    }
+
+    public EmojiFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_emoji, container, false);
+    }
+
+    public void setEmojiListener(EmojiListener emojiListener) {
+        mEmojiListener = emojiListener;
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public void setupDialog(Dialog dialog, int style) {
+        super.setupDialog(dialog, style);
+        View contentView = View.inflate(getContext(), R.layout.fragment_bottom_sticker_emoji_dialog, null);
+        dialog.setContentView(contentView);
+        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) ((View) contentView.getParent()).getLayoutParams();
+        CoordinatorLayout.Behavior behavior = params.getBehavior();
+
+        if (behavior != null && behavior instanceof BottomSheetBehavior) {
+            ((BottomSheetBehavior) behavior).setBottomSheetCallback(mBottomSheetBehaviorCallback);
+        }
+        ((View) contentView.getParent()).setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        RecyclerView rvEmoji = contentView.findViewById(R.id.rvEmoji);
+
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 5);
+        rvEmoji.setLayoutManager(gridLayoutManager);
+        EmojiAdapter emojiAdapter = new EmojiAdapter();
+        rvEmoji.setAdapter(emojiAdapter);
+    }
+
+    private final BottomSheetBehavior.BottomSheetCallback mBottomSheetBehaviorCallback = new BottomSheetBehavior.BottomSheetCallback() {
+
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                dismiss();
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            // Handle the sliding behavior here if needed
+        }
+    };
+
+    public class EmojiAdapter extends RecyclerView.Adapter<EmojiAdapter.ViewHolder> {
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_emoji, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            holder.txtEmoji.setText(getEmojiByUnicode(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return 20; // Change this value as per your requirement
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            TextView txtEmoji;
+
+            ViewHolder(View itemView) {
+                super(itemView);
+//                txtEmoji = itemView.findViewById(R.id.txtEmoji);
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mEmojiListener != null) {
+                            mEmojiListener.onEmojiClick(txtEmoji.getText().toString());
+                        }
+                        dismiss();
+                    }
+                });
+            }
+        }
+
+        private String getEmojiByUnicode(int unicode) {
+            return new String(Character.toChars(unicode + 0x1F600));
+        }
+    }
+}

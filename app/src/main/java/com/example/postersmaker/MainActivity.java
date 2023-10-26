@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//nothing
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     private final List<FrameLayout> textLayoutList = new ArrayList<>();

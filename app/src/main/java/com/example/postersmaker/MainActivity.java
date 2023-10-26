@@ -109,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
-        frameLayout.setForegroundGravity( Gravity.CENTER);
 //        frameLayout.setPadding(10,10,10,10);
 
         Button deleteButton = new Button(this);
@@ -179,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         // Add a visible border around the text layer
         RelativeLayout borderLayout = new RelativeLayout(this);
-        RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams borderLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayoutParams.setMargins(120, 110, 120, 110);
         borderLayout.setLayoutParams(borderLayoutParams);
 

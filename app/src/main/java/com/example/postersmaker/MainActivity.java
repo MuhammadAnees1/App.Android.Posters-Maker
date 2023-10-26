@@ -68,28 +68,27 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
 
         ViewGroup rootView = findViewById(android.R.id.content);
-        rootView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                ImageView imageView = findViewById(R.id.previewImageView);
-                if (isEventInsideView(imageView, event)) {
-                    for (FrameLayout textLayout : textLayoutList) {
-                        if (isViewInBounds(textLayout, (int) event.getRawX(), (int) event.getRawY())) {
-                            float x = event.getX();
-                            float y = event.getY();
-
-                            switch (event.getAction()) {
-                                case MotionEvent.ACTION_MOVE:
-                                    textLayout.setX(x - textLayout.getWidth() / 2);
-                                    textLayout.setY(y - textLayout.getHeight() / 2);
-                                    break;
-                            }
-                        }
-                    }
-                }
-                return true;
-            }
-        });
+//        rootView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                ImageView imageView = findViewById(R.id.previewImageView);
+//                if (isEventInsideView(imageView, event)) {
+//                    for (FrameLayout textLayout : textLayoutList) {
+//                        if (isViewInBounds(textLayout, (int) event.getRawX(), (int) event.getRawY())) {
+//                            float x = event.getX();
+//                            float y = event.getY();
+//
+//                            switch (event.getAction()) {
+//                                case MotionEvent.ACTION_MOVE:
+//                                    textLayout.setX(x - textLayout.getWidth() / 2);
+//                                    textLayout.setY(y - textLayout.getHeight() / 2);
+//                                    break;
+//                            }
+//                        }
+//                    }
+//                }
+//                return true;
+//            }
     }
     @Override
     public void onToolSelected(ToolType toolType) {
@@ -111,16 +110,64 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         FrameLayout frameLayout = new FrameLayout(this);
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
+        frameLayout.setMinimumHeight(50);
+        frameLayout.setMinimumWidth(50);
 //        frameLayout.setPadding(10,10,10,10);
 
 
-        // Create the TextView
+        RelativeLayout borderLayout = new RelativeLayout(this);
+        FrameLayout.LayoutParams borderLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        borderLayoutParams.setMargins(120, 110, 120, 110);
+        borderLayout.setLayoutParams(borderLayoutParams);
+        borderLayout.setGravity(Gravity.CENTER);
+        borderLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_MOVE:
+
+                        borderLayout.setX(x - borderLayout.getWidth() / 2);
+                        borderLayout.setY(y - borderLayout.getHeight() / 2);
+                        break;}
+                return false;
+            }
+        });
+
         TextView textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         textView.setTextColor(Color.BLACK);
+      
+        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
+        textView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        TextHandlerClass.edittextDialog(MainActivity.this, textLayoutList, frameLayout, textView);
 
+                        return true;
+                }
+
+                return true;
+            }
+
+        });
+        textView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v ) {
+                TextHandlerClass.edittextDialog(MainActivity.this, textLayoutList, frameLayout, textView);
+                return true;
+            }
+
+
+        });
 
         Button deleteButton = new Button(this);
         deleteButton.setBackgroundResource(R.drawable.close);
@@ -176,14 +223,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
 
 
-
-        // Add a visible border around the text layer
-        RelativeLayout borderLayout = new RelativeLayout(this);
-        FrameLayout.LayoutParams borderLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        borderLayoutParams.setMargins(120, 110, 120, 110);
-        borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayout.setGravity(Gravity.CENTER);
-
         // Add the TextView to the border layout
         borderLayout.addView(textView);
 
@@ -201,6 +240,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             private boolean isDragging = false;
+            private static final float MAX_TEXT_SIZE = 500f; // Set your maximum text size here
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -223,9 +264,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             params.width += dx;
                             params.height += dy;
                             // Check for minimum and maximum dimensions
-                            int minWidth = 10; // Minimum width
+                            int minWidth = 100; // Minimum width
                             int maxWidth = frameLayout.getWidth(); // Maximum width
-                            int minHeight = 10; // Minimum height
+                            int minHeight = 100; // Minimum height
                             int maxHeight = frameLayout.getHeight(); // Maximum height
 
                             if (params.width < minWidth) {
@@ -244,11 +285,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             // Adjust the text size based on the size change
                             float textSize = textView.getTextSize();
-                            if (dx > 10 || dy > 10) {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize + 10, 30 * getResources().getDisplayMetrics().scaledDensity));
-                            } else {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize - 10, 30 * getResources().getDisplayMetrics().scaledDensity));
+                            float newSize = textSize + dx / 5f;
+
+                            // Check for maximum text size
+                            if (newSize > MAX_TEXT_SIZE) {
+                                newSize = MAX_TEXT_SIZE;
                             }
+
+                            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
                             lastX = newX;
                             lastY = newY;
                         }

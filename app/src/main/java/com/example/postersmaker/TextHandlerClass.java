@@ -6,6 +6,7 @@ import android.text.InputType;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class TextHandlerClass {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String text = input.getText().toString();
-                addTextToImage(context, textLayoutList, viewGroup, text, 100, 100); // Default position
+                addTextToImage(context, textLayoutList, viewGroup, text, 400, 400); // Default position
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -34,6 +35,7 @@ public class TextHandlerClass {
 
         builder.show();
     }
+
 
     public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
@@ -58,4 +60,33 @@ public class TextHandlerClass {
 
     }
 
+
+    public static void edittextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, TextView textView) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Edit Text");
+
+        final EditText input = new EditText(context);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setText(textView.getText().toString()); // Set the existing text in the dialog
+
+        builder.setView(input);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newText = input.getText().toString();
+                textView.setText(newText); // Update the existing TextView with the new text
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
 }
+
+
+

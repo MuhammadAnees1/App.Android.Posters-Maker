@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
         }
     }
+    // Test changes
     @SuppressLint("ClickableViewAccessibility")
     FrameLayout createTextLayout(String text, float x, float y) {
         FrameLayout frameLayout = new FrameLayout(this);

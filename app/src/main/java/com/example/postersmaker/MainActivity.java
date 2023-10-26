@@ -106,11 +106,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @SuppressLint("ClickableViewAccessibility")
     FrameLayout createTextLayout(String text, float x, float y) {
-        FrameLayout frameLayout = new FrameLayout(this);
+
         // Create a FrameLayout to hold the TextView and the button
+        FrameLayout frameLayout = new FrameLayout(this);
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
 //        frameLayout.setPadding(10,10,10,10);
+
+
+        // Create the TextView
+        TextView textView = new TextView(this);
+        textView.setText(text);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        textView.setTextColor(Color.BLACK);
+        textView.setTypeface(null, Typeface.NORMAL);
+
 
         Button deleteButton = new Button(this);
         deleteButton.setBackgroundResource(R.drawable.close);
@@ -119,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.TOP | Gravity.START;
         deleteButton.setLayoutParams(deleteButtonParams);
-
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 textLayoutList.remove(frameLayout);
             }
         });
+
+
         Button rotateButton = new Button(this);
         rotateButton.setBackgroundResource(R.drawable.rotate);
         rotateButton.setScaleX(0.3f);
@@ -135,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         rotateButtonParams.gravity = Gravity.TOP | Gravity.END;
         rotateButton.setLayoutParams(rotateButtonParams);
-
         rotateButton.setOnTouchListener(new View.OnTouchListener() {
             private double startAngle;
             private float currentRotation = 0f;
@@ -167,28 +177,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
 
 
-
-        // Create the TextView
-        TextView textView = new TextView(this);
-        textView.setText(text);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        textView.setTextColor(Color.BLACK);
-
-        textView.setTypeface(null, Typeface.NORMAL);
-
-
-
         // Add a visible border around the text layer
         RelativeLayout borderLayout = new RelativeLayout(this);
         FrameLayout.LayoutParams borderLayoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayoutParams.setMargins(120, 110, 120, 110);
         borderLayout.setLayoutParams(borderLayoutParams);
-
         borderLayout.setGravity(Gravity.CENTER);
-
 
         // Add the TextView to the border layout
         borderLayout.addView(textView);
+
+
         // Create a button to resize the text
         Button resizeButton = new Button(this);
         resizeButton.setBackgroundResource(R.drawable.resize);
@@ -202,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             private boolean isDragging = false;
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -211,11 +209,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         lastY = event.getRawY();
                         isDragging = true;
                         break;
-
                     case MotionEvent.ACTION_UP:
                         isDragging = false;
                         break;
-
                     case MotionEvent.ACTION_MOVE:
                         if (isDragging) {
                             float newX = event.getRawX();
@@ -225,9 +221,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
                             params.width += dx;
-
                             params.height += dy;
-
                             // Check for minimum and maximum dimensions
                             int minWidth = 10; // Minimum width
                             int maxWidth = frameLayout.getWidth(); // Maximum width
@@ -245,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             } else if (params.height > maxHeight) {
                                 params.height = maxHeight;
                             }
-
                             // Apply the new dimensions to the border layout
                             borderLayout.setLayoutParams(params);
 
@@ -256,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             } else {
                                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize - 10, 30 * getResources().getDisplayMetrics().scaledDensity));
                             }
-
                             lastX = newX;
                             lastY = newY;
                         }
@@ -276,19 +268,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
         saveButton.setLayoutParams(saveButtonParams);
 
-  saveButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-          resizeButton.setVisibility(View.INVISIBLE);
-          deleteButton.setVisibility(View.INVISIBLE);
-          rotateButton.setVisibility(View.INVISIBLE);
-          saveButton.setVisibility(View.INVISIBLE);
-          frameLayout.setBackground(null);
-
+        saveButton.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+              resizeButton.setVisibility(View.INVISIBLE);
+              deleteButton.setVisibility(View.INVISIBLE);
+              rotateButton.setVisibility(View.INVISIBLE);
+              saveButton.setVisibility(View.INVISIBLE);
+              frameLayout.setBackground(null);
 
       }
   });
-
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -316,7 +306,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         dY = view.getY() - event.getRawY();
                         startAngle = Math.toDegrees(Math.atan2(y - view.getPivotY(), x - view.getPivotX()));
                         break;
-
                     case MotionEvent.ACTION_MOVE:
                         view.animate()
                                 .x(event.getRawX() + dX)
@@ -334,6 +323,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return true;
             }
         });
+
+
         // Add the border layout and the resize button to the FrameLayout
         frameLayout.addView(borderLayout);
         frameLayout.addView(resizeButton);
@@ -341,16 +332,16 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.addView(rotateButton);
         frameLayout.addView(saveButton);
 
-
         // Set the position of the FrameLayout on the screen
         frameLayout.setX(x);
         frameLayout.setY(y);
         // Set an OnTouchListener for the FrameLayout to enable dragging
+
         frameLayout.setOnTouchListener(new View.OnTouchListener() {
             private float dX, dY;
-
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+
                 float x = event.getRawX();
                 float y = event.getRawY();
 
@@ -391,7 +382,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             currentActionIndex--;
         }
     }
-
     private void redo() {
         if (currentActionIndex < actions.size() - 1) {
             currentActionIndex++;
@@ -399,7 +389,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             action.redo();
         }
     }
-
     static class CustomAction {
         private final Runnable undoAction;
         private final Runnable redoAction;

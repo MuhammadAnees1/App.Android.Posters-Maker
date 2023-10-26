@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayoutParams.setMargins(120, 110, 120, 110);
         borderLayout.setLayoutParams(borderLayoutParams);
         borderLayout.setGravity(Gravity.CENTER);
+
         borderLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -162,15 +163,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
 
         });
-        textView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v ) {
-                TextHandlerClass.edittextDialog(MainActivity.this, textLayoutList, frameLayout, textView);
-                return true;
-            }
 
-
-        });
 
 
         Button deleteButton = new Button(this);
@@ -499,4 +492,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int viewHeight = view.getHeight();
         return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
     }
+
+
 }

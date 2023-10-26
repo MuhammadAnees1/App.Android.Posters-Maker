@@ -225,13 +225,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
                             params.width += dx;
-
                             params.height += dy;
 
                             // Check for minimum and maximum dimensions
-                            int minWidth = 10; // Minimum width
+                            int minWidth = 100; // Minimum width
                             int maxWidth = frameLayout.getWidth(); // Maximum width
-                            int minHeight = 10; // Minimum height
+                            int minHeight = 100; // Minimum height
                             int maxHeight = frameLayout.getHeight(); // Maximum height
 
                             if (params.width < minWidth) {
@@ -251,11 +250,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             // Adjust the text size based on the size change
                             float textSize = textView.getTextSize();
-                            if (dx > 10 || dy > 10) {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize + 10, 30 * getResources().getDisplayMetrics().scaledDensity));
-                            } else {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize - 10, 30 * getResources().getDisplayMetrics().scaledDensity));
-                            }
+                            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize + dx / 5f);
 
                             lastX = newX;
                             lastY = newY;

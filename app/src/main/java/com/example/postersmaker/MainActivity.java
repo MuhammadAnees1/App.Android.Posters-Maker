@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
     private final List<CustomAction> actions = new ArrayList<>();
+
     private int currentActionIndex = -1;
     private ImageView imgUndo;
     private ImageView imgRedo;
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
         }
     }
+    // Test changes
     @SuppressLint("ClickableViewAccessibility")
     FrameLayout createTextLayout(String text, float x, float y) {
         FrameLayout frameLayout = new FrameLayout(this);
@@ -170,8 +172,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Create the TextView
         TextView textView = new TextView(this);
         textView.setText(text);
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         textView.setTextColor(Color.BLACK);
+
         textView.setTypeface(null, Typeface.NORMAL);
 
 
@@ -200,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             private boolean isDragging = false;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -220,45 +224,40 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             float dx = newX - lastX;
                             float dy = newY - lastY;
 
-                            float ratio = textView.getWidth() * 1.0f / textView.getHeight();
-                            float change;
-                            if (Math.abs(dx) > Math.abs(dy)) {
-                                change = dx;
-                            } else {
-                                change = dy;
-                            }
-
                             FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
-                            params.width += change;
-                            params.height = (int) (params.width / ratio);
+                            params.width += dx;
 
-                            // Check for minimum height
-                            if (params.height < 10) {
-                                params.height = 10;
-                                params.width = (int) (params.height * ratio);
+                            params.height += dy;
+
+                            // Check for minimum and maximum dimensions
+                            int minWidth = 10; // Minimum width
+                            int maxWidth = frameLayout.getWidth(); // Maximum width
+                            int minHeight = 10; // Minimum height
+                            int maxHeight = frameLayout.getHeight(); // Maximum height
+
+                            if (params.width < minWidth) {
+                                params.width = minWidth;
+                            } else if (params.width > maxWidth) {
+                                params.width = maxWidth;
                             }
 
-                            // Check for maximum width and height
-                            ViewGroup rootView = findViewById(android.R.id.content);
-                            if (params.width > rootView.getWidth()) {
-                                params.width = rootView.getWidth();
-                                params.height = (int) (params.width / ratio);
+                            if (params.height < minHeight) {
+                                params.height = minHeight;
+                            } else if (params.height > maxHeight) {
+                                params.height = maxHeight;
                             }
 
-                            if (params.height > rootView.getHeight()) {
-                                params.height = rootView.getHeight();
-                                params.width = (int) (params.height * ratio);
-                            }
-
+                            // Apply the new dimensions to the border layout
                             borderLayout.setLayoutParams(params);
 
+                            // Adjust the text size based on the size change
                             float textSize = textView.getTextSize();
-//                             Check for minimum text size
-                            if (change > 10) {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize + 10, 50 * getResources().getDisplayMetrics().scaledDensity));
+                            if (dx > 10 || dy > 10) {
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize + 10, 30 * getResources().getDisplayMetrics().scaledDensity));
                             } else {
-                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize - 10, 50 * getResources().getDisplayMetrics().scaledDensity));
+                                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize - 10, 30 * getResources().getDisplayMetrics().scaledDensity));
                             }
+
                             lastX = newX;
                             lastY = newY;
                         }

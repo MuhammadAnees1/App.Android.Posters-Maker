@@ -108,7 +108,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         FrameLayout frameLayout = new FrameLayout(this);
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//        frameLayout.setPadding(10,10,30,30);
+        frameLayout.setBackgroundResource(R.drawable.border_style);
+        frameLayout.setForegroundGravity( Gravity.CENTER);
+//        frameLayout.setPadding(10,10,10,10);
 
         Button deleteButton = new Button(this);
         deleteButton.setBackgroundResource(R.drawable.close);
@@ -180,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayoutParams.setMargins(120, 110, 120, 110);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayout.setBackgroundResource(R.drawable.border_style);
+
         borderLayout.setGravity(Gravity.CENTER);
 
 
@@ -232,8 +234,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             params.height = (int) (params.width / ratio);
 
                             // Check for minimum height
-                            if (params.height < 50) {
-                                params.height = 50;
+                            if (params.height < 10) {
+                                params.height = 10;
                                 params.width = (int) (params.height * ratio);
                             }
 
@@ -252,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             borderLayout.setLayoutParams(params);
 
                             float textSize = textView.getTextSize();
-                            // Check for minimum text size
+//                             Check for minimum text size
                             if (change > 10) {
                                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.max(textSize + 10, 50 * getResources().getDisplayMetrics().scaledDensity));
                             } else {
@@ -284,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
           deleteButton.setVisibility(View.INVISIBLE);
           rotateButton.setVisibility(View.INVISIBLE);
           saveButton.setVisibility(View.INVISIBLE);
-          borderLayout.setBackground(null);
+          frameLayout.setBackground(null);
 
 
       }
@@ -298,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 deleteButton.setVisibility(View.VISIBLE);
                 rotateButton.setVisibility(View.VISIBLE);
                 saveButton.setVisibility(View.VISIBLE);
-                borderLayout.setBackgroundResource(R.drawable.border_style);
+                frameLayout.setBackgroundResource(R.drawable.border_style);
 
             }
         });

@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             int minHeight = 100; // Minimum height
                             int maxWidth = frameLayout.getWidth() - frameLayout.getPaddingLeft() - frameLayout.getPaddingRight(); // Maximum width within padding
                             int maxHeight = frameLayout.getHeight() - frameLayout.getPaddingTop() - frameLayout.getPaddingBottom(); // Maximum height within padding
-
+                            //nothing
                             if (params.width < minWidth) {
                                 params.width = minWidth;
                             } else if (params.width > maxWidth) {

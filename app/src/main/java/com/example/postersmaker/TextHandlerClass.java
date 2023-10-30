@@ -59,9 +59,7 @@ public class TextHandlerClass {
         ));
 
     }
-
-
-    public static void edittextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, TextView textView) {
+    public static void edittextDialog(Context context, TextView textView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Edit Text");
 

@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<CustomAction> actions = new ArrayList<>();
 
     private int currentActionIndex = -1;
+
+    private ImageView imageView;
     private ImageView imgUndo;
     private ImageView imgRedo;
 
@@ -42,8 +44,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ImageView imageView = findViewById(R.id.previewImageView);
+        imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
+
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -90,13 +93,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
-        frameLayout.setMinimumWidth(50);
-
+        frameLayout.setMinimumHeight(20);
+        frameLayout.setMinimumWidth(20);
         RelativeLayout borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(60, 50, 60, 50);
-        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
+        borderLayoutParams.setMargins(67, 67, 97, 67);
+//        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
 
 
@@ -125,8 +128,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         textView.setTextColor(Color.BLACK);
+        borderLayout.setMinimumHeight(textView.getHeight()+20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textView.setTypeface(null, Typeface.NORMAL);
+        textView.setTypeface(null, Typeface.BOLD);
+        textView.setMaxWidth(imageView.getWidth()-40);
+
         borderLayout.setOnDragListener(new View.OnDragListener() {
             @Override
             public boolean onDrag(View v, DragEvent event) {
@@ -140,9 +146,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float x = event.getX();
                         float y = event.getY();
 
-                            // Update the position of the borderLayout
-                            borderLayout.setX(x - borderLayout.getWidth() / 2);
-                            borderLayout.setY(y - borderLayout.getHeight() / 2);
+                        // Update the position of the borderLayout
+                        borderLayout.setX(x - borderLayout.getWidth() / 2);
+                        borderLayout.setY(y - borderLayout.getHeight() / 2);
 
                         break;
 
@@ -194,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setOnTouchListener(new View.OnTouchListener() {
             private double startAngle;
             private float currentRotation = 0f;
-            final float rotationSpeed = 0.00285f;
+            final float rotationSpeed = 0.00685f;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -243,11 +249,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         buttonParams.setMargins(0,0,-85,-75);
         resizeButton.setLayoutParams(buttonParams);
 
-        // Set the OnTouchListener for the resize button
+
         resizeButton.setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             private boolean isDragging = false;
-            private static final int MAX_TEXT_SIZE = 250; // Set your maximum text size here
+            private static final int MAX_TEXT_SIZE = 300; // Set your maximum text size here
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -261,74 +267,90 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                            float newX = event.getRawX();
-                            float newY = event.getRawY();
-                            float dx = newX - lastX;
-                            float dy = newY - lastY;
-                            ImageView imageView = findViewById(R.id.previewImageView);
+                        float newX = event.getRawX();
+                        float newY = event.getRawY();
 
-                            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
-                           if(dx>0){
-                            if(frameLayout.getWidth() <= imageView.getWidth() )  {
+                        // Calculate the direction of resizing based on the current rotation angle
+                        float currentRotation = frameLayout.getRotation();
+                        double angleInRadians = Math.toRadians(currentRotation);
+                        float cosTheta = (float) Math.cos(angleInRadians);
+                        float sinTheta = (float) Math.sin(angleInRadians);
 
+                        // Calculate the relative movement in the rotated coordinates
+                        float dx = (newX - lastX) * cosTheta + (newY - lastY) * sinTheta;
+                        float dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
 
-                                params.width += dx;}}
-                           else{params.width += dx;}
-                           if(dy>0){
-                            if (frameLayout.getHeight() <= imageView.getHeight() ) {
+                        // Apply resizing along the layout's axes in the rotated coordinates
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
+                        int currentWidth = params.width;
+                        int currentHeight = params.height;
 
+                        // Check for minimum and maximum dimensions
+                        int minWidth = 100; // Minimum width
+                        int minHeight = textView.getHeight(); // Minimum height
+                        int maxWidth = imageView.getWidth() - 10; // 10 less than imageView width
+                        int maxHeight = imageView.getHeight();
 
-                                params.height += dy;}}
-                           else{params.height += dy;}
-
-                            // Check for minimum and maximum dimensions
-                            int minWidth = 100; // Minimum width
-                            int minHeight = 100; // Minimum height
-                            int maxWidth = frameLayout.getWidth() - frameLayout.getPaddingLeft() - frameLayout.getPaddingRight(); // Maximum width within padding
-                            int maxHeight = frameLayout.getHeight() - frameLayout.getPaddingTop() - frameLayout.getPaddingBottom(); // Maximum height within padding
-                            //nothing
-                            if (params.width < minWidth) {
-                                params.width = minWidth;
-                            } else if (params.width > maxWidth) {
-                                params.width = maxWidth;
-                            }
-                            if (params.height < minHeight) {
-                                params.height = minHeight;
-                            } else if (params.height > maxHeight) {
-                                params.height = maxHeight;
-                            }
-
-                            // Apply the new dimensions to the border layout
-                            borderLayout.setLayoutParams(params);
-
-                            // Adjust the text size based on the size change
-                            float textSize = textView.getTextSize();
-                            float newSize;
-                            if(dx>0 || dy>0){
-                            newSize = textSize + Math.min(dx / 3f, dy /3f);}
-                            else{newSize = textSize + Math.max(dx/3f , dy/3f );}
-                            borderLayout.setMinimumHeight(textView.getHeight());
-                            // Check for maximum text size
-                            if (newSize > MAX_TEXT_SIZE) {
-                                newSize = MAX_TEXT_SIZE;
-                            }
-                            if (newSize < 35){
-                                newSize = 35;
-                            }
-
-                            // Adjust text size based on the width and height limits
-                            float maxWidthBasedSize = Math.min(params.width, params.height);
-                            if (newSize > maxWidthBasedSize) {
-                                newSize = maxWidthBasedSize;
-                            }
-
-                            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
-
-                            lastX = newX;
-                            lastY = newY;
-                        break;
+                        if (currentWidth + dx < minWidth) {
+                            params.width = minWidth;
+                        } else if (currentWidth + dx > maxWidth) {
+                            params.width = maxWidth;
+                        } else {
+                            params.width += dx;
                         }
 
+                        // Calculate the number of lines in the text
+                        int textHeight = textView.getLineCount() * textView.getLineHeight();
+
+                        // If the width is less than the text width, increase the height to accommodate the text
+                        if (params.width < textView.getWidth()) {
+                            params.height = Math.max(textHeight, textView.getHeight());
+                        } else {
+                            if (currentHeight + dy < minHeight) {
+                                params.height = minHeight;
+                            } else if (currentHeight + dy > maxHeight) {
+                                params.height = maxHeight;
+                            } else {
+                                params.height += dy;
+                            }
+                        }
+
+                        // Check for maximum height
+                        if (params.height > maxHeight) {
+                            params.height = maxHeight;
+                        }
+
+                        // Apply the new dimensions to the border layout
+                        borderLayout.setLayoutParams(params);
+
+                        // Adjust the text size based on the height and width limits
+                        float textSize = textView.getTextSize();
+                        float newSize = textSize;
+
+                        if (params.height > textHeight) {
+                            newSize = textSize + dy / 6f;
+                        }
+
+                        // Check for maximum text size
+                        if (newSize > MAX_TEXT_SIZE) {
+                            newSize = MAX_TEXT_SIZE;
+                        }
+                        if (newSize < 45) {
+                            newSize = 45;
+                        }
+
+                        // Adjust text size based on the height and width limits
+                        float maxWidthBasedSize = Math.min(params.width, params.height);
+                        if (newSize > maxWidthBasedSize) {
+                            newSize = maxWidthBasedSize;
+                        }
+
+                        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
+
+                        lastX = newX;
+                        lastY = newY;
+                        break;
+                }
 
                 return true;
             }
@@ -344,39 +366,49 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
         saveButton.setLayoutParams(saveButtonParams);
 
-  saveButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-          resizeButton.setVisibility(View.INVISIBLE);
-          deleteButton.setVisibility(View.INVISIBLE);
-          rotateButton.setVisibility(View.INVISIBLE);
-          saveButton.setVisibility(View.INVISIBLE);
-          frameLayout.setBackground(null);
-
-
-      }
-  });
-        textView.setOnTouchListener(new View.OnTouchListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        TextHandlerClass.edittextDialog(MainActivity.this, textLayoutList, frameLayout, textView);
-                        resizeButton.setVisibility(View.VISIBLE);
-                        deleteButton.setVisibility(View.VISIBLE);
-                        rotateButton.setVisibility(View.VISIBLE);
-                        saveButton.setVisibility(View.VISIBLE);
-                        frameLayout.setBackgroundResource(R.drawable.border_style);
+            public void onClick(View view) {
+                resizeButton.setVisibility(View.INVISIBLE);
+                deleteButton.setVisibility(View.INVISIBLE);
+                rotateButton.setVisibility(View.INVISIBLE);
+                saveButton.setVisibility(View.INVISIBLE);
+                frameLayout.setBackground(null);
 
-                        return true;
-                }
 
-                return true;
             }
-
         });
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resizeButton.setVisibility(View.VISIBLE);
+                deleteButton.setVisibility(View.VISIBLE);
+                rotateButton.setVisibility(View.VISIBLE);
+                saveButton.setVisibility(View.VISIBLE);
+                frameLayout.setBackgroundResource(R.drawable.border_style);
+            }
+        });
+//        textView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        return true;
+//                    case MotionEvent.ACTION_UP:
+//                        TextHandlerClass.edittextDialog(MainActivity.this, textLayoutList, frameLayout, textView);
+//                        resizeButton.setVisibility(View.VISIBLE);
+//                        deleteButton.setVisibility(View.VISIBLE);
+//                        rotateButton.setVisibility(View.VISIBLE);
+//                        saveButton.setVisibility(View.VISIBLE);
+//                        frameLayout.setBackgroundResource(R.drawable.border_style);
+//
+//                        return true;
+//                }
+//
+//                return true;
+//            }
+//
+//        });
 
         // Inside the onTouchListener for the frameLayout
         frameLayout.setOnTouchListener(new View.OnTouchListener() {

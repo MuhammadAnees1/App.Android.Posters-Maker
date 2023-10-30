@@ -89,16 +89,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
-        frameLayout.setMinimumHeight(50);
-        frameLayout.setMinimumWidth(50);
-//       frameLayout.setPadding(45,45,45,45);
 
+        frameLayout.setMinimumWidth(50);
 
         RelativeLayout borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(120, 110, 120, 110);
-
+        borderLayoutParams.setMargins(60, 50, 60, 50);
+        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
 
 
@@ -257,15 +255,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     case MotionEvent.ACTION_DOWN:
                         lastX = event.getRawX();
                         lastY = event.getRawY();
-                        isDragging = true;
                         break;
 
                     case MotionEvent.ACTION_UP:
-                        isDragging = false;
                         break;
 
                     case MotionEvent.ACTION_MOVE:
-                        if (isDragging) {
                             float newX = event.getRawX();
                             float newY = event.getRawY();
                             float dx = newX - lastX;
@@ -297,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             } else if (params.width > maxWidth) {
                                 params.width = maxWidth;
                             }
-
                             if (params.height < minHeight) {
                                 params.height = minHeight;
                             } else if (params.height > maxHeight) {
@@ -309,11 +303,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             // Adjust the text size based on the size change
                             float textSize = textView.getTextSize();
-                            float newSize = textSize + dx / 5f;
-
+                            float newSize;
+                            if(dx>0 || dy>0){
+                            newSize = textSize + Math.min(dx / 3f, dy /3f);}
+                            else{newSize = textSize + Math.max(dx/3f , dy/3f );}
+                            borderLayout.setMinimumHeight(textView.getHeight());
                             // Check for maximum text size
                             if (newSize > MAX_TEXT_SIZE) {
                                 newSize = MAX_TEXT_SIZE;
+                            }
+                            if (newSize < 35){
+                                newSize = 35;
                             }
 
                             // Adjust text size based on the width and height limits
@@ -326,9 +326,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             lastX = newX;
                             lastY = newY;
-                        }
                         break;
-                }
+                        }
+
+
                 return true;
             }
         });

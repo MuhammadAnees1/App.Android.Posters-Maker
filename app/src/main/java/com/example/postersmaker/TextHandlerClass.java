@@ -36,7 +36,6 @@ public class TextHandlerClass {
         builder.show();
     }
 
-
     public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
         FrameLayout textLayout = mainActivity.createTextLayout(text, x, y);

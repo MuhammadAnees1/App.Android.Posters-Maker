@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
     private final List<CustomAction> actions = new ArrayList<>();
+    FrameLayout frameLayout ;
     RecyclerView textRecycleView ,recyclerView;
     private int currentActionIndex = -1;
     private ImageView imgUndo;
@@ -39,15 +41,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         setContentView(R.layout.activity_main);
         ImageView imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
-        textRecycleView = findViewById(R.id.textRecycleView);
 
         recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        textRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        textRecycleView.setAdapter(customAdapter);
-
+        frameLayout = new FrameLayout(this);
 
 //        Uri imageUri = Uri.parse(getIntent().getStringExtra("imageUri"));
 //        if (imageUri != null) {
@@ -72,9 +71,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @Override
     public void onToolSelected(ToolType toolType) {
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         switch (toolType) {
             case TEXT:
                 TextHandlerClass.showTextDialog(this, textLayoutList, findViewById(android.R.id.content));
+                HomeFragment homeFragment = new HomeFragment();
+                fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
                 break;
             case ERASER:
             case FILTER:
@@ -85,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @SuppressLint("ClickableViewAccessibility")
     FrameLayout createTextLayout(String text, float x, float y) {
-        FrameLayout frameLayout = new FrameLayout(this);
+        frameLayout = new FrameLayout(this);
+
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
@@ -94,12 +100,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setMinimumWidth(50);
 //       frameLayout.setPadding(45,45,45,45);
 
-        frameLayout.setMinimumWidth(50);
-
         RelativeLayout borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(60, 50, 60, 50);
+        borderLayoutParams.setMargins(38, 45, 38, 45);
         borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
 
@@ -119,12 +123,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 //                return false;
 //            }
 //        });
-
-
-
-
-
-
         TextView textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
@@ -195,35 +193,35 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setOnTouchListener(new View.OnTouchListener() {
             private double startAngle;
             private float currentRotation = 0f;
-            final float rotationSpeed = 0.00285f;
+            final float rotationSpeed = 0.085f;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_UP:
-                        startAngle = getAngle(event.getX(), event.getY());
+                        startAngle = getAngle(event.getX(), event.getY(), frameLayout);
                         return true;
-
                     case MotionEvent.ACTION_MOVE:
-
-                        double currentAngle = getAngle(event.getX(), event.getY());
-
-                        float newRotation = (float) Math.toDegrees(currentAngle - startAngle) * rotationSpeed;
+                        double currentAngle = getAngle(event.getX(), event.getY(), frameLayout);
+                        float newRotation = (float) (currentAngle - startAngle) * rotationSpeed;
                         currentRotation += newRotation;
                         frameLayout.setRotation(currentRotation);
                         return true;
-
                     case MotionEvent.ACTION_BUTTON_PRESS:
                         return true;
+                    default:
+                        return true;
                 }
-                return true;
+
             }
         });
 
 
         // Add the TextView to the border layout
         borderLayout.addView(textView);
+
+
         // Create a button to resize the text
         Button resizeButton = new Button(this);
         resizeButton.setBackgroundResource(R.drawable.resize);
@@ -447,6 +445,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
         return frameLayout;
+
+
+    }
+    public FrameLayout getFrameLayout() {
+
+        return frameLayout;
     }
     void addAction(CustomAction action) {
         if (currentActionIndex < actions.size() - 1) {
@@ -486,11 +490,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             redoAction.run();
         }
     }
-    private double getAngle(double x, double y) {
-        FrameLayout frameLayout = new FrameLayout(this);
-        double rad = Math.atan2(y - frameLayout.getHeight() / 2, x - frameLayout.getWidth() / 2) + Math.PI;
-        frameLayout.setRotation(0.02f);
-        return (rad * 180 / Math.PI + 180) % 360;
+    private double getAngle(double x, double y, View view) {
+        double deltaX = x - (view.getWidth() / 2.0);
+        double deltaY = y - (view.getHeight() / 2.0);
+        double radians = Math.atan2(deltaY, deltaX);
+        if (radians < 0) {
+            radians += 2 * Math.PI;
+        }
+        return Math.toDegrees(radians);
     }
 
     private boolean isViewInBounds(View view, int x, int y) {

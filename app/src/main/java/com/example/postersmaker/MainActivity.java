@@ -133,33 +133,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.BOLD);
         textView.setMaxWidth(imageView.getWidth()-40);
 
-        textView.setOnTouchListener(new View.OnTouchListener() {
-            private float lastX, lastY;
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        lastX = event.getRawX();
-                        lastY = event.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX();
-                        float newY = event.getRawY();
-                        float dX = newX - lastX;
-                        float dY = newY - lastY;
-
-                        // Update the position of the frameLayout based on the drag movement
-                        frameLayout.setX(frameLayout.getX() + dX);
-                        frameLayout.setY(frameLayout.getY() + dY);
-
-                        lastX = newX;
-                        lastY = newY;
-                        break;
-                }
-                return true;
-            }
-        });
 
 
 
@@ -371,16 +345,39 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             }
         });
-        textView.setOnClickListener(new View.OnClickListener() {
+        textView.setOnTouchListener(new View.OnTouchListener() {
+            private float lastX, lastY;
+
             @Override
-            public void onClick(View view) {
-                resizeButton.setVisibility(View.VISIBLE);
-                deleteButton.setVisibility(View.VISIBLE);
-                rotateButton.setVisibility(View.VISIBLE);
-                saveButton.setVisibility(View.VISIBLE);
-                frameLayout.setBackgroundResource(R.drawable.border_style);
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = event.getRawX();
+                        lastY = event.getRawY();
+                        resizeButton.setVisibility(View.VISIBLE);
+                        deleteButton.setVisibility(View.VISIBLE);
+                        rotateButton.setVisibility(View.VISIBLE);
+                        saveButton.setVisibility(View.VISIBLE);
+                        frameLayout.setBackgroundResource(R.drawable.border_style);
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX();
+                        float newY = event.getRawY();
+                        float dX = newX - lastX;
+                        float dY = newY - lastY;
+
+                        // Update the position of the frameLayout based on the drag movement
+                        frameLayout.setX(frameLayout.getX() + dX);
+                        frameLayout.setY(frameLayout.getY() + dY);
+
+                        lastX = newX;
+                        lastY = newY;
+                        break;
+                }
+                return true;
             }
         });
+
 //        textView.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View v, MotionEvent event) {

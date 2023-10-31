@@ -133,34 +133,28 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.BOLD);
         textView.setMaxWidth(imageView.getWidth()-40);
 
-        borderLayout.setOnDragListener(new View.OnDragListener() {
+        textView.setOnTouchListener(new View.OnTouchListener() {
+            private float lastX, lastY;
+
             @Override
-            public boolean onDrag(View v, DragEvent event) {
+            public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        // Handle drag started
-                        break;
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = event.getRawX();
+                        lastY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX();
+                        float newY = event.getRawY();
+                        float dX = newX - lastX;
+                        float dY = newY - lastY;
 
-                    case DragEvent.ACTION_DRAG_LOCATION:
-                        // Handle drag location
-                        float x = event.getX();
-                        float y = event.getY();
+                        // Update the position of the frameLayout based on the drag movement
+                        frameLayout.setX(frameLayout.getX() + dX);
+                        frameLayout.setY(frameLayout.getY() + dY);
 
-                        // Update the position of the borderLayout
-                        borderLayout.setX(x - borderLayout.getWidth() / 2);
-                        borderLayout.setY(y - borderLayout.getHeight() / 2);
-
-                        break;
-
-                    case DragEvent.ACTION_DROP:
-                        // Handle drop event
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        // Handle drag ended
-                        break;
-
-                    default:
+                        lastX = newX;
+                        lastY = newY;
                         break;
                 }
                 return true;
@@ -175,8 +169,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         deleteButton.setScaleX(0.3f);
         deleteButton.setScaleY(0.3f);
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        deleteButtonParams.gravity = Gravity.TOP | Gravity.START;
-        deleteButtonParams.setMargins(-85,-75,0,0);
+        deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
+        deleteButtonParams.setMargins(0,-75,-85,0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
@@ -193,33 +187,32 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setScaleY(0.3f);
 
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rotateButtonParams.setMargins(0,-75,-85,0);
-        rotateButtonParams.gravity = Gravity.TOP | Gravity.END;
+        rotateButtonParams.setMargins(-85,-75,0,0);
+        rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
         rotateButton.setLayoutParams(rotateButtonParams);
 
         rotateButton.setOnTouchListener(new View.OnTouchListener() {
             private double startAngle;
+            float rotationSpeed = 0.0238f;
             private float currentRotation = 0f;
-            final float rotationSpeed = 0.00685f;
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_UP:
-                        startAngle = getAngle(event.getX(), event.getY());
+                        // Store the initial rotation angle
+                        startAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
+                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
 
-                        double currentAngle = getAngle(event.getX(), event.getY());
-
-                        float newRotation = (float) Math.toDegrees(currentAngle - startAngle) * rotationSpeed;
+                        // Calculate the angle difference and apply the rotation speed factor
+                        float newRotation = (float) (Math.toDegrees(currentAngle - startAngle) * rotationSpeed);
                         currentRotation += newRotation;
-                        frameLayout.setRotation(currentRotation);
-                        return true;
 
-                    case MotionEvent.ACTION_BUTTON_PRESS:
+                        // Apply the new rotation to the FrameLayout
+                        frameLayout.setRotation(currentRotation);
                         return true;
                 }
                 return true;
@@ -522,13 +515,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             redoAction.run();
         }
     }
-    private double getAngle(double x, double y) {
-        FrameLayout frameLayout = new FrameLayout(this);
-        double rad = Math.atan2(y - frameLayout.getHeight() / 2, x - frameLayout.getWidth() / 2) + Math.PI;
-        frameLayout.setRotation(0.02f);
+    private double getAngle(double x, double y, float pivotX, float pivotY) {
+        double rad = Math.atan2(y - pivotY, x - pivotX) + Math.PI;
         return (rad * 180 / Math.PI + 180) % 360;
     }
-
     private boolean isViewInBounds(View view, int x, int y) {
         int[] location = new int[2];
         view.getLocationOnScreen(location);

@@ -3,14 +3,20 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.view.menu.MenuBuilder;
+
 import java.util.List;
 
 public class TextHandlerClass {
+
+
 
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -36,32 +42,38 @@ public class TextHandlerClass {
         builder.show();
     }
 
-
-    public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
+    public static TextLayout addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
-        FrameLayout textLayout = mainActivity.createTextLayout(text, x, y);
-        textLayoutList.add(textLayout);
-        viewGroup.addView(textLayout);
+//         Unselect the old layer if there is one
+//        if (mainActivity.selectedLayer != null) {
+//            mainActivity.unselectLayer(mainActivity.selectedLayer);
+//        }
+
+         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
+
+        textLayoutList.add(textLayout.getFrameLayout());
+        viewGroup.addView(textLayout.getFrameLayout());
+
 
         mainActivity.addAction(new MainActivity.CustomAction(
                 // Define the undo logic here
                 () -> {
                     // Define how to undo the action
-                    viewGroup.removeView(textLayout);
-                    textLayoutList.remove(textLayout);
+                    viewGroup.removeView(textLayout.getFrameLayout());
+                    textLayoutList.remove(textLayout.getFrameLayout());
                 },
                 // Define the redo logic here
                 () -> {
                     // Define how to redo the action
-                    viewGroup.addView(textLayout);
-                    textLayoutList.add(textLayout);
+                    viewGroup.addView(textLayout.getFrameLayout());
+                    textLayoutList.add(textLayout.getFrameLayout());
                 }
         ));
 
+        return textLayout;
+
     }
-
-
-    public static void edittextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, TextView textView) {
+    public static void edittextDialog(Context context, TextView textView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Edit Text");
 

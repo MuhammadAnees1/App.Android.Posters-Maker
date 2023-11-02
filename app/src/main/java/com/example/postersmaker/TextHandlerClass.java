@@ -45,14 +45,15 @@ public class TextHandlerClass {
     public static TextLayout addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
 //         Unselect the old layer if there is one
-//        if (mainActivity.selectedLayer != null) {
-//            mainActivity.unselectLayer(mainActivity.selectedLayer);
-//        }
+        if (mainActivity.selectedLayer != null) {
+            mainActivity.unselectLayer(mainActivity.selectedLayer);
+        }
+
 
          TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
-
         textLayoutList.add(textLayout.getFrameLayout());
         viewGroup.addView(textLayout.getFrameLayout());
+        mainActivity.selectedLayer = textLayout;
 
 
         mainActivity.addAction(new MainActivity.CustomAction(

@@ -1,36 +1,30 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 //nothing
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
@@ -38,11 +32,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     float dX = 0, dY = 0;
     private final List<CustomAction> actions = new ArrayList<>();
 
+    public TextLayout selectedLayer;
+
     TextView textView;
     Button deleteButton,rotateButton,resizeButton,saveButton;
     private int currentActionIndex = -1;
-
-    public FrameLayout selectedLayer = null;
 
     private ImageView imageView;
     private ImageView imgUndo;
@@ -111,21 +105,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setMinimumWidth(20);
         TextLayout textLayout = new TextLayout(frameLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
         textLayout.setFrameLayout(frameLayout);
-        selectedLayer = textLayout.getFrameLayout();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        selectedLayer = textLayout;
 
 
 
@@ -376,11 +356,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             textLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    textLayout.getResizeButton().setVisibility(View.INVISIBLE);
-                    textLayout.getDeleteButton().setVisibility(View.INVISIBLE);
-                    textLayout.getRotateButton().setVisibility(View.INVISIBLE);
-                    textLayout.getSaveButton().setVisibility(View.INVISIBLE);
-                    textLayout.getFrameLayout().setBackground(null);
+                   unselectLayer(textLayout);
                 }
             });
 
@@ -400,11 +376,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     case MotionEvent.ACTION_DOWN:
                         lastX = event.getRawX();
                         lastY = event.getRawY();
-                        textLayout.getFrameLayout().setBackgroundResource(R.drawable.border_style);
-                        textLayout.getSaveButton().setVisibility(View.VISIBLE);
-                        textLayout.getResizeButton().setVisibility(View.VISIBLE);
-                        textLayout.getDeleteButton().setVisibility(View.VISIBLE);
-                        textLayout.getRotateButton().setVisibility(View.VISIBLE);
+                        unselectLayer(selectedLayer);
+                        selectLayer(textLayout);
+
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         float newX = event.getRawX();
@@ -422,7 +396,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
                 return true;
             }
-        });  };
+        });
+
+
+
+
+        };
 
         // Inside the onTouchListener for the frameLayout
         frameLayout.setOnTouchListener(new View.OnTouchListener() {
@@ -437,6 +416,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         dX = view.getX() - event.getRawX();
                         dY = view.getY() - event.getRawY();
                         startAngle = Math.toDegrees(Math.atan2(y - view.getPivotY(), x - view.getPivotX()));
+
+
+
+
+
+
                         break;
 
                     case MotionEvent.ACTION_MOVE:
@@ -468,7 +453,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Set the position of the FrameLayout on the screen
         frameLayout.setX(x);
         frameLayout.setY(y);
-        // Set an OnTouchListener for the FrameLayout to enable dragging
+
+            // Set an OnTouchListener for the FrameLayout to enable dragging
         frameLayout.setOnTouchListener(new View.OnTouchListener() {
             private float dX, dY;
 
@@ -499,6 +485,60 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
         return textLayout;
     }
+
+    public void selectLayer(TextLayout textLayout) {
+        unselectLayer(selectedLayer);
+        if (textLayout != null) {
+            FrameLayout layer = textLayout.getFrameLayout();
+            if (layer != null) {
+                Button resizeButton = textLayout.getResizeButton();
+                Button deleteButton = textLayout.getDeleteButton();
+                Button rotateButton = textLayout.getRotateButton();
+                Button saveButton = textLayout.getSaveButton();
+
+                // Make the associated buttons and features visible
+                if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                    resizeButton.setVisibility(View.VISIBLE);
+                    deleteButton.setVisibility(View.VISIBLE);
+                    rotateButton.setVisibility(View.VISIBLE);
+                    saveButton.setVisibility(View.VISIBLE);
+                }
+
+                // Set the background resource to indicate selection
+                layer.setBackgroundResource(R.drawable.border_style);
+            }
+            selectedLayer = textLayout;
+        }
+
+    }
+    public void unselectLayer(TextLayout textLayout) {
+        if (textLayout != null) {
+            FrameLayout layer = textLayout.getFrameLayout();
+            if (layer != null) {
+                Button resizeButton = textLayout.getResizeButton();
+                Button deleteButton = textLayout.getDeleteButton();
+                Button rotateButton = textLayout.getRotateButton();
+                Button saveButton = textLayout.getSaveButton();
+                if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                    resizeButton.setVisibility(View.INVISIBLE);
+                    deleteButton.setVisibility(View.INVISIBLE);
+                    rotateButton.setVisibility(View.INVISIBLE);
+                    saveButton.setVisibility(View.INVISIBLE);
+                }
+
+                // Set the background resource to indicate selection
+                layer.setBackground(null);}}
+    }
+
+
+
+
+
+
+
+
+
+
     void addAction(CustomAction action) {
         if (currentActionIndex < actions.size() - 1) {
             actions.subList(currentActionIndex + 1, actions.size()).clear();
@@ -550,8 +590,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int viewHeight = view.getHeight();
         return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
     }
-
-
 
 
 

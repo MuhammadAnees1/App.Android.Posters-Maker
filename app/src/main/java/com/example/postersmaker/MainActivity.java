@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     TextView textView;
-    Button deleteButton,rotateButton,resizeButton,saveButton;
+    Button deleteButton,rotateButton,resizeButton,saveButton ,upButton;
     private int currentActionIndex = -1;
     private ImageView imageView;
     private ImageView imgUndo;
@@ -70,24 +70,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
     }
-    @Override
-    public void onToolSelected(ToolType toolType) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        switch (toolType) {
-            case TEXT:
-                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
-                HomeFragment homeFragment = new HomeFragment();
-                fragmentTransaction.replace(R.id.fragment_container, homeFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
-                break;
-            case ERASER:
-            case FILTER:
-            case STICKER:
-                // Implement as needed
-                break;
-        }
-    }
+
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
          frameLayout = new FrameLayout(this);
@@ -149,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 ViewGroup viewGroup = findViewById(android.R.id.content);
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
+                selectedLayer = null;
             }
         });
          rotateButton = new Button(this);
@@ -313,11 +297,25 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 @Override
                 public void onClick(View v) {
                    unselectLayer(textLayout);
+                   selectedLayer= null;
                 }
             });
         }
         if(selectedLayer != null && textLayout.getFrameLayout() != null){
         textLayout.setTextView(textView);
+
+        borderLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        unselectLayer(selectedLayer);
+                        selectLayer(textLayout);
+                }
+                return false;
+            }
+        });
+
         textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
 
@@ -350,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
         }
         // Inside the onTouchListener for the frameLayout
-        frameLayout.setOnTouchListener(new View.OnTouchListener() {
+        textLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
             private double startAngle = 0;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -362,6 +360,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         dX = view.getX() - event.getRawX();
                         dY = view.getY() - event.getRawY();
                         startAngle = Math.toDegrees(Math.atan2(y - view.getPivotY(), x - view.getPivotX()));
+                        unselectLayer(selectedLayer);
+                        selectLayer(textLayout);
                         break;
                     case MotionEvent.ACTION_MOVE:
                         view.animate()
@@ -419,6 +419,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return false;
             }
         });
+
+
+
+
+
         return textLayout;
     }
 
@@ -465,6 +470,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}
     }
+
+
+
+
     void addAction(CustomAction action) {
         if (currentActionIndex < actions.size() - 1) {
             actions.subList(currentActionIndex + 1, actions.size()).clear();
@@ -516,7 +525,22 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int viewHeight = view.getHeight();
         return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
     }
-    public FrameLayout getFrameLayout(){
-        return frameLayout;
+    public TextLayout getSelectedLayer(){
+        return selectedLayer;
+    }
+
+    @Override
+    public void onToolSelected(ToolType toolType) {
+        switch (toolType) {
+            case TEXT:
+                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
+               ;
+                break;
+            case ERASER:
+            case FILTER:
+            case STICKER:
+                // Implement as needed
+                break;
+        }
     }
 }

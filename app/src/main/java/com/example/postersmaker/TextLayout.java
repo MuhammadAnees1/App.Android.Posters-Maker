@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 public class TextLayout {
 
-        private FrameLayout frameLayout;
+        public FrameLayout frameLayout;
         private  Button deleteButton;
         private  Button rotateButton;
         private  Button resizeButton;
@@ -58,7 +58,24 @@ public class TextLayout {
     public Button getSaveButton() {
             return saveButton;
         }
+    public float getX() {
+        return frameLayout.getX();
+    }
 
+    public float getY() {
+
+
+        return frameLayout.getY();
+    }
+
+    // Methods to set X and Y positions
+    public void setX(float x) {
+        frameLayout.setX(x);
+    }
+
+    public void setY(float y) {
+        frameLayout.setY(y);
+    }
         public TextView getTextView() {
             return textView;
         }

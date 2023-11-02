@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.fragment.app.FragmentTransaction;
 
 import java.util.List;
 
@@ -21,15 +22,25 @@ public class TextHandlerClass {
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");
-
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
+
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
                 String text = input.getText().toString();
                 addTextToImage(context, textLayoutList, viewGroup, text, 400, 400); // Default position
+                if (context instanceof MainActivity) {
+                    MainActivity mainActivity = (MainActivity) context;
+                    FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
+                    HomeFragment homeFragment = new HomeFragment();
+                    fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.commit();
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -50,10 +61,11 @@ public class TextHandlerClass {
         }
 
 
+
          TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
         textLayoutList.add(textLayout.getFrameLayout());
         viewGroup.addView(textLayout.getFrameLayout());
-        mainActivity.selectedLayer = textLayout;
+
 
 
         mainActivity.addAction(new MainActivity.CustomAction(

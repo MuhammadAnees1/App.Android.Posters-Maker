@@ -1,6 +1,7 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,14 +32,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
+    TranslateAnimation fadeIn;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     TextView textView;
-    Button deleteButton,rotateButton,resizeButton,saveButton ,upButton;
+    Button deleteButton,rotateButton,resizeButton,saveButton ;
+    HomeFragment homeFragment;
+
     private int currentActionIndex = -1;
     public ImageView imageView;
     private ImageView imgUndo;
     FrameLayout frameLayout;
+    FrameLayout container;
     private ImageView imgRedo;
 
     @Override
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         setContentView(R.layout.activity_main);
         imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
+        container = findViewById(R.id.fragment_container);
 
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
@@ -69,7 +78,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 redo();
             }
         });
+
     }
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
@@ -134,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
                 selectedLayer = null;
+                container.setVisibility(View.GONE);
             }
         });
          rotateButton = new Button(this);
@@ -308,11 +321,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             textLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   unselectLayer(textLayout);
-                   selectedLayer= null;
+                    unselectLayer(selectedLayer);
+                    selectedLayer = null;
+                    container.setVisibility(View.GONE);
+
+
                 }
             });
         }
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unselectLayer(selectedLayer);
+                selectedLayer = null;
+                container.setVisibility(View.GONE);}
+        });
         if(selectedLayer != null && textLayout.getFrameLayout() != null){
         textLayout.setTextView(textView);
 
@@ -430,7 +453,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.VISIBLE);
                     saveButton.setVisibility(View.VISIBLE);
                 }
-
+                if(container.getVisibility()==View.GONE||container.getVisibility()==View.INVISIBLE ){
+                container.setVisibility(View.VISIBLE);
+                   fadeIn = new TranslateAnimation(0, 0,container.getHeight(), 0);
+                    fadeIn.setDuration(300); // Animation duration in milliseconds
+                    container.startAnimation(fadeIn);}
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
             }
@@ -526,4 +553,5 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
         }
     }
+
 }

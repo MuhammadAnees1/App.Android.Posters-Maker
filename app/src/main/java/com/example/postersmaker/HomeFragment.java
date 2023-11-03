@@ -22,6 +22,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     //    FrameLayout frameLayout;
     TextLayout selectedLayer  ;
     Handler handler;
+    RecyclerView recyclerView;
 
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
 
@@ -43,10 +44,9 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 //        selectedLayer = activity.selectedLayer;
 
 
-        RecyclerView recyclerView = view.findViewById(R.id.editTextLayout);
+       recyclerView = view.findViewById(R.id.editTextLayout);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(editTextAdapter);
-
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"})
         Button editButton = view.findViewById(R.id.editButton);

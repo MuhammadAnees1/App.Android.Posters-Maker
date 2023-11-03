@@ -35,10 +35,9 @@ public class TextHandlerClass {
                 addTextToImage(context, textLayoutList, viewGroup, text, 400, 400); // Default position
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
-                    if(mainActivity.container.getVisibility()==View.GONE||mainActivity.container.getVisibility()==View.INVISIBLE ) {
                         mainActivity.container.setVisibility(View.VISIBLE);
-                        mainActivity.container.startAnimation(mainActivity.fadeIn);;
-                    }
+
+
                     FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
                     HomeFragment homeFragment = new HomeFragment();
                     fragmentTransaction.replace(R.id.fragment_container, homeFragment);

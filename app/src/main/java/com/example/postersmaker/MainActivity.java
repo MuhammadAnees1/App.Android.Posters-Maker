@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
-    TranslateAnimation fadeIn;
+    TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     TextView textView;
@@ -101,7 +101,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayoutParams.setMargins(107, 67, 107, 67);
 //        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
-
+        fadeIn = new TranslateAnimation(0, 0,400, 0);
+        fadeIn.setDuration(400);
+        fadeOut = new TranslateAnimation(0, 0,0, 400);
+        fadeOut.setDuration(400);
 
 //        borderLayout.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
@@ -146,7 +149,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
                 selectedLayer = null;
+                if(container.getVisibility()==View.VISIBLE){
                 container.setVisibility(View.GONE);
+                container.startAnimation(fadeOut);}
             }
         });
          rotateButton = new Button(this);
@@ -323,7 +328,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 public void onClick(View v) {
                     unselectLayer(selectedLayer);
                     selectedLayer = null;
-                    container.setVisibility(View.GONE);
+
+                    if(container.getVisibility()==View.VISIBLE){
+                        container.setVisibility(View.GONE);
+                        container.startAnimation(fadeOut);}
 
 
                 }
@@ -334,7 +342,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onClick(View v) {
                 unselectLayer(selectedLayer);
                 selectedLayer = null;
-                container.setVisibility(View.GONE);}
+                if(container.getVisibility()==View.VISIBLE){
+                container.setVisibility(View.GONE);
+                container.startAnimation(fadeOut);}}
         });
         if(selectedLayer != null && textLayout.getFrameLayout() != null){
         textLayout.setTextView(textView);
@@ -455,8 +465,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
                 if(container.getVisibility()==View.GONE||container.getVisibility()==View.INVISIBLE ){
                 container.setVisibility(View.VISIBLE);
-                   fadeIn = new TranslateAnimation(0, 0,container.getHeight(), 0);
-                    fadeIn.setDuration(300); // Animation duration in milliseconds
+                   // Animation duration in milliseconds
                     container.startAnimation(fadeIn);}
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
@@ -546,9 +555,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
                ;
                 break;
-            case ERASER:
+            case Photo:
             case FILTER:
-            case STICKER:
+            case EMOJI:
                 // Implement as needed
                 break;
         }

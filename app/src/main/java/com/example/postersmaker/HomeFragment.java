@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected {
     //    FrameLayout frameLayout;
-    TextLayout selectedLayer;
+    TextLayout selectedLayer  ;
     Handler handler;
 
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
@@ -40,32 +40,101 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
 
         MainActivity activity = (MainActivity) requireActivity();
+//        selectedLayer = activity.selectedLayer;
 
-        selectedLayer = activity.getSelectedLayer();
-        ;
 
         RecyclerView recyclerView = view.findViewById(R.id.editTextLayout);
-        Button UpButton = view.findViewById(R.id.UpButton);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-
-        if(selectedLayer != null) {
-
-
-        recyclerView.setAdapter(editTextAdapter);}
+        recyclerView.setAdapter(editTextAdapter);
 
 
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        Button editButton = view.findViewById(R.id.editButton);
+        editButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        selectedLayer = activity.selectedLayer;
+                        TextHandlerClass.edittextDialog(getContext(), selectedLayer.getTextView());
+                        break;
+                }
+                return true;
+            }
+        });
+
+
+
+        Button UpButton = view.findViewById(R.id.UpButton);
         UpButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        selectedLayer.setY(selectedLayer.getY() - 5.0f);
-
+                        selectedLayer = activity.selectedLayer;
+                        moveFrameLayoutUpContinuously();
                         break;
                     case MotionEvent.ACTION_UP:
                         // Stop moving the FrameLayout
-//                        stopMovingFrameLayout();
+                        stopMovingFrameLayout();
+                        break;
+                }
+                return true;
+            }
+        });
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        Button downButton = view.findViewById(R.id.downButton);
+        downButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        selectedLayer = activity.selectedLayer;
+
+                            moveFrameLayoutDownContinuously();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // Stop moving the FrameLayout
+                        stopMovingFrameLayout();
+                        break;
+                }
+                return true;
+            }
+        });
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        Button leftButton = view.findViewById(R.id.leftButton);
+        leftButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        selectedLayer = activity.selectedLayer;
+                            moveFrameLayoutLeftContinuously();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // Stop moving the FrameLayout
+                        stopMovingFrameLayout();
+                        break;
+                }
+                return true;
+            }
+        });
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"})
+        Button rightButton = view.findViewById(R.id.rightButton);
+        rightButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+
+                        selectedLayer = activity.selectedLayer;
+                        moveFrameLayoutRightContinuously();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        // Stop moving the FrameLayout
+                        stopMovingFrameLayout();
                         break;
                 }
                 return true;
@@ -79,30 +148,50 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         // Implement this method as needed
     }
 
-//    private void moveFrameLayoutUpContinuously() {
-//        if (selectedLayer != null) { // Check if selectedLayer is not null
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    int currentY = (int) selectedLayer.getY();
-//                    int newY = currentY - 5;
-//                    selectedLayer.setY(newY);
-//                    handler.postDelayed(this, 10);
-//                }
-//            }, 50);
-//        }
-//    }
-//
-//    private void stopMovingFrameLayout() {
-////        if (selectedLayer != null) {
-//
-//        if (selectedLayer.getY() <= 0) {
-//            return;
-//        }
-//        // Stop the continuous movement
-//        handler.removeCallbacksAndMessages(null);
-//        return;
-//    }
+    private void moveFrameLayoutUpContinuously() {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    selectedLayer.setY(selectedLayer.getY()-5);
+                    handler.postDelayed(this, 10);
+                }
+            }, 50);
+        }
+
+    private void  moveFrameLayoutDownContinuously(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                selectedLayer.setY(selectedLayer.getY()+5);
+                handler.postDelayed(this, 10);
+            }
+        }, 50);
+    }
+    private void  moveFrameLayoutLeftContinuously(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                selectedLayer.setX(selectedLayer.getX()-5);
+                handler.postDelayed(this, 10);
+            }
+        }, 50);
+    }
+    private void  moveFrameLayoutRightContinuously(){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                selectedLayer.setX(selectedLayer.getX()+5);
+                handler.postDelayed(this, 10);
+            }
+        }, 50);
+    }
+    private void stopMovingFrameLayout() {
+        if (selectedLayer != null) {
+
+        // Stop the continuous movement
+        handler.removeCallbacksAndMessages(null);}
+        return;
+    }
 
 }
 

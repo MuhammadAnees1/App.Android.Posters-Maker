@@ -68,6 +68,7 @@ public class TextHandlerClass {
 
 
 
+
         mainActivity.addAction(new MainActivity.CustomAction(
                 // Define the undo logic here
                 () -> {
@@ -89,7 +90,7 @@ public class TextHandlerClass {
     public static void edittextDialog(Context context, TextView textView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Edit Text");
-
+        MainActivity mainActivity = (MainActivity) context;
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setText(textView.getText().toString()); // Set the existing text in the dialog
@@ -100,6 +101,7 @@ public class TextHandlerClass {
             public void onClick(DialogInterface dialog, int which) {
                 String newText = input.getText().toString();
                 textView.setText(newText); // Update the existing TextView with the new text
+                textView.requestLayout();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

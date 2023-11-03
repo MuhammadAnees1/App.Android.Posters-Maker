@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     TextView textView;
     Button deleteButton,rotateButton,resizeButton,saveButton ,upButton;
     private int currentActionIndex = -1;
-    private ImageView imageView;
+    public ImageView imageView;
     private ImageView imgUndo;
     FrameLayout frameLayout;
     private ImageView imgRedo;
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
-        frameLayout.setMinimumHeight(20);
+
         frameLayout.setMinimumWidth(20);
         TextLayout textLayout = new TextLayout(frameLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
         textLayout.setFrameLayout(frameLayout);
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         RelativeLayout borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(67, 67, 97, 67);
+        borderLayoutParams.setMargins(107, 67, 107, 67);
 //        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
 
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.BOLD);
         textView.setMaxWidth(imageView.getWidth()-40);
 
+        frameLayout.setMinimumHeight(textView.getHeight()+20);
         deleteButton = new Button(this);
         textLayout.setDeleteButton(deleteButton);
         deleteButton.setBackgroundResource(R.drawable.close);
@@ -187,7 +188,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             private boolean isDragging = false;
-            private static final int MAX_TEXT_SIZE = 300; // Set your maximum text size here
+
+            private int MAX_TEXT_SIZE = 300;
+            // Set your maximum text size here
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -222,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         // Check for minimum and maximum dimensions
                         int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = imageView.getWidth() - 10; // 10 less than imageView width
+                        int maxWidth = imageView.getWidth() - 100; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {
@@ -253,15 +256,22 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             params.height = maxHeight;
                         }
                         // Apply the new dimensions to the border layout
-                        borderLayout.setLayoutParams(params);
+
 
                         // Adjust the text size based on the height and width limits
                         float textSize = textLayout.getTextView().getTextSize();
                         float newSize = textSize;
+                        if(dy>0){
+                        if (params.height > textHeight && textView.getWidth()< params.width-60 && frameLayout.getWidth()< imageView.getWidth()-60) {
+                            newSize = textSize + dy / 5f;
+                        }}
+                        else  if(dy<0){
+                        if ( frameLayout.getWidth()< imageView.getWidth()-60) {
+                            newSize = textSize + dy / 5f;
+                        }}
 
-                        if (params.height > textHeight) {
-                            newSize = textSize + dy / 6f;
-                        }
+                        borderLayout.setLayoutParams(params);
+
 
                         // Check for maximum text size
                         if (newSize > MAX_TEXT_SIZE) {
@@ -278,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         textLayout.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
                         lastX = newX;
                         lastY = newY;
+                        params.height = textView.getHeight() + textView.getLineHeight();
+                        textView.setMaxWidth(params.width-60);
                         break;
                 }
                 return true;
@@ -303,18 +315,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
         if(selectedLayer != null && textLayout.getFrameLayout() != null){
         textLayout.setTextView(textView);
-
-        borderLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        unselectLayer(selectedLayer);
-                        selectLayer(textLayout);
-                }
-                return false;
-            }
-        });
 
         textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
@@ -347,39 +347,23 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
         }
-        // Inside the onTouchListener for the frameLayout
-        textLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
-            private double startAngle = 0;
+        borderLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                float x = event.getRawX();
-                float y = event.getRawY();
-
-                switch (event.getAction()) {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()){
                     case MotionEvent.ACTION_DOWN:
-                        dX = view.getX() - event.getRawX();
-                        dY = view.getY() - event.getRawY();
-                        startAngle = Math.toDegrees(Math.atan2(y - view.getPivotY(), x - view.getPivotX()));
                         unselectLayer(selectedLayer);
                         selectLayer(textLayout);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        view.animate()
-                                .x(event.getRawX() + dX)
-                                .y(event.getRawY() + dY)
-                                .setDuration(0)
-                                .start();
 
-                        double angle = Math.toDegrees(Math.atan2(y - view.getPivotY(), x - view.getPivotX())) - startAngle;
-                        view.setRotation((float) angle);
-                        break;
-
-                    default:
-                        return false;
                 }
-                return true;
+                return false;
             }
         });
+
+
+
+        // Inside the onTouchListener for the frameLayout
+
         // Add the border layout and the resize button to the FrameLayout
         frameLayout.addView(borderLayout);
         frameLayout.addView(textLayout.getResizeButton());
@@ -401,11 +385,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        selectLayer(textLayout);
                         if (isViewInBounds(view, (int) event.getRawX(), (int) event.getRawY())) {
                             dX = view.getX() - x;
                             dY = view.getY() - y;
                             return true;
                         }
+
                         return false;
 
                     case MotionEvent.ACTION_MOVE:
@@ -524,9 +510,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int viewWidth = view.getWidth();
         int viewHeight = view.getHeight();
         return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
-    }
-    public TextLayout getSelectedLayer(){
-        return selectedLayer;
     }
 
     @Override

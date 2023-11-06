@@ -174,18 +174,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         // Store the initial rotation angle
-                        startAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
+                        startAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
-                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
+                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
 
                         // Calculate the angle difference and apply the rotation speed factor
                         float newRotation = (float) (Math.toDegrees(currentAngle - startAngle) * rotationSpeed);
                         currentRotation += newRotation;
 
                         // Apply the new rotation to the FrameLayout
-                        textLayout.getFrameLayout().setRotation(currentRotation);
+                        frameLayout.setRotation(currentRotation);
                         return true;
                 }
                 return true;
@@ -346,40 +346,72 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 container.setVisibility(View.GONE);
                 container.startAnimation(fadeOut);}}
         });
-        if(selectedLayer != null && textLayout.getFrameLayout() != null){
-        textLayout.setTextView(textView);
+        if(selectedLayer != null && textLayout.getFrameLayout() != null) {
+            textLayout.setTextView(textView);
 
-        textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
-            private float lastX, lastY;
+            textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
+                private float lastX, lastY;
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        lastX = event.getRawX();
-                        lastY = event.getRawY();
-                        unselectLayer(selectedLayer);
-                        selectLayer(textLayout);
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            lastX = event.getRawX();
+                            lastY = event.getRawY();
+                            unselectLayer(selectedLayer);
+                            selectLayer(textLayout);
 
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX();
-                        float newY = event.getRawY();
-                        float dX = newX - lastX;
-                        float dY = newY - lastY;
+                            return true;
+                        case MotionEvent.ACTION_MOVE:
+                            float newX = event.getRawX();
+                            float newY = event.getRawY();
+                            float dX = newX - lastX;
+                            float dY = newY - lastY;
 
-                        // Update the position of the frameLayout based on the drag movement
-                        textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
-                        textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
+                            // Update the position of the frameLayout based on the drag movement
+                            textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
+                            textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
 
-                        lastX = newX;
-                        lastY = newY;
-                        break;
+                            lastX = newX;
+                            lastY = newY;
+                            break;
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+
+            textLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
+                private float lastX, lastY;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            lastX = event.getRawX();
+                            lastY = event.getRawY();
+                            unselectLayer(selectedLayer);
+                            selectLayer(textLayout);
+
+                            return true;
+                        case MotionEvent.ACTION_MOVE:
+                            float newX = event.getRawX();
+                            float newY = event.getRawY();
+                            float dX = newX - lastX;
+                            float dY = newY - lastY;
+
+                            // Update the position of the frameLayout based on the drag movement
+                            textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
+                            textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
+
+                            lastX = newX;
+                            lastY = newY;
+                            break;
+                    }
+                    return true;
+                }
+            });
         }
+
         borderLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -408,36 +440,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setX(x);
         frameLayout.setY(y);
             // Set an OnTouchListener for the FrameLayout to enable dragging
-        frameLayout.setOnTouchListener(new View.OnTouchListener() {
-            private float dX, dY;
-
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                float x = event.getRawX();
-                float y = event.getRawY();
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        selectLayer(textLayout);
-                        if (isViewInBounds(view, (int) event.getRawX(), (int) event.getRawY())) {
-                            dX = view.getX() - x;
-                            dY = view.getY() - y;
-                            return true;
-                        }
-
-                        return false;
-
-                    case MotionEvent.ACTION_MOVE:
-                        view.animate()
-                                .x(x + dX)
-                                .y(y + dY)
-                                .setDuration(0)
-                                .start();
-                        return true;
-                }
-                return false;
-            }
-        });
 
 
 

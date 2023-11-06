@@ -2,10 +2,9 @@ package com.example.postersmaker;
 
 
 public enum ToolType {
-    BRUSH,
+    Photo,
     TEXT,
-    ERASER,
+    Background,
     FILTER,
     EMOJI,
-    STICKER
 }

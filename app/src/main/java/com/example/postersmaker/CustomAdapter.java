@@ -15,12 +15,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     OnItemSelected mOnItemSelected;
     public CustomAdapter(OnItemSelected onItemSelected) {
         mOnItemSelected = onItemSelected;
-        mToolList.add(new ToolModel("Brush", R.drawable.baseline_brush_24, ToolType.BRUSH));
+        mToolList.add(new ToolModel("Photo", R.drawable.gallery_icon, ToolType.Photo));
         mToolList.add(new ToolModel("Text", R.drawable.baseline_text_fields_24, ToolType.TEXT));
-        mToolList.add(new ToolModel("Eraser", R.drawable.ic_eraser, ToolType.ERASER));
         mToolList.add(new ToolModel("Filter", R.drawable.ic_photo_filter, ToolType.FILTER));
         mToolList.add(new ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolType.EMOJI));
-        mToolList.add(new ToolModel("Sticker", R.drawable.ic_sticker, ToolType.STICKER));
+        mToolList.add(new ToolModel("Background", R.drawable.background, ToolType.Background));
     }
 
     public interface OnItemSelected {

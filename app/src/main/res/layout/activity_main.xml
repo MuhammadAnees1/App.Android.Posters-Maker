@@ -29,7 +29,7 @@
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
         android:src="@drawable/baseline_undo_24"
-        app:layout_constraintBottom_toBottomOf="@+id/previewImageView"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintEnd_toStartOf="@+id/imgRedo"
         tools:ignore="MissingConstraints" />
 
@@ -40,7 +40,7 @@
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
         android:src="@drawable/baseline_redo_24"
-        app:layout_constraintBottom_toBottomOf="@+id/previewImageView"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
 
@@ -51,7 +51,7 @@
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
         android:src="@drawable/gallery_icon"
-        app:layout_constraintBottom_toBottomOf="@+id/previewImageView"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints" />
 
@@ -62,7 +62,7 @@
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
         android:src="@drawable/baseline_photo_camera_24"
-        app:layout_constraintBottom_toBottomOf="@+id/previewImageView"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintStart_toEndOf="@id/imgGallery"
         tools:ignore="MissingConstraints" />
 
@@ -111,7 +111,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         tools:ignore="MissingConstraints" />
 

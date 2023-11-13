@@ -9,31 +9,37 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
+    float dX = 0, dY = 0;
+    TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     TextView textView;
     Button deleteButton,rotateButton,resizeButton,saveButton ;
+    HomeFragment homeFragment;
+
     private int currentActionIndex = -1;
-    public ImageView imageView ,imgUndo,imgRedo;
-    FrameLayout frameLayout , container;
+    public ImageView imageView;
+    private ImageView imgUndo;
+    FrameLayout frameLayout;
+    FrameLayout container;
+    private ImageView imgRedo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +73,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 redo();
             }
         });
+
     }
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
@@ -87,7 +96,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayoutParams.setMargins(107, 67, 107, 67);
 //        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
-
+        fadeIn = new TranslateAnimation(0, 0,400, 0);
+        fadeIn.setDuration(400);
+        fadeOut = new TranslateAnimation(0, 0,0, 400);
+        fadeOut.setDuration(400);
 
 //        borderLayout.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
@@ -128,11 +140,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             @Override
             public void onClick(View v) {
 
-                container.setVisibility(View.GONE);
                 ViewGroup viewGroup = findViewById(android.R.id.content);
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
                 selectedLayer = null;
+                if(container.getVisibility()==View.VISIBLE){
+                    container.setVisibility(View.GONE);
+                    container.startAnimation(fadeOut);}
             }
         });
         rotateButton = new Button(this);
@@ -155,18 +169,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         // Store the initial rotation angle
-                        startAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
+                        startAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
-                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
+                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
 
                         // Calculate the angle difference and apply the rotation speed factor
                         float newRotation = (float) (Math.toDegrees(currentAngle - startAngle) * rotationSpeed);
                         currentRotation += newRotation;
 
                         // Apply the new rotation to the FrameLayout
-                        textLayout.getFrameLayout().setRotation(currentRotation);
+                        frameLayout.setRotation(currentRotation);
                         return true;
                 }
                 return true;
@@ -307,13 +321,27 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             textLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    unselectLayer(textLayout);
-                    selectedLayer= null;
-                    container.setVisibility(View.GONE);
+                    unselectLayer(selectedLayer);
+                    selectedLayer = null;
+
+                    if(container.getVisibility()==View.VISIBLE){
+                        container.setVisibility(View.GONE);
+                        container.startAnimation(fadeOut);}
+
+
                 }
             });
         }
-        if(selectedLayer != null && textLayout.getFrameLayout() != null){
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unselectLayer(selectedLayer);
+                selectedLayer = null;
+                if(container.getVisibility()==View.VISIBLE){
+                    container.setVisibility(View.GONE);
+                    container.startAnimation(fadeOut);}}
+        });
+        if(selectedLayer != null && textLayout.getFrameLayout() != null) {
             textLayout.setTextView(textView);
 
             textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
@@ -346,7 +374,39 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     return true;
                 }
             });
+
+            textLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
+                private float lastX, lastY;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            lastX = event.getRawX();
+                            lastY = event.getRawY();
+                            unselectLayer(selectedLayer);
+                            selectLayer(textLayout);
+
+                            return true;
+                        case MotionEvent.ACTION_MOVE:
+                            float newX = event.getRawX();
+                            float newY = event.getRawY();
+                            float dX = newX - lastX;
+                            float dY = newY - lastY;
+
+                            // Update the position of the frameLayout based on the drag movement
+                            textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
+                            textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
+
+                            lastX = newX;
+                            lastY = newY;
+                            break;
+                    }
+                    return true;
+                }
+            });
         }
+
         borderLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -375,36 +435,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setX(x);
         frameLayout.setY(y);
         // Set an OnTouchListener for the FrameLayout to enable dragging
-        frameLayout.setOnTouchListener(new View.OnTouchListener() {
-            private float dX, dY;
 
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                float x = event.getRawX();
-                float y = event.getRawY();
 
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        selectLayer(textLayout);
-                        if (isViewInBounds(view, (int) event.getRawX(), (int) event.getRawY())) {
-                            dX = view.getX() - x;
-                            dY = view.getY() - y;
-                            return true;
-                        }
 
-                        return false;
 
-                    case MotionEvent.ACTION_MOVE:
-                        view.animate()
-                                .x(x + dX)
-                                .y(y + dY)
-                                .setDuration(0)
-                                .start();
-                        return true;
-                }
-                return false;
-            }
-        });
 
         return textLayout;
     }
@@ -426,10 +460,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.VISIBLE);
                     saveButton.setVisibility(View.VISIBLE);
                 }
-
+                if(container.getVisibility()==View.GONE||container.getVisibility()==View.INVISIBLE ){
+                    container.setVisibility(View.VISIBLE);
+                    // Animation duration in milliseconds
+                    container.startAnimation(fadeIn);}
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
-                container.setVisibility(View.VISIBLE);
             }
             selectedLayer = textLayout;
         }
@@ -510,15 +546,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
 
     @Override
-    public void onToolSelected(ToolType toolType) {
+    public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
                 TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
+                ;
                 break;
-            case Background:
+            case Photo:
             case FILTER:
             case EMOJI:
+                // Implement as needed
                 break;
         }
     }
+
 }

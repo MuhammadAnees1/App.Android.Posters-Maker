@@ -78,8 +78,9 @@ public class EmojiFragment extends BottomSheetDialogFragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_emoji, parent, false);
-            return new ViewHolder(view);
+         //   View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_emoji, parent, false);
+          //  return new ViewHolder(view);
+            return null;
         }
 
         @Override

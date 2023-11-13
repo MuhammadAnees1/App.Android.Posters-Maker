@@ -18,18 +18,72 @@
 
     <SeekBar
         android:id="@+id/seekBarFor"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="match_parent"
         android:visibility="gone"
+        android:layout_height="60dp"
         app:layout_constraintTop_toBottomOf="@+id/editTextLayout"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="70dp" />
+         />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/TypeTextLayout"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        android:background="@color/tool_bg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLayout"
+        tools:ignore="MissingConstraints" />
+
+
+    <RelativeLayout
+        android:id="@+id/FontsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarFor">
+
+
+        <TextView
+            android:id="@+id/font1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/abril_fatface"
+            android:gravity="center"
+            android:text="Hello Apply Fonts "
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/font2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/font1"
+            android:fontFamily="@font/alex_brush"
+            android:gravity="center"
+            android:text="Hello Apply Fonts "
+            android:textColor="@color/white" />
+
+        <TextView
+            android:id="@+id/font3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/font2"
+            android:fontFamily="@font/bangers"
+            android:gravity="center"
+            android:text="Hello Apply Fonts "
+            android:textColor="@color/white" />
+
+
+    </RelativeLayout>
+
 
     <RelativeLayout
         android:id="@+id/Text_buttonsUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/seekBarFor">
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/TypeTextLayout">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/DownButton"
@@ -91,7 +145,6 @@
             android:drawableTop="@drawable/baseline_content_copy_24"
             android:text="Copy"
             android:textColor="@color/white" />
-
     </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

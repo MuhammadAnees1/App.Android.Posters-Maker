@@ -1,7 +1,7 @@
 package com.example.postersmaker;
 
 
-public enum ToolType {
+public enum ToolTypeForCustomAdaptor {
     Photo,
     TEXT,
     Background,

@@ -1,10 +1,11 @@
 package com.example.postersmaker;
 
 
-public enum ToolTypes {
+public enum ToolTypesForEditAdaptor {
     Control,
     Themes,
     stroke,
+    Style,
     text_size,
     Fonts,
     Colour,

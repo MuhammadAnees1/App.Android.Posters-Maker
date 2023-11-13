@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.setFrameLayout(frameLayout);
         selectedLayer = textLayout;
 
+
+
        borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
@@ -218,9 +220,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                         selectLayer(textLayout);
+                        callSetDefaultState();
                         break;
 
                     case MotionEvent.ACTION_UP:
+
+
                         break;
 
                     case MotionEvent.ACTION_MOVE:
@@ -310,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         lastY = newY;
                         params.height = textView.getHeight() + textView.getLineHeight();
                         textView.setMaxWidth(params.width-60);
+
                         break;
                 }
                 return true;
@@ -330,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 public void onClick(View v) {
                     unselectLayer(selectedLayer);
                     selectedLayer = null;
-
+                    callSetDefaultState();
                     if(container.getVisibility()==View.VISIBLE){
                         container.setVisibility(View.GONE);
                         container.startAnimation(fadeOut);}
@@ -344,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onClick(View v) {
                 unselectLayer(selectedLayer);
                 selectedLayer = null;
+                callSetDefaultState();
                 if(container.getVisibility()==View.VISIBLE){
                 container.setVisibility(View.GONE);
                 container.startAnimation(fadeOut);}}
@@ -492,9 +499,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.INVISIBLE);
                     saveButton.setVisibility(View.INVISIBLE);
                 }
-                HomeFragment homeFragment = new HomeFragment();
 
-
+                callSetDefaultState();
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}
     }
@@ -568,5 +574,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
         }
     }
-
-}
+    public void setHomeFragment(HomeFragment homeFragment) {
+        this.homeFragment = homeFragment;
+    }
+    public void callSetDefaultState() {
+        if (homeFragment != null) {
+            homeFragment.setDefaultStateFromExternal();
+        }
+}}

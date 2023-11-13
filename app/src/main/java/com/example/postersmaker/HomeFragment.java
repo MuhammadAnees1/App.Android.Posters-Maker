@@ -23,6 +23,8 @@ import java.util.Objects;
 
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected {
     TextLayout selectedLayer;
+    float lastSetTextSize = 1f;
+    float initialTextSize;
     MainActivity activity;
     SeekBar seekBar;
     Handler handler;
@@ -46,6 +48,9 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         text_buttonsUp = view.findViewById(R.id.Text_buttonsUp);
         seekBar = view.findViewById(R.id.seekBarFor);
 
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setHomeFragment(this);
+        }
 
         handler = new Handler();
         activity = (MainActivity) requireActivity();
@@ -137,6 +142,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         });
         return view;
     }
+    private void setDefaultState() {
+        // Set your default UI state here
+        seekBar.setVisibility(View.GONE);
+        text_buttonsUp.setVisibility(View.VISIBLE);
+
+        // Reset other UI elements as needed
+        // ...
+    }
     @Override
     public void onToolSelected(ToolTypes toolType) {
         switch (toolType) {
@@ -144,34 +157,51 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 text_buttonsUp.setVisibility(View.GONE);
                 seekBar.setVisibility(View.VISIBLE);
 
+                // Set minimum and maximum text size
+                float minTextSize = 10.0f;
+                float maxTextSize = 300.0f;
+
                 // Set initial text size
-
                 selectedLayer = activity.selectedLayer;
-                seekBar.getProgress();
-                seekBar.setMax(selectedLayer.frameLayout.getHeight());
-                // Calculate the maximum text size that fits within the FrameLayout
+                if(selectedLayer != null) {
+                    initialTextSize = selectedLayer.getTextView().getTextSize();
+                    lastSetTextSize = initialTextSize;
 
+                    // Set the maximum and minimum values for the SeekBar
+                    seekBar.setMax((int) (maxTextSize - minTextSize));
+                    seekBar.setProgress((int) (lastSetTextSize - minTextSize));
 
+                   }
                 // Add a listener to the SeekBar to adjust the text size in real-time
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        // Calculate the current text size based on progress
+
+                        float textSize = minTextSize + progress;
+
                         // Ensure that the text size does not exceed the maximum limit
-                        if (progress < activity.selectedLayer.frameLayout.getHeight()) {
+                        textSize = Math.max(minTextSize, Math.min(textSize, maxTextSize));
+
+                        textSize = Math.min(textSize, initialTextSize);
 
 
-                        activity.selectedLayer.getTextView().setTextSize(progress);}
+                        // Set the text size
+                        activity.selectedLayer.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+
+                        // Notify the parent view to request a layout pass
+                        selectedLayer.getFrameLayout().requestLayout();
+
                     }
 
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar) {
-
-                        selectedLayer = activity.selectedLayer;
+                        // Handle touch event start if needed
                     }
 
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
-                        selectedLayer = activity.selectedLayer;
+                        // Handle touch event stop if needed
                     }
                 });
                 break;
@@ -179,35 +209,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
-                seekBar.setVisibility(View.GONE);
-                text_buttonsUp.setVisibility(View.VISIBLE);
+              setDefaultState();
         }
     }
 
-    private void calculateNewTextSize(int progress) {
-        // Retrieve the current text size
-        float currentTextSize = selectedLayer.getTextView().getTextSize();
 
-        // Calculate the new text size based on the progress
-        float newSize = currentTextSize + (progress * 0.1f); // Adjust the multiplier as needed
-
-        // Ensure that the new text size is within the desired range
-        float minTextSize = 45.0f;  // Minimum text size
-        float maxTextSize = 300.0f; // Maximum text size
-
-        newSize = Math.max(minTextSize, Math.min(newSize, maxTextSize));
-
-        // Apply the new text size
-        selectedLayer.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
-
-        // Notify the parent view to request a layout pass
-        selectedLayer.getFrameLayout().requestLayout();
+    void setDefaultStateFromExternal() {
+        setDefaultState();
     }
-
-
-
-
-
 
 
 

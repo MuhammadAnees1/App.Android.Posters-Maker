@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
+    RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
@@ -95,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.setFrameLayout(frameLayout);
         selectedLayer = textLayout;
 
-        RelativeLayout borderLayout = new RelativeLayout(this);
+       borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
         borderLayoutParams.setMargins(107, 67, 107, 67);
-//        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
+        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
         fadeIn = new TranslateAnimation(0, 0,400, 0);
         fadeIn.setDuration(400);
@@ -216,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     case MotionEvent.ACTION_DOWN:
                         lastX = event.getRawX();
                         lastY = event.getRawY();
+                        selectLayer(textLayout);
                         break;
 
                     case MotionEvent.ACTION_UP:
@@ -490,6 +492,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.INVISIBLE);
                     saveButton.setVisibility(View.INVISIBLE);
                 }
+                HomeFragment homeFragment = new HomeFragment();
+
 
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}

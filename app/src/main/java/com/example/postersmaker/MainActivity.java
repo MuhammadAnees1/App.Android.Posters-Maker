@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        callSetDefaultState();
                         // Store the initial rotation angle
                         startAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
                         return true;

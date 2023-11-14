@@ -2,9 +2,11 @@ package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,6 +28,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     TextLayout selectedLayer;
     MainActivity activity;
     FrameLayout frameLayout;
+    float lastSetTextSize = 1f;
+    float initialTextSize;
     SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
@@ -55,6 +59,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         buttonApplyFont = view.findViewById(R.id.font1);
         recyclerView = view.findViewById(R.id.editTextLayout);
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
+
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setHomeFragment(this);
+        }
 
         handler = new Handler();
         activity = (MainActivity) requireActivity();
@@ -150,17 +158,32 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         });
         return view;
     }
+    private void setDefaultState() {
+        // Set your default UI state here
+        FontsLayout.setVisibility(View.GONE);
+        seekBar.setVisibility(View.GONE);
+        TypeTextLayout.setVisibility(View.GONE);
+        text_buttonsUp.setVisibility(View.GONE);
+
+        // Reset other UI elements as needed
+        // ...
+    }
     @Override
     public void onToolSelected(ToolTypesForEditAdaptor toolType) {
         switch (toolType) {
 
             case Control:
+                if(text_buttonsUp.getVisibility() != View.VISIBLE){
+                setDefaultState();
                 text_buttonsUp.setVisibility(View.VISIBLE);
-                TypeTextLayout.setVisibility(View.GONE);
+                text_buttonsUp.startAnimation(activity.fadeIn);}
                 break;
             case Style:
+                if(TypeTextLayout.getVisibility() != View.VISIBLE){
+                setDefaultState();
                 TypeTextLayout.setVisibility(View.VISIBLE);
-                text_buttonsUp.setVisibility(View.GONE);
+                TypeTextLayout.startAnimation(activity.fadeIn);}
+
                 break;
 //                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
 //                TextSyleFragment textSyleFragment = new TextSyleFragment();
@@ -169,30 +192,65 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 //                fragmentTransaction.commit();
 
             case text_size:
+                if(seekBar.getVisibility() != View.VISIBLE){
+                setDefaultState();
                 seekBar.setVisibility(View.VISIBLE);
+                seekBar.startAnimation(activity.fadeIn);}
+
+                // Set minimum and maximum text size
+                float minTextSize = 10.0f;
+                float maxTextSize = 300.0f;
+
                 // Set initial text size
-                seekBar.setProgress((int) selectedLayer.getTextView().getTextSize());
+                selectedLayer = activity.selectedLayer;
+                if(selectedLayer != null) {
+                    initialTextSize = selectedLayer.getTextView().getTextSize();
+                    lastSetTextSize = initialTextSize;
+
+                    // Set the maximum and minimum values for the SeekBar
+                    seekBar.setMax((int) (maxTextSize - minTextSize));
+                    seekBar.setProgress((int) (lastSetTextSize - minTextSize));
+
+                }
                 // Add a listener to the SeekBar to adjust the text size in real-time
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        // Update the text size based on the SeekBar progress
-                        activity.selectedLayer.getTextView().setTextSize(progress);
+                        // Calculate the current text size based on progress
+
+                        float textSize = minTextSize + progress;
+
+                        // Ensure that the text size does not exceed the maximum limit
+                        textSize = Math.max(minTextSize, Math.min(textSize, maxTextSize));
+
+                        textSize = Math.min(textSize, initialTextSize);
+
+
+                        // Set the text size
+                        activity.selectedLayer.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+
+                        // Notify the parent view to request a layout pass
+                        selectedLayer.getFrameLayout().requestLayout();
+
                     }
+
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar) {
-                        // Handle seek bar touch start
+                        // Handle touch event start if needed
                     }
+
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
-                        // Handle seek bar touch end
+                        // Handle touch event stop if needed
                     }
                 });
                 break;
             case Fonts:
+                if (FontsLayout.getVisibility() != View.VISIBLE) {
+                setDefaultState();
                 FontsLayout.setVisibility(View.VISIBLE);
-                text_buttonsUp.setVisibility(View.GONE);
-                seekBar.setVisibility(View.GONE);
+                FontsLayout.startAnimation(activity.fadeIn);}
+
 
                 buttonApplyFont.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -203,16 +261,24 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case Shadow:
-
+                if (seekBar.getVisibility() != View.VISIBLE) {
+                setDefaultState();
                 seekBar.setVisibility(View.VISIBLE);
+                seekBar.startAnimation(activity.fadeIn);}
+                final float minShadow = 0.0f; // Set your minimum shadow value
+                final float maxShadow = 15.0f; // Set your maximum shadow value
+
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        // Add logic to change the shadow of the selectedLayer's TextView based on the progress value
-                        float radius = progress;
-                        float dx = progress;
-                        float dy = progress;
-                        selectedLayer.getTextView().setShadowLayer(radius, dx, dy, Color.BLACK);
+                        // Constrain the progress within the desired range
+                        float limitedProgress = Math.min(Math.max(progress, 0), 70);
+
+                        // Map the progress value to the desired shadow range
+                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);
+
+                        // Apply the shadow to the selectedLayer's TextView
+                        activity.selectedLayer.getTextView().setShadowLayer(shadowValue, shadowValue, shadowValue, Color.BLACK);
                     }
 
                     @Override
@@ -227,12 +293,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             default:
-                FontsLayout.setVisibility(View.GONE);
-                text_buttonsUp.setVisibility(View.GONE);
-                seekBar.setVisibility(View.GONE);
-                TypeTextLayout.setVisibility(View.GONE);
-                break;
+                // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
+                setDefaultState();
         }
+    }
+    void setDefaultStateFromExternal() {
+        setDefaultState();
     }
     private void moveFrameLayoutUpContinuously() {
         handler.postDelayed(new Runnable() {
@@ -277,7 +343,64 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     }
 
     @Override
-    public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
 
+    public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
+        Typeface currentTypeface = activity.selectedLayer.getTextView().getTypeface();
+
+        switch (toolType) {
+            case formatBold:
+                // Toggle bold
+                if (currentTypeface != null) {
+                    if ((currentTypeface.getStyle() & Typeface.BOLD) != 0) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    }
+                } else {
+                    activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
+                }
+                break;
+            case FormatUnderlined:
+                // Underline the text
+                if ((activity.selectedLayer.getTextView().getPaintFlags() & Paint.UNDERLINE_TEXT_FLAG) != 0) {
+                    activity.selectedLayer.getTextView().setPaintFlags(activity.selectedLayer.getTextView().getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                } else {
+                    activity.selectedLayer.getTextView().setPaintFlags(activity.selectedLayer.getTextView().getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                }
+                break;
+            case formatLeft:
+                // Set text alignment to the left
+                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                break;
+
+            case formatRight:
+                // Set text alignment to the right
+                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+                break;
+            case formatItalic:
+                // Set text style to italic
+                if (currentTypeface != null) {
+                    if ((currentTypeface.getStyle() & Typeface.ITALIC) != 0) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    }
+                } else {
+                    activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
+                }
+                break;
+            case formatCenter:
+                // Set text alignment to center
+                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                break;
+            case Format:
+                String originalText = activity.selectedLayer.getTextView().getText().toString();
+                if (originalText.equals(originalText.toLowerCase())) {
+                    // Convert text to uppercase
+                    String UpperCaseText = originalText.toUpperCase();
+                    activity.selectedLayer.getTextView().setText(UpperCaseText);
+                } else {
+                    // Convert text to lowercase
+                    String lowerCaseText = originalText.toLowerCase();
+                  activity.selectedLayer.getTextView().setText(lowerCaseText);
+                }
+                break;
+        }
     }
 }

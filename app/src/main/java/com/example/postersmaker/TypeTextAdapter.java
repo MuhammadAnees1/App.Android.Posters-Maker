@@ -1,32 +1,39 @@
 package com.example.postersmaker;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
-    List<ToolModel> mToolList = new ArrayList<>();
-    OnItemSelected mOnItemSelected;
-    public CustomAdapter(OnItemSelected onItemSelected) {
+
+public class TypeTextAdapter extends RecyclerView.Adapter<TypeTextAdapter.ViewHolder> {
+    List<ToolModels> mToolList = new ArrayList<>();
+    onToolSelecteds mOnItemSelected;
+    public TypeTextAdapter(onToolSelecteds onItemSelected) {
         mOnItemSelected = onItemSelected;
-        mToolList.add(new ToolModel("Photo", R.drawable.gallery_icon, ToolTypeForCustomAdaptor.Photo));
-        mToolList.add(new ToolModel("Text", R.drawable.baseline_text_fields_24, ToolTypeForCustomAdaptor.TEXT));
-        mToolList.add(new ToolModel("Filter", R.drawable.ic_photo_filter, ToolTypeForCustomAdaptor.FILTER));
-        mToolList.add(new ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolTypeForCustomAdaptor.EMOJI));
-        mToolList.add(new ToolModel("Background", R.drawable.background, ToolTypeForCustomAdaptor.Background));
+        mToolList.add(new ToolModels("formatLeft", R.drawable.baseline_format_align_left_24, ToolTypesForTypeTextAdaptor.formatLeft));
+        mToolList.add(new ToolModels("Center", R.drawable.baseline_format_align_center_24, ToolTypesForTypeTextAdaptor.formatCenter));
+        mToolList.add(new ToolModels("Right", R.drawable.baseline_format_align_right_24, ToolTypesForTypeTextAdaptor.formatRight));
+        mToolList.add(new ToolModels("Bold", R.drawable.baseline_format_bold_24, ToolTypesForTypeTextAdaptor.formatBold));
+        mToolList.add(new ToolModels("Underline", R.drawable.baseline_format_underlined_24, ToolTypesForTypeTextAdaptor.FormatUnderlined));
+        mToolList.add(new ToolModels("Italic", R.drawable.baseline_format_italic_24, ToolTypesForTypeTextAdaptor.formatItalic));
+        mToolList.add(new ToolModels("Format", R.drawable.text_formatting, ToolTypesForTypeTextAdaptor.Format));
     }
-    public interface OnItemSelected {
-        void onToolSelected(ToolTypeForCustomAdaptor toolType);
+
+    public interface onToolSelecteds {
+        void onToolSelected(ToolTypesForTypeTextAdaptor toolType);
     }
-    static class ToolModel {
+    static class ToolModels {
         String mToolName;
         int mToolIcon;
-        ToolTypeForCustomAdaptor mToolType;
-        ToolModel(String toolName, int toolIcon, ToolTypeForCustomAdaptor toolType) {
+        ToolTypesForTypeTextAdaptor mToolType;
+        ToolModels(String toolName, int toolIcon, ToolTypesForTypeTextAdaptor toolType) {
             mToolName = toolName;
             mToolIcon = toolIcon;
             mToolType = toolType;
@@ -41,7 +48,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ToolModel item = mToolList.get(position);
+        ToolModels item = mToolList.get(position);
         holder.txtTool.setText(item.mToolName);
         holder.imgToolIcon.setImageResource(item.mToolIcon);
     }

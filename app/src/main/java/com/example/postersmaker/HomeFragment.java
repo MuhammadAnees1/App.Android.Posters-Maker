@@ -266,13 +266,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 seekBar.setVisibility(View.VISIBLE);
                 seekBar.startAnimation(activity.fadeIn);}
                 final float minShadow = 0.0f; // Set your minimum shadow value
-                final float maxShadow = 15.0f; // Set your maximum shadow value
+                final float maxShadow = 20.0f; // Set your maximum shadow value
 
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         // Constrain the progress within the desired range
-                        float limitedProgress = Math.min(Math.max(progress, 0), 70);
+                        float limitedProgress = Math.min(Math.max(progress, 0), 100);
 
                         // Map the progress value to the desired shadow range
                         float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);

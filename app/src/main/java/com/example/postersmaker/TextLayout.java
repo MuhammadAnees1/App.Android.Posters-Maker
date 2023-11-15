@@ -2,20 +2,32 @@ package com.example.postersmaker;
 
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TextLayout {
 
 
         public FrameLayout frameLayout;
+
+        public RelativeLayout borderlayout;
         private  Button deleteButton;
         private  Button rotateButton;
         private  Button resizeButton;
         private  Button saveButton;
         private TextView textView;
 
-        public TextLayout(FrameLayout frameLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView) {
+    public RelativeLayout getBorderlayout() {
+        return borderlayout;
+    }
+
+    public void setBorderlayout(RelativeLayout borderlayout) {
+        this.borderlayout = borderlayout;
+    }
+
+    public TextLayout(FrameLayout frameLayout, RelativeLayout borderlayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView) {
             this.frameLayout = frameLayout;
+            this.borderlayout = borderlayout;
             this.deleteButton = deleteButton;
             this.rotateButton = rotateButton;
             this.resizeButton = resizeButton;

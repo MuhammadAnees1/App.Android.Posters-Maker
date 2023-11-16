@@ -110,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(50, 47, 50, 47);
+        int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
+        borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
         textLayout.setBorderlayout(borderLayout);
@@ -271,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         // Check for minimum and maximum dimensions
                         int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = textLayout.getFrameLayout().getWidth()- 86; // 10 less than imageView width
+                        int maxWidth = textLayout.getFrameLayout().getWidth()- 90; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {

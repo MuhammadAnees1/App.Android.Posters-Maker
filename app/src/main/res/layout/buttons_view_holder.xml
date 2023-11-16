@@ -1,41 +1,43 @@
-<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+<FrameLayout xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <ImageButton
-        android:id="@+id/rotate"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/rotate"
-        tools:ignore="SpeakableTextPresentCheck" />
+    <!-- Centered Text -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="18sp" />
 
-    <ImageButton
-        android:id="@+id/sacle"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:src="@drawable/resize"
-        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
-
-    <ImageButton
+    <Button
         android:id="@+id/del"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_gravity="top|end"
         android:adjustViewBounds="true"
-        android:background="@android:color/transparent"
+        android:background="@drawable/close"
         android:scaleType="fitCenter"
-        android:src="@drawable/close"
         tools:ignore="SpeakableTextPresentCheck" />
-</RelativeLayout>
+
+    <Button
+        android:id="@+id/sacle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom|end"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:background="@drawable/resize"
+        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
+
+    <Button
+        android:id="@+id/rotate"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="top|start"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:background="@drawable/rotate"
+        tools:ignore="SpeakableTextPresentCheck" />
+</FrameLayout>

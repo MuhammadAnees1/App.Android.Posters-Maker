@@ -1,6 +1,7 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -9,24 +10,29 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     float dX = 0, dY = 0;
+    RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
@@ -86,16 +92,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
         frameLayout.setMinimumWidth(20);
-        TextLayout textLayout = new TextLayout(frameLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
+        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
         textLayout.setFrameLayout(frameLayout);
         selectedLayer = textLayout;
 
-        RelativeLayout borderLayout = new RelativeLayout(this);
+
+
+        borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(107, 67, 107, 67);
-//        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
+        borderLayoutParams.setMargins(47, 47, 47, 47);
+        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
+        textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0,400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0,0, 400);
@@ -119,10 +128,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        textView.setTextColor(Color.BLACK);
+        textView.setTextColor(Color.WHITE);
         borderLayout.setMinimumHeight(textView.getHeight()+20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textView.setTypeface(null, Typeface.BOLD);
+        textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth()-40);
 
         frameLayout.setMinimumHeight(textView.getHeight()+20);
@@ -168,19 +177,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        selectLayer(textLayout);
+                        callSetDefaultState();
                         // Store the initial rotation angle
-                        startAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
+                        startAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
-                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), frameLayout.getPivotX(), frameLayout.getPivotY());
+                        double currentAngle = getAngle((event.getX()/10), (event.getY()/10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
 
                         // Calculate the angle difference and apply the rotation speed factor
                         float newRotation = (float) (Math.toDegrees(currentAngle - startAngle) * rotationSpeed);
                         currentRotation += newRotation;
 
                         // Apply the new rotation to the FrameLayout
-                        frameLayout.setRotation(currentRotation);
+                        textLayout.getFrameLayout().setRotation(currentRotation);
                         return true;
                 }
                 return true;
@@ -199,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         buttonParams.setMargins(0,0,-85,-75);
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
-            private float lastX, lastY;
+            private float lastX = 0f, lastY=0f;
             private boolean isDragging = false;
 
             private int MAX_TEXT_SIZE = 300;
@@ -209,11 +220,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        lastX = event.getRawX();
-                        lastY = event.getRawY();
+                        selectLayer(textLayout);
+                        if(lastX == 0f && lastY == 0f){
+                            lastX = textLayout.getFrameLayout().getX();
+                            lastY = textLayout.getFrameLayout().getY();}
+                        else{lastX = event.getRawX(); lastY = event.getRawY();}
+
+                        callSetDefaultState();
                         break;
 
                     case MotionEvent.ACTION_UP:
+
+
                         break;
 
                     case MotionEvent.ACTION_MOVE:
@@ -231,14 +249,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
 
                         // Apply resizing along the layout's axes in the rotated coordinates
-                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) borderLayout.getLayoutParams();
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) textLayout.getBorderLayout().getLayoutParams();
                         int currentWidth = params.width;
                         int currentHeight = params.height;
 
                         // Check for minimum and maximum dimensions
                         int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = imageView.getWidth() - 100; // 10 less than imageView width
+                        int maxWidth = textLayout.getFrameLayout().getWidth()- 88; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {
@@ -246,15 +264,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         } else if (currentWidth + dx > maxWidth) {
                             params.width = maxWidth;
                         } else {
-                            params.width += dx;
+                            params.width += dx*2;
                         }
 
                         // Calculate the number of lines in the text
                         int textHeight = textLayout.getTextView().getLineCount() * textLayout.getTextView().getLineHeight();
 
                         // If the width is less than the text width, increase the height to accommodate the text
-                        if (params.width < textView.getWidth()) {
-                            params.height = Math.max(textHeight, textView.getHeight());
+                        if (params.width < textLayout.getTextView().getWidth()) {
+                            params.height = Math.max(textHeight, textLayout.getTextView().getHeight());
                         } else {
                             if (currentHeight + dy < minHeight) {
                                 params.height = minHeight;
@@ -275,15 +293,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float textSize = textLayout.getTextView().getTextSize();
                         float newSize = textSize;
                         if(dy>0){
-                            if (params.height > textHeight && textView.getWidth()< params.width-60 && frameLayout.getWidth()< imageView.getWidth()-60) {
+                            if (params.height > textHeight && textLayout.getTextView().getWidth()< params.width-60 && textLayout.getFrameLayout().getWidth()< imageView.getWidth()-60) {
                                 newSize = textSize + dy / 5f;
                             }}
                         else  if(dy<0){
-                            if ( frameLayout.getWidth()< imageView.getWidth()-60) {
+                            if ( textLayout.getFrameLayout().getWidth()< imageView.getWidth()-60) {
                                 newSize = textSize + dy / 5f;
                             }}
 
-                        borderLayout.setLayoutParams(params);
+                        textLayout.getBorderLayout().setLayoutParams(params);
 
 
                         // Check for maximum text size
@@ -301,8 +319,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         textLayout.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
                         lastX = newX;
                         lastY = newY;
-                        params.height = textView.getHeight() + textView.getLineHeight();
-                        textView.setMaxWidth(params.width-60);
+                        params.height = textLayout.getTextView().getHeight() + textLayout.getTextView().getLineHeight();
+                        textLayout.getTextView().setMaxWidth(params.width-60);
+
                         break;
                 }
                 return true;
@@ -323,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 public void onClick(View v) {
                     unselectLayer(selectedLayer);
                     selectedLayer = null;
-
+                    callSetDefaultState();
                     if(container.getVisibility()==View.VISIBLE){
                         container.setVisibility(View.GONE);
                         container.startAnimation(fadeOut);}
@@ -337,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onClick(View v) {
                 unselectLayer(selectedLayer);
                 selectedLayer = null;
+                callSetDefaultState();
                 if(container.getVisibility()==View.VISIBLE){
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);}}
@@ -407,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             });
         }
 
-        borderLayout.setOnTouchListener(new View.OnTouchListener() {
+        textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()){
@@ -425,15 +445,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Inside the onTouchListener for the frameLayout
 
         // Add the border layout and the resize button to the FrameLayout
-        frameLayout.addView(borderLayout);
-        frameLayout.addView(textLayout.getResizeButton());
-        frameLayout.addView(textLayout.getDeleteButton());
-        frameLayout.addView(textLayout.getRotateButton());
+        textLayout.getFrameLayout().addView(textLayout.getBorderLayout());
+        textLayout.getFrameLayout().addView(textLayout.getResizeButton());
+        textLayout.getFrameLayout().addView(textLayout.getDeleteButton());
+        textLayout.getFrameLayout().addView(textLayout.getRotateButton());
 //        frameLayout.addView(textView);
-        frameLayout.addView(textLayout.getSaveButton());
+        textLayout.getFrameLayout().addView(textLayout.getSaveButton());
         // Set the position of the FrameLayout on the screen
-        frameLayout.setX(x);
-        frameLayout.setY(y);
+        textLayout.getFrameLayout().setX(x);
+        textLayout.getFrameLayout().setY(y);
         // Set an OnTouchListener for the FrameLayout to enable dragging
 
 
@@ -486,6 +506,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     saveButton.setVisibility(View.INVISIBLE);
                 }
 
+                callSetDefaultState();
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}
     }
@@ -560,4 +581,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
 
-}
+
+    public void setHomeFragment(HomeFragment homeFragment) {
+        this.homeFragment = homeFragment;
+    }
+    public void callSetDefaultState() {
+        if (homeFragment != null) {
+            homeFragment.setDefaultStateFromExternal();
+        }
+    }}

@@ -97,16 +97,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         selectedLayer = textLayout;
 
 
-        parentLayout = new RelativeLayout(this);
-        RelativeLayout.LayoutParams parentLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        parentLayout.setLayoutParams(parentLayoutParams);
-        parentLayout.setGravity(Gravity.CENTER);
-        textLayout.frameLayout.addView(parentLayout);
-
-
-
-
-
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);

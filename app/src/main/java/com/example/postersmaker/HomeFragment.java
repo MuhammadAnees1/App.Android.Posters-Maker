@@ -35,8 +35,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
-    RelativeLayout text_buttonsUp , FontsLayout;
-    LinearLayout StrokeLayout;
+    RelativeLayout  FontsLayout;
+    LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
     RecyclerView recyclerView, TypeTextLayout;
     Button UpButton, downButton, leftButton, rightButton ,editButton ;
@@ -166,9 +166,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             }
         });
 
-        lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));
-        dashStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DASH));
-        dotStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DOT));
         return view;
     }
 
@@ -304,6 +301,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case stroke:
+
+                lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));
+                dashStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DASH));
+                dotStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DOT));
                 if (StrokeLayout.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     StrokeLayout.setVisibility(View.VISIBLE);

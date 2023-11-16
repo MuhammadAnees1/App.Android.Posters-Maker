@@ -31,7 +31,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
-    float dX = 0, dY = 0;
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
@@ -39,7 +38,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     TextView textView;
     Button deleteButton,rotateButton,resizeButton,saveButton ;
     HomeFragment homeFragment;
-
     private int currentActionIndex = -1;
     public ImageView imageView;
     private ImageView imgUndo;
@@ -101,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
-        borderLayoutParams.setMargins(47, 47, 47, 47);
+        int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
+        borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
         textLayout.setBorderLayout(borderLayout);
@@ -135,14 +134,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setMaxWidth(imageView.getWidth()-40);
 
         frameLayout.setMinimumHeight(textView.getHeight()+20);
+
         deleteButton = new Button(this);
         textLayout.setDeleteButton(deleteButton);
         deleteButton.setBackgroundResource(R.drawable.close);
-        deleteButton.setScaleX(0.3f);
-        deleteButton.setScaleY(0.3f);
+        deleteButton.setScaleX(0.26f);
+        deleteButton.setScaleY(0.26f);
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
-        deleteButtonParams.setMargins(0,-75,-85,0);
+        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
+        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        deleteButtonParams.setMargins(0,deleteTop,deleteRight,0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
         textLayout.getDeleteButton().setOnClickListener(new View.OnClickListener() {
@@ -160,11 +162,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
         rotateButton = new Button(this);
         rotateButton.setBackgroundResource(R.drawable.rotate);
-        rotateButton.setScaleX(0.3f);
-        rotateButton.setScaleY(0.3f);
+        rotateButton.setScaleX(0.26f);
+        rotateButton.setScaleY(0.26f);
         textLayout.setRotateButton(rotateButton);
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rotateButtonParams.setMargins(-85,-75,0,0);
+        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
+        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        rotateButtonParams.setMargins(rotateLeft,rotateTop,0,0);
         rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
         rotateButton.setLayoutParams(rotateButtonParams);
 
@@ -203,11 +207,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton = new Button(this);
         textLayout.setResizeButton(resizeButton);
         resizeButton.setBackgroundResource(R.drawable.resize);
-        resizeButton.setScaleX(0.3f);
-        resizeButton.setScaleY(0.3f);
+        resizeButton.setScaleX(0.26f);
+        resizeButton.setScaleY(0.26f);
         FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         buttonParams.gravity = Gravity.BOTTOM | Gravity.END;
-        buttonParams.setMargins(0,0,-85,-75);
+        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
+        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        buttonParams.setMargins(0,0,rotateRight,resizeBottom);
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
             private float lastX = 0f, lastY=0f;
@@ -330,10 +336,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         saveButton = new Button(this);
         textLayout.setSaveButton(saveButton);
         saveButton.setBackgroundResource(R.drawable.checked);
-        saveButton.setScaleX(0.324f);
-        saveButton.setScaleY(0.324f);
+        saveButton.setScaleX(0.282f);
+        saveButton.setScaleY(0.282f);
         FrameLayout.LayoutParams saveButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        saveButtonParams.setMargins(-75,0,0,-50);
+        int saveBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics());
+        int saveLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -30, getResources().getDisplayMetrics());
+        saveButtonParams.setMargins(saveLeft,0,0,saveBottom);
         saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
         saveButton.setLayoutParams(saveButtonParams);
         if(selectedLayer != null && textLayout.getFrameLayout() != null){

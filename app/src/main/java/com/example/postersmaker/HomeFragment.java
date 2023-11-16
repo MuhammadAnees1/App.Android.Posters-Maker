@@ -1,6 +1,7 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -30,12 +32,17 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     FrameLayout frameLayout;
     float lastSetTextSize = 1f;
     float initialTextSize;
+    TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
     SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
-    RelativeLayout text_buttonsUp , FontsLayout;
+    RelativeLayout  FontsLayout;
+    LinearLayout text_buttonsUp,StrokeLayout;
+    private StrokeType currentStrokeType = StrokeType.LINE;
     RecyclerView recyclerView, TypeTextLayout;
     Button UpButton, downButton, leftButton, rightButton ,editButton ;
+    private Paint textPaint;
+    private Paint strokePaint;
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
     private final TypeTextAdapter typeTextAdapter = new TypeTextAdapter(this);
 
@@ -59,11 +66,19 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         buttonApplyFont = view.findViewById(R.id.font1);
         recyclerView = view.findViewById(R.id.editTextLayout);
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
+        StrokeLayout = view.findViewById(R.id.StrokeLayout);
+        lineStrokeButton = view.findViewById(R.id.LineStroke);
+        dashStrokeButton = view.findViewById(R.id.DashStroke);
+        dotStrokeButton = view.findViewById(R.id.DotStroke);
+
+
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setHomeFragment(this);
         }
-
+        textPaint = new Paint();
+        strokePaint = new Paint();
+        strokePaint.setStyle(Paint.Style.STROKE);
         handler = new Handler();
         activity = (MainActivity) requireActivity();
         frameLayout = activity.frameLayout;
@@ -156,17 +171,25 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 return true;
             }
         });
+
         return view;
     }
+
+    private void onStrokeTypeSelected(StrokeType strokeType) {
+        currentStrokeType = strokeType;
+        if (activity.selectedLayer != null) {
+            activity.selectedLayer.setStrokeType(strokeType);
+
+        }
+    }
+
     private void setDefaultState() {
         // Set your default UI state here
         FontsLayout.setVisibility(View.GONE);
         seekBar.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
         text_buttonsUp.setVisibility(View.GONE);
-
-        // Reset other UI elements as needed
-        // ...
+        StrokeLayout.setVisibility(View.GONE);
     }
     @Override
     public void onToolSelected(ToolTypesForEditAdaptor toolType) {
@@ -174,28 +197,22 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
             case Control:
                 if(text_buttonsUp.getVisibility() != View.VISIBLE){
-                setDefaultState();
-                text_buttonsUp.setVisibility(View.VISIBLE);
-                text_buttonsUp.startAnimation(activity.fadeIn);}
+                    setDefaultState();
+                    text_buttonsUp.setVisibility(View.VISIBLE);
+                    text_buttonsUp.startAnimation(activity.fadeIn);}
                 break;
             case Style:
                 if(TypeTextLayout.getVisibility() != View.VISIBLE){
-                setDefaultState();
-                TypeTextLayout.setVisibility(View.VISIBLE);
-                TypeTextLayout.startAnimation(activity.fadeIn);}
+                    setDefaultState();
+                    TypeTextLayout.setVisibility(View.VISIBLE);
+                    TypeTextLayout.startAnimation(activity.fadeIn);}
 
                 break;
-//                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-//                TextSyleFragment textSyleFragment = new TextSyleFragment();
-//                fragmentTransaction.replace(R.id.fragment_container, textSyleFragment);
-//                fragmentTransaction.addToBackStack(null);
-//                fragmentTransaction.commit();
-
             case text_size:
                 if(seekBar.getVisibility() != View.VISIBLE){
-                setDefaultState();
-                seekBar.setVisibility(View.VISIBLE);
-                seekBar.startAnimation(activity.fadeIn);}
+                    setDefaultState();
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBar.startAnimation(activity.fadeIn);}
 
                 // Set minimum and maximum text size
                 float minTextSize = 10.0f;
@@ -247,11 +264,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 break;
             case Fonts:
                 if (FontsLayout.getVisibility() != View.VISIBLE) {
-                setDefaultState();
-                FontsLayout.setVisibility(View.VISIBLE);
-                FontsLayout.startAnimation(activity.fadeIn);}
-
-
+                    setDefaultState();
+                    FontsLayout.setVisibility(View.VISIBLE);
+                    FontsLayout.startAnimation(activity.fadeIn);
+                }
                 buttonApplyFont.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -262,12 +278,11 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 break;
             case Shadow:
                 if (seekBar.getVisibility() != View.VISIBLE) {
-                setDefaultState();
-                seekBar.setVisibility(View.VISIBLE);
-                seekBar.startAnimation(activity.fadeIn);}
-                final float minShadow = 0.0f; // Set your minimum shadow value
-                final float maxShadow = 20.0f; // Set your maximum shadow value
-
+                    setDefaultState();
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBar.startAnimation(activity.fadeIn);}
+                float minShadow = 0.0f; // Set your minimum shadow value
+                float maxShadow = 20.0f; // Set your maximum shadow value
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -292,10 +307,57 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     }
                 });
                 break;
+            case stroke:
+
+                lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));
+                dashStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DASH));
+                dotStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DOT));
+                if (StrokeLayout.getVisibility() != View.VISIBLE) {
+                    setDefaultState();
+                    StrokeLayout.setVisibility(View.VISIBLE);
+                    seekBar.setVisibility(View.VISIBLE);
+                    StrokeLayout.startAnimation(activity.fadeIn);
+                }
+
+                // Set your minimum and maximum stroke width
+                final float minStrokeWidth = 1.0f;
+                final float maxStrokeWidth = 10.0f;
+                // Create a Paint object for stroke
+                final Paint strokePaint = activity.selectedLayer.getTextView().getPaint();
+                strokePaint.setStyle(Paint.Style.STROKE);
+
+               minShadow = 20;
+               maxShadow = 100;
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        float limitedProgress = Math.min(Math.max(progress, 0), 100);
+                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);
+                        activity.selectedLayer.setShadowWidth((int) shadowValue);
+
+                        // Map the progress value to the desired stroke width range
+
+
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Add logic if needed when the user starts tracking touch on the SeekBar
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Add logic if needed when the user stops tracking touch on the SeekBar
+                    }
+                });
+                break;
+
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
                 setDefaultState();
         }
+
     }
     void setDefaultStateFromExternal() {
         setDefaultState();
@@ -398,9 +460,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 } else {
                     // Convert text to lowercase
                     String lowerCaseText = originalText.toLowerCase();
-                  activity.selectedLayer.getTextView().setText(lowerCaseText);
+                    activity.selectedLayer.getTextView().setText(lowerCaseText);
                 }
                 break;
         }
+
     }
+
 }
+
+
+

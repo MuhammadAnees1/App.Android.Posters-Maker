@@ -77,14 +77,76 @@
 
 
     </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/StrokeLayout"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarFor">
 
 
-    <RelativeLayout
+        <TextView
+            android:id="@+id/LineStroke"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="Line"
+            android:textColor="@color/white"
+            app:drawableStartCompat="@drawable/line_stroke" />
+
+        <TextView
+            android:id="@+id/DashStroke"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Dash"
+            android:textColor="@color/white"
+            app:drawableStartCompat="@drawable/dash_stroke" />
+
+        <TextView
+            android:id="@+id/DotStroke"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Dash"
+            android:textColor="@color/white"
+            app:drawableStartCompat="@drawable/dash_stroke"/>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
         android:id="@+id/Text_buttonsUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/TypeTextLayout">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/EditButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@color/semi_black_transparent"
+            android:drawableTop="@drawable/baseline_edit_24"
+            android:text="Edit"
+            android:textColor="@color/white" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/UpButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_toStartOf="@+id/button7"
+            android:background="@color/semi_black_transparent"
+            android:drawableTop="@drawable/baseline_keyboard_arrow_up_24"
+            android:text="Up"
+            android:textColor="@color/white" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/DownButton"
@@ -94,13 +156,14 @@
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_keyboard_arrow_down_24"
             android:text="Down"
+            android:layout_weight="1"
             android:textColor="@color/white" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/LeftButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1"
             android:layout_toStartOf="@+id/RightButton"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_keyboard_arrow_left_24"
@@ -111,41 +174,24 @@
             android:id="@+id/RightButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1"
             android:layout_toStartOf="@+id/DownButton"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_chevron_right_24"
             android:text="Right"
             android:textColor="@color/white" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/EditButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@color/semi_black_transparent"
-            android:drawableTop="@drawable/baseline_edit_24"
-            android:text="Edit"
-            android:textColor="@color/white" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/UpButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_toStartOf="@+id/button7"
-            android:background="@color/semi_black_transparent"
-            android:drawableTop="@drawable/baseline_keyboard_arrow_up_24"
-            android:text="Up"
-            android:textColor="@color/white" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button7"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_alignParentEnd="true"
+            android:layout_weight="1"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_content_copy_24"
             android:text="Copy"
             android:textColor="@color/white" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

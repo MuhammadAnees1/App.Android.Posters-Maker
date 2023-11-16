@@ -31,15 +31,13 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
-    float dX = 0, dY = 0;
-    RelativeLayout borderLayout ,parentLayout;
+    RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     TextView textView;
     Button deleteButton,rotateButton,resizeButton,saveButton ;
     HomeFragment homeFragment;
-
     private int currentActionIndex = -1;
     public ImageView imageView;
     private ImageView imgUndo;
@@ -97,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         selectedLayer = textLayout;
 
 
+
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
-        textLayout.setBorderlayout(borderLayout);
+        textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0,400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0,0, 400);
@@ -128,13 +127,16 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        textView.setTextColor(Color.BLACK);
+        textView.setTextColor(Color.WHITE);
         borderLayout.setMinimumHeight(textView.getHeight()+20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        textView.setTypeface(null, Typeface.BOLD);
+        textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth()-40);
 
+
+
         frameLayout.setMinimumHeight(textView.getHeight()+20);
+
         deleteButton = new Button(this);
         textLayout.setDeleteButton(deleteButton);
         deleteButton.setBackgroundResource(R.drawable.close);
@@ -228,8 +230,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     case MotionEvent.ACTION_DOWN:
                         selectLayer(textLayout);
                         if(lastX == 0f && lastY == 0f){
-                        lastX = textLayout.getFrameLayout().getX();
-                        lastY = textLayout.getFrameLayout().getY();}
+                            lastX = textLayout.getFrameLayout().getX();
+                            lastY = textLayout.getFrameLayout().getY();}
                         else{lastX = event.getRawX(); lastY = event.getRawY();}
 
                         callSetDefaultState();
@@ -255,14 +257,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
 
                         // Apply resizing along the layout's axes in the rotated coordinates
-                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) textLayout.getBorderlayout().getLayoutParams();
+                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) textLayout.getBorderLayout().getLayoutParams();
                         int currentWidth = params.width;
                         int currentHeight = params.height;
 
                         // Check for minimum and maximum dimensions
                         int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = textLayout.getFrameLayout().getWidth()- 90; // 10 less than imageView width
+                        int maxWidth = textLayout.getFrameLayout().getWidth()- 92; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {
@@ -307,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                                 newSize = textSize + dy / 5f;
                             }}
 
-                        textLayout.getBorderlayout().setLayoutParams(params);
+                        textLayout.getBorderLayout().setLayoutParams(params);
 
 
                         // Check for maximum text size
@@ -435,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             });
         }
 
-        textLayout.getBorderlayout().setOnTouchListener(new View.OnTouchListener() {
+        textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()){
@@ -453,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Inside the onTouchListener for the frameLayout
 
         // Add the border layout and the resize button to the FrameLayout
-        textLayout.getFrameLayout().addView(textLayout.getBorderlayout());
+        textLayout.getFrameLayout().addView(textLayout.getBorderLayout());
         textLayout.getFrameLayout().addView(textLayout.getResizeButton());
         textLayout.getFrameLayout().addView(textLayout.getDeleteButton());
         textLayout.getFrameLayout().addView(textLayout.getRotateButton());

@@ -7,6 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,6 +39,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
+    String currentText;
     RelativeLayout  FontsLayout;
     LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
@@ -409,14 +413,22 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
         Typeface currentTypeface = activity.selectedLayer.getTextView().getTypeface();
 
+
         switch (toolType) {
             case formatBold:
+
                 // Toggle bold
                 if (currentTypeface != null) {
-                    if ((currentTypeface.getStyle() & Typeface.BOLD) != 0) {
+                    if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
+                    } else if ((currentTypeface.getStyle() == Typeface.BOLD)) {
                         activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    } else if ((currentTypeface.getStyle() == Typeface.ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD_ITALIC);
                     }
-                } else {
+
+                }
+                else {
                     activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
                 }
                 break;
@@ -431,18 +443,28 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             case formatLeft:
                 // Set text alignment to the left
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
                 break;
 
             case formatRight:
                 // Set text alignment to the right
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
+
                 break;
             case formatItalic:
                 // Set text style to italic
                 if (currentTypeface != null) {
-                    if ((currentTypeface.getStyle() & Typeface.ITALIC) != 0) {
+                    if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
+                    } else if ((currentTypeface.getStyle() == Typeface.ITALIC)) {
                         activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    } else if ((currentTypeface.getStyle() == Typeface.BOLD)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD_ITALIC);
                     }
+
                 } else {
                     activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
                 }
@@ -450,6 +472,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             case formatCenter:
                 // Set text alignment to center
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
                 break;
             case Format:
                 String originalText = activity.selectedLayer.getTextView().getText().toString();

@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayout.setMinimumHeight(textView.getHeight()+20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
+        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         textView.setMaxWidth(imageView.getWidth()-40);
 
 
@@ -262,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         int currentHeight = params.height;
 
                         // Check for minimum and maximum dimensions
-                        int minWidth = 100; // Minimum width
+                         int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
                         int maxWidth = textLayout.getFrameLayout().getWidth()- 92; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();

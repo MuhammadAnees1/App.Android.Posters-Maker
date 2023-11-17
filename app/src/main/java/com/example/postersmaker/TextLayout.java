@@ -3,10 +3,13 @@ package com.example.postersmaker;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 
+import android.graphics.Path;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -22,6 +25,8 @@ public class TextLayout {
     private Button deleteButton;
     private Button rotateButton;
     private Button resizeButton;
+    private DottedStrokeTextView textView2;
+
     private Button saveButton;
     private TextView textView;
     private int shadowWidth = 20;
@@ -36,6 +41,7 @@ public class TextLayout {
         this.saveButton = saveButton;
         this.textView = textView;
         this.textPaint = new Paint();
+        this.textView2 = new DottedStrokeTextView(frameLayout.getContext());
 
         textPaint.setColor(Color.BLACK);
     }
@@ -144,7 +150,7 @@ public class TextLayout {
                 break;
 
             case DASH:
-                applyDottedStroke(textView, 20, Color.RED);
+                applyDottedStroke(textView2, 20, Color.RED);
 
                 break;
             case DOT:
@@ -163,18 +169,19 @@ public class TextLayout {
         }
         invalidate();
     }
-    private void applyDottedStroke(TextView textView, float strokeWidth, int strokeColor) {
-        Paint paint = textView.getPaint();
+    private void applyDottedStroke(DottedStrokeTextView textView2, float strokeWidth, int strokeColor) {
+        Paint paint = textView2.getPaint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(strokeWidth);
         paint.setColor(strokeColor);
         paint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
 
-        textView.setTextColor(strokeColor); // Set text color to the stroke color
-
-        // You can adjust the stroke width and color as needed
-        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        textView2.setTextColor(strokeColor); // Set text color to the stroke color
+        textView2.invalidate(); // Invalidate to trigger a redraw with the new stroke effect
     }
+
+
+
     private void applyShadowEffect(TextView textView, float shadowWidth, int shadowColor) {
         textView.setShadowLayer(shadowWidth, 0, 0, shadowColor);
     }
@@ -183,4 +190,54 @@ public class TextLayout {
         // Implement your custom invalidation logic here
         frameLayout.invalidate();
     }
+    public class DottedStrokeTextView extends androidx.appcompat.widget.AppCompatTextView {
+
+        private Paint dottedStrokePaint;
+
+        public DottedStrokeTextView(Context context) {
+            super(context);
+            init();
+        }
+
+        public DottedStrokeTextView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        public DottedStrokeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+            init();
+        }
+
+        private void init() {
+            dottedStrokePaint = new Paint();
+            dottedStrokePaint.setStyle(Paint.Style.STROKE);
+            dottedStrokePaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
+            dottedStrokePaint.setColor(getCurrentTextColor());
+            dottedStrokePaint.setStrokeWidth(5); // Set your desired stroke width
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            // Draw the original text
+            super.onDraw(canvas);
+
+            // Draw the dotted stroke around the text
+            canvas.drawPath(getPath(), dottedStrokePaint);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            // Adjust the path whenever the size of the view changes
+            super.onSizeChanged(w, h, oldw, oldh);
+            invalidate();
+        }
+
+        private Path getPath() {
+            Path path = new Path();
+            path.addRect(0, 0, getWidth(), getHeight(), Path.Direction.CW);
+            return path;
+        }
+    }
+
 }

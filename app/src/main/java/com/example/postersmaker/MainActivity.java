@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +36,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
-    public TextLayout selectedLayer;
+    public TextLayout selectedLayer , selectedTextLayout;
     TextView textView;
+    FrameLayout selectedFrameLayout;
     Button deleteButton,rotateButton,resizeButton,saveButton ;
     HomeFragment homeFragment;
     private int currentActionIndex = -1;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     FrameLayout frameLayout;
     FrameLayout container;
     private ImageView imgRedo;
+    Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
         container = findViewById(R.id.fragment_container);
+        spinner = findViewById(R.id.spinner);
+
 
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
@@ -78,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
 
+
+
     }
 
 
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setMinimumWidth(20);
         TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
         textLayout.setFrameLayout(frameLayout);
+        frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
 
 
@@ -434,6 +443,43 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Get the selected FrameLayout using the position
+                if (position >= 0 && position < textLayoutList.size()) {
+                    FrameLayout selectedFrameLayout = textLayoutList.get(position);
+
+                    // Retrieve the associated TextLayout using the tag
+                   selectedTextLayout = (TextLayout) selectedFrameLayout.getTag();
+
+                    // Check if the selected TextLayout is not already active
+                    if (selectedTextLayout != null) {
+                        selectLayer(selectedTextLayout);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing here
+            }
+        });
+        spinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    // Perform additional actions when the selected item is clicked
+                    if (selectedTextLayout != null) {
+
+                            selectLayer(selectedTextLayout);
+
+                    }
+                }
+                return false;
+            }
+        });
 
         textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -473,6 +519,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     public void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
+
+
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -500,6 +548,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     }
     public void unselectLayer(TextLayout textLayout) {
+        spinner.setSelected(false);
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -578,8 +627,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
-                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
-                ;
+                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content),spinner);
+                TextHandlerClass.populateSpinner(spinner, textLayoutList);
                 break;
             case Photo:
             case FILTER:

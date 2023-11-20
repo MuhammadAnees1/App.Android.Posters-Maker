@@ -8,6 +8,7 @@ public enum ToolTypesForEditAdaptor {
     Style,
     text_size,
     Fonts,
+    Space,
     Colour,
     Background,
     Shadow

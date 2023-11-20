@@ -142,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         deleteButton.setScaleY(0.26f);
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
-        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
         deleteButtonParams.setMargins(0,deleteTop,deleteRight,0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
@@ -166,8 +166,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setScaleY(0.26f);
         textLayout.setRotateButton(rotateButton);
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
         rotateButtonParams.setMargins(rotateLeft,rotateTop,0,0);
         rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
         rotateButton.setLayoutParams(rotateButtonParams);
@@ -211,8 +211,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setScaleY(0.26f);
         FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         buttonParams.gravity = Gravity.BOTTOM | Gravity.END;
-        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -31, getResources().getDisplayMetrics());
         buttonParams.setMargins(0,0,rotateRight,resizeBottom);
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {

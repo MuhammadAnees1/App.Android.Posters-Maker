@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -27,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     TextLayout selectedLayer;
+    String currentText;
     MainActivity activity;
     FrameLayout frameLayout;
     float lastSetTextSize = 1f;
@@ -265,7 +268,31 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     @Override
                     public void onClick(View v) {
                         Typeface customFont1 = ResourcesCompat.getFont(activity, R.font.abril_fatface);
-                        selectedLayer.getTextView().setTypeface(customFont1);
+                        activity.selectedLayer.getTextView().setTypeface(customFont1);
+                    }
+                });
+                break;
+            case Space:
+                if (seekBar.getVisibility() != View.VISIBLE) {
+                    setDefaultState();
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBar.startAnimation(activity.fadeIn);
+                }
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        float letterSpacing = progress / 80.0f;
+                        if (activity.selectedLayer != null) {
+                            activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event start if needed
+                    }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event stop if needed
                     }
                 });
                 break;
@@ -320,7 +347,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 final Paint strokePaint = activity.selectedLayer.getTextView().getPaint();
                 strokePaint.setStyle(Paint.Style.STROKE);
 
-
+                // Modify the logic in seekBar.setOnSeekBarChangeListener accordingly
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -330,7 +357,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                         // Map the progress value to the desired stroke width range
                         float strokeWidth = minStrokeWidth + (maxStrokeWidth - minStrokeWidth) * (limitedProgress / 100.0f);
 
-                        activity.selectedLayer.setStrokeType(currentStrokeType);
+                        // Check if the current stroke type is LINE
+                        if (currentStrokeType == StrokeType.LINE && activity.selectedLayer != null) {
+                            // Increase the text shadow based on the progress
+                            float shadowValue = limitedProgress / 100.0f; // You can adjust this value based on your preference
+                            activity.selectedLayer.getTextView().getPaint().setShadowLayer(shadowValue, 0, 0, Color.BLACK);
+                        }
                         // Apply the stroke width to the selectedLayer's TextView
                         strokePaint.setStrokeWidth(strokeWidth);
                         strokePaint.setColor(Color.BLACK);
@@ -400,9 +432,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             // Stop the continuous movement
             handler.removeCallbacksAndMessages(null);}
     }
-
     @Override
-
     public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
         Typeface currentTypeface = activity.selectedLayer.getTextView().getTypeface();
 
@@ -410,10 +440,15 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             case formatBold:
                 // Toggle bold
                 if (currentTypeface != null) {
-                    if ((currentTypeface.getStyle() & Typeface.BOLD) != 0) {
+                    if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
+                    } else if ((currentTypeface.getStyle() == Typeface.BOLD)) {
                         activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    } else if ((currentTypeface.getStyle() == Typeface.ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD_ITALIC);
                     }
-                } else {
+                }
+                else {
                     activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
                 }
                 break;
@@ -428,25 +463,37 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             case formatLeft:
                 // Set text alignment to the left
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-                break;
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
 
-            case formatRight:
-                // Set text alignment to the right
-                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
-                break;
-            case formatItalic:
-                // Set text style to italic
-                if (currentTypeface != null) {
-                    if ((currentTypeface.getStyle() & Typeface.ITALIC) != 0) {
-                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
-                    }
-                } else {
-                    activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
-                }
                 break;
             case formatCenter:
                 // Set text alignment to center
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
+                break;
+            case formatRight:
+                // Set text alignment to the right
+                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
+
+                break;
+            case formatItalic:
+                // Set text style to italic
+                if (currentTypeface != null) {
+                    if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
+                    } else if ((currentTypeface.getStyle() == Typeface.ITALIC)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.NORMAL);
+                    } else if ((currentTypeface.getStyle() == Typeface.BOLD)) {
+                        activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD_ITALIC);
+                    }
+
+                } else {
+                    activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
+                }
                 break;
             case Format:
                 String originalText = activity.selectedLayer.getTextView().getText().toString();

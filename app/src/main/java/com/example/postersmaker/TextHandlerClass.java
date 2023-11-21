@@ -1,49 +1,37 @@
 package com.example.postersmaker;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class TextHandlerClass {
 
+    static List<String> textList = new ArrayList<>();
 
-    public static void populateSpinner(Spinner spinner, List<FrameLayout> textLayoutList) {
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(spinner.getContext(), android.R.layout.simple_spinner_item);
-        for (int i = 0; i < textLayoutList.size(); i++) {
-            FrameLayout frameLayout = textLayoutList.get(i);
-            frameLayout.setId(i);
-            // You can use the frameLayout.getId() or the index i as the item in the Spinner
-            spinnerAdapter.add(String.valueOf(frameLayout.getId()));
-        }
-
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
-    }
-
-
-    public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, Spinner layoutSpinner) {
+    public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
-
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String text = input.getText().toString();
-                addTextToImage(context, textLayoutList, viewGroup, layoutSpinner, text, 400, 400); // Default position
+                addTextToImage(context, textLayoutList, viewGroup, text, 400, 400);
+
+                // Add the text to the list
+                textList.add(text);
+
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
                     mainActivity.container.setVisibility(View.VISIBLE);
@@ -55,33 +43,25 @@ public class TextHandlerClass {
                 }
             }
         });
-
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
-
         builder.show();
     }
 
-    public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, Spinner layoutSpinner, String text, float x, float y) {
+    public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
         // Unselect the old layer if there is one
         if (mainActivity.selectedLayer != null) {
             mainActivity.unselectLayer(mainActivity.selectedLayer);
         }
-
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
         FrameLayout frameLayout = textLayout.getFrameLayout();
         textLayoutList.add(frameLayout);
         viewGroup.addView(frameLayout);
-
-        // Add the FrameLayout ID to the Spinner
-        ArrayAdapter<String> spinnerAdapter = (ArrayAdapter<String>) layoutSpinner.getAdapter();
-        spinnerAdapter.add(String.valueOf(textLayout));
-        spinnerAdapter.notifyDataSetChanged();
 
         mainActivity.addAction(new MainActivity.CustomAction(
                 // Define the undo logic here
@@ -89,18 +69,20 @@ public class TextHandlerClass {
                     // Define how to undo the action
                     viewGroup.removeView(frameLayout);
                     textLayoutList.remove(frameLayout);
-                    spinnerAdapter.remove(String.valueOf(frameLayout.getId()));
-                    spinnerAdapter.notifyDataSetChanged();
                 },
                 // Define the redo logic here
                 () -> {
                     // Define how to redo the action
                     viewGroup.addView(frameLayout);
                     textLayoutList.add(frameLayout);
-                    spinnerAdapter.add(String.valueOf(frameLayout.getId()));
-                    spinnerAdapter.notifyDataSetChanged();
+
                 }
         ));
+    }
+
+    // Retrieve the array of texts
+    public static List<String> getTextList() {
+        return textList;
     }
 
     public static void edittextDialog(Context context, TextView textView) {

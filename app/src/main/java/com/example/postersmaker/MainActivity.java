@@ -30,24 +30,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
+public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected  {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
+    public Layers_Adapter layersAdapter;
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
-    public TextLayout selectedLayer , selectedTextLayout;
+    public TextLayout selectedLayer ;
     TextView textView;
-    FrameLayout selectedFrameLayout;
+    RecyclerView LayerRecycleView;
     Button deleteButton,rotateButton,resizeButton,saveButton ;
     HomeFragment homeFragment;
     private int currentActionIndex = -1;
     public ImageView imageView;
     private ImageView imgUndo;
     FrameLayout frameLayout;
+    Button LayerButton;
     FrameLayout container;
     private ImageView imgRedo;
-    Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,13 +57,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
         container = findViewById(R.id.fragment_container);
-        spinner = findViewById(R.id.spinner);
+        LayerRecycleView = findViewById(R.id.LayerRecycleView);
+        LayerButton = findViewById(R.id.LayerButton);
 
 
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         frameLayout = new FrameLayout(this);
+
+
+        LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        LayerRecycleView.setAdapter(layersAdapter);
+
 
 //        Uri imageUri = Uri.parse(getIntent().getStringExtra("imageUri"));
 //        if (imageUri != null) {
@@ -84,11 +91,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
 
-
-
+        LayerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayerRecycleView.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this, "is it visible", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
@@ -443,43 +453,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                // Get the selected FrameLayout using the position
-                if (position >= 0 && position < textLayoutList.size()) {
-                    FrameLayout selectedFrameLayout = textLayoutList.get(position);
-
-                    // Retrieve the associated TextLayout using the tag
-                   selectedTextLayout = (TextLayout) selectedFrameLayout.getTag();
-
-                    // Check if the selected TextLayout is not already active
-                    if (selectedTextLayout != null) {
-                        selectLayer(selectedTextLayout);
-                    }
-
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // Do nothing here
-            }
-        });
-        spinner.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    // Perform additional actions when the selected item is clicked
-                    if (selectedTextLayout != null) {
-
-                            selectLayer(selectedTextLayout);
-
-                    }
-                }
-                return false;
-            }
-        });
 
         textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -493,7 +466,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return false;
             }
         });
-
 
 
         // Inside the onTouchListener for the frameLayout
@@ -548,7 +520,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     }
     public void unselectLayer(TextLayout textLayout) {
-        spinner.setSelected(false);
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -627,8 +598,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
-                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content),spinner);
-                TextHandlerClass.populateSpinner(spinner, textLayoutList);
+                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
                 break;
             case Photo:
             case FILTER:
@@ -646,4 +616,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if (homeFragment != null) {
             homeFragment.setDefaultStateFromExternal();
         }
-    }}
+    }
+
+
+}

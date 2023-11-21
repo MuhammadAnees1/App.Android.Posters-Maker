@@ -8,26 +8,30 @@
     android:background="@android:color/black"
     tools:context=".MainActivity">
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgShare" />
+
+
 
     <ImageView
         android:id="@+id/previewImageView"
         android:layout_width="wrap_content"
         android:layout_height="450dp"
         android:adjustViewBounds="true"
-        android:layout_marginTop="20dp"
         android:scaleType="centerInside"
         android:src="@drawable/placeholder_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner"
+        app:layout_constraintTop_toBottomOf="@+id/LayerButton"
         tools:ignore="MissingConstraints" />
+    <Button
+        android:id="@+id/LayerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Layers"
+        android:drawablePadding="5dp"
+        android:drawableEnd="@drawable/baseline_layers_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgShare" />
 
     <ImageView
         android:id="@+id/imgUndo"
@@ -50,6 +54,18 @@
         app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/LayerRecycleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="@+id/LayerButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LayerButton"
+        tools:listitem="@layout/row_editing_tools" />
 
     <ImageView
         android:id="@+id/imgGallery"

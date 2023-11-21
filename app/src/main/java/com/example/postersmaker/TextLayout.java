@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TextLayout {
+public class  TextLayout {
 
     private FrameLayout frameLayout;
     private RelativeLayout borderLayout;

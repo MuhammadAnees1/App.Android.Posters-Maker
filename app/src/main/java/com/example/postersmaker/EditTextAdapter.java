@@ -20,6 +20,8 @@ public class EditTextAdapter extends RecyclerView.Adapter<EditTextAdapter.ViewHo
         mToolList.add(new ToolModels("Style", R.drawable.baseline_style_24, ToolTypesForEditAdaptor.Style));
         mToolList.add(new ToolModels("Size", R.drawable.text_size, ToolTypesForEditAdaptor.text_size));
         mToolList.add(new ToolModels("Fonts", R.drawable.baseline_text_fields_24, ToolTypesForEditAdaptor.Fonts));
+        mToolList.add(new ToolModels("Space", R.drawable.spacing, ToolTypesForEditAdaptor.Space));
+
         mToolList.add(new ToolModels("Colour", R.drawable.baseline_color_lens_24, ToolTypesForEditAdaptor.Colour));
         mToolList.add(new ToolModels("Background", R.drawable.background, ToolTypesForEditAdaptor.Background));
         mToolList.add(new ToolModels("Shadow", R.drawable.shadow, ToolTypesForEditAdaptor.Shadow));

@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,24 +28,31 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
+public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected  {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
+    List<String> textList = new ArrayList<>();
+
+
+    Layers_Adapter adapter = new Layers_Adapter(this, textList);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
+    public final List<TextLayout> textLayoutList2 = new ArrayList<>();
+
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
-    public TextLayout selectedLayer;
+    public TextLayout selectedLayer ;
     TextView textView;
-    Button deleteButton,rotateButton,resizeButton,saveButton ;
+    RecyclerView LayerRecycleView;
+    Button deleteButton,rotateButton,resizeButton,saveButton,LayerButton ;
     HomeFragment homeFragment;
     private int currentActionIndex = -1;
-    public ImageView imageView;
-    private ImageView imgUndo;
-    FrameLayout frameLayout;
-    FrameLayout container;
-    private ImageView imgRedo;
+    public ImageView imageView,imgUndo,imgRedo;
+    FrameLayout frameLayout,container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +61,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView = findViewById(R.id.previewImageView);
         imageView.setImageResource(R.drawable.blank);
         container = findViewById(R.id.fragment_container);
+        LayerRecycleView = findViewById(R.id.LayerRecycleView);
+        LayerButton = findViewById(R.id.LayerButton);
+
 
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         frameLayout = new FrameLayout(this);
+
+
+        LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
 
 //        Uri imageUri = Uri.parse(getIntent().getStringExtra("imageUri"));
 //        if (imageUri != null) {
@@ -78,9 +94,28 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
 
+        LayerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Add the code to handle the click event
+                adapter = new Layers_Adapter(MainActivity.this, textList);
+
+                // Clear the existing data
+                adapter.updateData(new ArrayList<>());
+
+                // Add new data from TextHandlerClass
+                adapter.textList.addAll(TextHandlerClass.getTextList());
+
+                // Notify the adapter after all data has been added
+                adapter.notifyDataSetChanged();
+
+                LayerRecycleView.setAdapter(adapter);
+                LayerRecycleView.setVisibility(View.VISIBLE);
+            }
+        });
+
+
     }
-
-
 
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
@@ -92,9 +127,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setMinimumWidth(20);
         TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
         textLayout.setFrameLayout(frameLayout);
+        frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
 
-
+        textLayoutList2.add(textLayout);
 
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -131,10 +167,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayout.setMinimumHeight(textView.getHeight()+20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
-        textView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         textView.setMaxWidth(imageView.getWidth()-40);
-
-
 
         frameLayout.setMinimumHeight(textView.getHeight()+20);
 
@@ -145,8 +178,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         deleteButton.setScaleY(0.26f);
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
-        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
         deleteButtonParams.setMargins(0,deleteTop,deleteRight,0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
@@ -158,9 +191,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
                 selectedLayer = null;
+                TextHandlerClass.textList.remove(text);
+                LayerRecycleView.setVisibility(View.GONE);
+
                 if(container.getVisibility()==View.VISIBLE){
                     container.setVisibility(View.GONE);
-                    container.startAnimation(fadeOut);}
+                    container.startAnimation(fadeOut);
+                }
+
+
             }
         });
         rotateButton = new Button(this);
@@ -169,8 +208,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setScaleY(0.26f);
         textLayout.setRotateButton(rotateButton);
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
         rotateButtonParams.setMargins(rotateLeft,rotateTop,0,0);
         rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
         rotateButton.setLayoutParams(rotateButtonParams);
@@ -214,8 +253,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setScaleY(0.26f);
         FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         buttonParams.gravity = Gravity.BOTTOM | Gravity.END;
-        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -27, getResources().getDisplayMetrics());
-        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
+        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -31, getResources().getDisplayMetrics());
         buttonParams.setMargins(0,0,rotateRight,resizeBottom);
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
@@ -263,9 +302,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         int currentHeight = params.height;
 
                         // Check for minimum and maximum dimensions
-                         int minWidth = 100; // Minimum width
+                        int minWidth = 100; // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = textLayout.getFrameLayout().getWidth()- 92; // 10 less than imageView width
+                        int maxWidth = textLayout.getFrameLayout().getWidth()- 88; // 10 less than imageView width
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {
@@ -367,6 +406,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onClick(View v) {
                 unselectLayer(selectedLayer);
                 selectedLayer = null;
+                LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
                 if(container.getVisibility()==View.VISIBLE){
                     container.setVisibility(View.GONE);
@@ -452,7 +492,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
 
 
-
         // Inside the onTouchListener for the frameLayout
 
         // Add the border layout and the resize button to the FrameLayout
@@ -476,6 +515,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     public void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
+
+
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -582,7 +623,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         switch (toolType) {
             case TEXT:
                 TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
-                ;
                 break;
             case Photo:
             case FILTER:
@@ -590,6 +630,29 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Implement as needed
                 break;
         }
+
+    }
+    public void onEditButtonClick(String text) {
+
+
+        // Find the TextLayout in textLayoutList based on the text
+        TextLayout selectedTextLayout = findTextLayoutByText(text);
+
+        // Call the selectLayer method in your MainActivity
+        if (selectedTextLayout != null) {
+            selectLayer(selectedTextLayout);
+        }
+    }
+    private TextLayout findTextLayoutByText(String text) {
+        for (TextLayout textLayout : textLayoutList2) {
+                if (textLayout != null) {
+                    if (textLayout.getTextView().getText().equals(text)) {
+                        return textLayout;
+                    }
+                }
+            }
+
+        return null;
     }
 
 
@@ -600,4 +663,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if (homeFragment != null) {
             homeFragment.setDefaultStateFromExternal();
         }
-    }}
+    }
+
+
+}

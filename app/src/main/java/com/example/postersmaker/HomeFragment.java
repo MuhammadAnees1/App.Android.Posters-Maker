@@ -311,6 +311,32 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     }
                 });
                 break;
+            case Space:
+                if (seekBar.getVisibility() != View.VISIBLE) {
+                    setDefaultState();
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBar.startAnimation(activity.fadeIn);
+                }
+                seekBar.setMax(80);
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        float letterSpacing = progress / 80.0f;
+                        if (activity.selectedLayer != null) {
+                            activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event start if needed
+                    }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event stop if needed
+                    }
+                });
+                break;
             case stroke:
 
                 lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));

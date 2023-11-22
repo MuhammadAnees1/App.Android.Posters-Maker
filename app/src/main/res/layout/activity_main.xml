@@ -12,15 +12,25 @@
     <ImageView
         android:id="@+id/previewImageView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="450dp"
         android:adjustViewBounds="true"
+        android:layout_marginTop="70dp"
         android:scaleType="centerInside"
         android:src="@drawable/placeholder_image"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgShare"
         tools:ignore="MissingConstraints" />
+    <Button
+        android:id="@+id/LayerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Layers"
+        android:drawablePadding="5dp"
+        android:drawableEnd="@drawable/baseline_layers_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgShare" />
 
     <ImageView
         android:id="@+id/imgUndo"
@@ -43,6 +53,17 @@
         app:layout_constraintBottom_toTopOf="@+id/fragment_container"
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/LayerRecycleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/blue_color_picker"
+        android:orientation="vertical"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/LayerButton"
+        tools:listitem="@layout/item_layers" />
 
     <ImageView
         android:id="@+id/imgGallery"
@@ -85,8 +106,6 @@
         app:layout_constrainedWidth="true"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints"
         tools:listitem="@layout/row_editing_tools" />
 

@@ -1,6 +1,7 @@
 package com.example.postersmaker;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import android.view.LayoutInflater;
@@ -21,7 +22,7 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     Context context;
     List<String> textList;
     String text;
-
+    int index;
     public boolean isLocked = false;
     public Layers_Adapter(Context context, List<String> textList) {
         this.context = context;
@@ -41,8 +42,9 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     }
     @Override
 
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         text = textList.get(position);
+         index = position;
         holder.txtTool.setText(text);
 
         // Set up your buttons here, e.g., onClick listeners
@@ -51,11 +53,10 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
 
         holder.editLayerButton.setOnClickListener(v -> {
             // Handle edit layer button
-            String clickedText = textList.get(holder.getAdapterPosition());
-
+            index = holder.getAdapterPosition();
             if (context instanceof MainActivity) {
 
-                ((MainActivity) context).onEditButtonClick(clickedText);
+                ((MainActivity) context).onEditButtonClick(index);
             }
 
         });

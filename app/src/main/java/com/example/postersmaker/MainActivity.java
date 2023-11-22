@@ -41,11 +41,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     Layers_Adapter adapter = new Layers_Adapter(this, textList);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public final List<TextLayout> textLayoutList2 = new ArrayList<>();
-
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer ;
+
+    public  int textId = -1;
     TextView textView;
     RecyclerView LayerRecycleView;
     Button deleteButton,rotateButton,resizeButton,saveButton,LayerButton ;
@@ -125,11 +126,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
         frameLayout.setMinimumWidth(20);
-        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView);
+        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView ,textId);
         textLayout.setFrameLayout(frameLayout);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
 
+        textId++;
+        textLayout.setTextId(textId);
         textLayoutList2.add(textLayout);
 
         borderLayout = new RelativeLayout(this);
@@ -632,25 +635,24 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
 
     }
-    public void onEditButtonClick(String text) {
+    public void onEditButtonClick(int index) {
 
 
         // Find the TextLayout in textLayoutList based on the text
-        TextLayout selectedTextLayout = findTextLayoutByText(text);
+        TextLayout selectedTextLayout = findTextLayoutByText(index);
 
         // Call the selectLayer method in your MainActivity
         if (selectedTextLayout != null) {
             selectLayer(selectedTextLayout);
         }
     }
-    private TextLayout findTextLayoutByText(String text) {
+    private TextLayout findTextLayoutByText(int index) {
+
         for (TextLayout textLayout : textLayoutList2) {
-                if (textLayout != null) {
-                    if (textLayout.getTextView().getText().equals(text)) {
-                        return textLayout;
-                    }
-                }
+            if (index == textLayout.getTextId()) {
+                return textLayout;
             }
+        }
 
         return null;
     }

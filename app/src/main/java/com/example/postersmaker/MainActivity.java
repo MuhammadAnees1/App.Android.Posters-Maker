@@ -111,7 +111,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 adapter.notifyDataSetChanged();
 
                 LayerRecycleView.setAdapter(adapter);
-                LayerRecycleView.setVisibility(View.VISIBLE);
+                if(LayerRecycleView.getVisibility()==View.VISIBLE){
+                    LayerRecycleView.setVisibility(View.GONE);
+                }else {
+                    LayerRecycleView.setVisibility(View.VISIBLE);
+                }
 
             }
         });
@@ -525,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         unselectLayer(selectedLayer);
 
-        if(!textLayout.getLocked()) {
+
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -551,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             selectedLayer = textLayout;}
         }
 
-    }
+
     public void unselectLayer(TextLayout textLayout) {
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();

@@ -54,7 +54,7 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         holder.txtTool.setText(text);
         for (int i = 0; i < textList.size(); i++) {
             for (TextLayout textLayout : textLayoutList2) {
-                if (index == textLayout.getTextId()) {
+                if (index == textLayoutList2.indexOf(textLayout)) {
                     iflocked = textLayout;
                 }
 

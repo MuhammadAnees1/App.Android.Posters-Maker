@@ -34,6 +34,10 @@ public class TextHandlerClass {
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
                     mainActivity.container.setVisibility(View.VISIBLE);
+                    mainActivity.adapter.updateData(new ArrayList<>());
+                    mainActivity.adapter.textList.addAll(TextHandlerClass.getTextList());
+                    mainActivity.adapter.notifyDataSetChanged();
+                  mainActivity.LayerRecycleView.setAdapter(mainActivity.adapter);
                     FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
                     HomeFragment homeFragment = new HomeFragment();
                     fragmentTransaction.replace(R.id.fragment_container, homeFragment);

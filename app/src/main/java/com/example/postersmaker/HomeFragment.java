@@ -220,7 +220,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
                 // Set minimum and maximum text size
                 float minTextSize = 10.0f;
-                float maxTextSize = 300.0f;
+                float maxTextSize = activity.pxTodp(120);
 
                 // Set initial text size
                 selectedLayer = activity.selectedLayer;

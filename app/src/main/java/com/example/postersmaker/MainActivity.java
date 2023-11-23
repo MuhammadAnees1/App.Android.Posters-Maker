@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer ;
      Boolean isLocked;
-    public  int textId = -1;
+
     TextView textView;
     RecyclerView LayerRecycleView;
     Button deleteButton,rotateButton,resizeButton,saveButton,LayerButton ;
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView.setImageResource(R.drawable.blank);
         container = findViewById(R.id.fragment_container);
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
+        LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
 
 
@@ -99,17 +100,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Add the code to handle the click event
-
-                // Clear the existing data
                 adapter.updateData(new ArrayList<>());
-
-                // Add new data from TextHandlerClass
                 adapter.textList.addAll(TextHandlerClass.getTextList());
-
-                // Notify the adapter after all data has been added
                 adapter.notifyDataSetChanged();
-
                 LayerRecycleView.setAdapter(adapter);
                 if(LayerRecycleView.getVisibility()==View.VISIBLE){
                     LayerRecycleView.setVisibility(View.GONE);
@@ -131,14 +124,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
         frameLayout.setMinimumWidth(20);
-        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView ,textId, isLocked);
+        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView , isLocked);
         textLayout.setFrameLayout(frameLayout);
         textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
 
-        textId++;
-        textLayout.setTextId(textId);
         textLayoutList2.add(textLayout);
 
 
@@ -188,9 +179,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         deleteButton.setScaleY(0.26f);
         FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
-        int deleteTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
-        int deleteRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
-        deleteButtonParams.setMargins(0,deleteTop,deleteRight,0);
+        deleteButtonParams.setMargins(0,pxTodp(-29),pxTodp(-33),0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
         textLayout.getDeleteButton().setOnClickListener(new View.OnClickListener() {
@@ -201,7 +190,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
                 selectedLayer = null;
+                textLayoutList2.remove(textLayout);
                 TextHandlerClass.textList.remove(text);
+                textList.remove(text);
                 LayerRecycleView.setVisibility(View.GONE);
 
                 if(container.getVisibility()==View.VISIBLE){
@@ -218,9 +209,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         rotateButton.setScaleY(0.26f);
         textLayout.setRotateButton(rotateButton);
         FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int rotateTop = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
-        int rotateLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -33, getResources().getDisplayMetrics());
-        rotateButtonParams.setMargins(rotateLeft,rotateTop,0,0);
+        rotateButtonParams.setMargins(pxTodp(-33),pxTodp(-29),0,0);
         rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
         rotateButton.setLayoutParams(rotateButtonParams);
 
@@ -263,15 +252,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setScaleY(0.26f);
         FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         buttonParams.gravity = Gravity.BOTTOM | Gravity.END;
-        int resizeBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -29, getResources().getDisplayMetrics());
-        int rotateRight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -31, getResources().getDisplayMetrics());
-        buttonParams.setMargins(0,0,rotateRight,resizeBottom);
+        buttonParams.setMargins(0,0,pxTodp(-31),pxTodp(-29));
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
             private float lastX = 0f, lastY=0f;
-            private boolean isDragging = false;
 
-            private int MAX_TEXT_SIZE = 300;
+            int MAX_TEXT_SIZE = pxTodp(120);
+
             // Set your maximum text size here
 
             @Override
@@ -312,9 +299,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         int currentHeight = params.height;
 
                         // Check for minimum and maximum dimensions
-                        int minWidth = 100; // Minimum width
+                        int minWidth = pxTodp(40); // Minimum width
                         int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = textLayout.getFrameLayout().getWidth()- 88; // 10 less than imageView width
+                        int maxWidth = textLayout.getFrameLayout().getWidth()- pxTodp(32);
                         int maxHeight = imageView.getHeight();
 
                         if (currentWidth + dx < minWidth) {
@@ -351,11 +338,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float textSize = textLayout.getTextView().getTextSize();
                         float newSize = textSize;
                         if(dy>0){
-                            if (params.height > textHeight && textLayout.getTextView().getWidth()< params.width-60 && textLayout.getFrameLayout().getWidth()< imageView.getWidth()-60) {
+                            if (params.height > textHeight && textLayout.getTextView().getWidth()< params.width-pxTodp(24) && textLayout.getFrameLayout().getWidth()< imageView.getWidth()-pxTodp(24)) {
                                 newSize = textSize + dy / 5f;
                             }}
                         else  if(dy<0){
-                            if ( textLayout.getFrameLayout().getWidth()< imageView.getWidth()-60) {
+                            if ( textLayout.getFrameLayout().getWidth()< imageView.getWidth()-pxTodp(24)) {
                                 newSize = textSize + dy / 5f;
                             }}
 
@@ -366,8 +353,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         if (newSize > MAX_TEXT_SIZE) {
                             newSize = MAX_TEXT_SIZE;
                         }
-                        if (newSize < 45) {
-                            newSize = 45;
+                        if (newSize < pxTodp(19)) {
+                            newSize = pxTodp(19);
                         }
                         // Adjust text size based on the height and width limits
                         float maxWidthBasedSize = Math.min(params.width, params.height);
@@ -378,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         lastX = newX;
                         lastY = newY;
                         params.height = textLayout.getTextView().getHeight() + textLayout.getTextView().getLineHeight();
-                        textLayout.getTextView().setMaxWidth(params.width-60);
+                        textLayout.getTextView().setMaxWidth(params.width-pxTodp(24));
 
                         break;
                 }
@@ -391,9 +378,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         saveButton.setScaleX(0.282f);
         saveButton.setScaleY(0.282f);
         FrameLayout.LayoutParams saveButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int saveBottom = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics());
-        int saveLeft = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -30, getResources().getDisplayMetrics());
-        saveButtonParams.setMargins(saveLeft,0,0,saveBottom);
+        saveButtonParams.setMargins(pxTodp(-30),0,0,pxTodp(-18));
         saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
         saveButton.setLayoutParams(saveButtonParams);
         if(selectedLayer != null && textLayout.getFrameLayout() != null){
@@ -672,7 +657,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private TextLayout findTextLayoutByText(int index) {
 
         for (TextLayout textLayout : textLayoutList2) {
-            if (index == textLayout.getTextId()) {
+
+            if (index == textLayoutList2.indexOf(textLayout)) {
                 return textLayout;
             }
         }
@@ -683,6 +669,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     public void setHomeFragment(HomeFragment homeFragment) {
         this.homeFragment = homeFragment;
+    }
+    public int pxTodp(int px){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, getResources().getDisplayMetrics());
     }
     public void callSetDefaultState() {
         if (homeFragment != null) {

@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         adapter = new Layers_Adapter(MainActivity.this, textList);
 
 
-        LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
@@ -485,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     public void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
+        if(!textLayout.getLocked()){
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -507,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
             }
-            selectedLayer = textLayout;}
+            selectedLayer = textLayout;}}
         }
     public void unselectLayer(TextLayout textLayout) {
         if (textLayout != null) {

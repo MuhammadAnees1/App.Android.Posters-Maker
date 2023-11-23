@@ -22,8 +22,10 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     Context context;
     List<String> textList;
     String text;
+    TextLayout selectedTextLayout;
+
     int index;
-    public boolean isLocked = false;
+
     public Layers_Adapter(Context context, List<String> textList) {
         this.context = context;
         this.textList = (textList != null) ? textList : new ArrayList<>();
@@ -62,17 +64,18 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         });
 
         holder.lockLayerButton.setOnClickListener(v -> {
-            String clickedText = textList.get(holder.getAdapterPosition());
+            index = holder.getAdapterPosition();
 
-            if (!isLocked) {
-                isLocked = true;
-                holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
-            }
-            else {
-                isLocked = false;
-                holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_open_24);
-            }
+            if (context instanceof MainActivity) {
 
+                ((MainActivity) context).onLockButtonClick(index);
+                if(selectedTextLayout != null){
+                if (!selectedTextLayout.getLocked()) {
+                    holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_open_24);
+                } else {
+                    holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                }
+            }}
 
 
             });

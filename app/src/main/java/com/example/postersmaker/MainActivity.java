@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer ;
-
+     Boolean isLocked;
     public  int textId = -1;
     TextView textView;
     RecyclerView LayerRecycleView;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         frameLayout = new FrameLayout(this);
+        adapter = new Layers_Adapter(MainActivity.this, textList);
 
 
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -99,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             @Override
             public void onClick(View v) {
                 // Add the code to handle the click event
-                adapter = new Layers_Adapter(MainActivity.this, textList);
 
                 // Clear the existing data
                 adapter.updateData(new ArrayList<>());
@@ -126,14 +126,16 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
         frameLayout.setMinimumWidth(20);
-        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView ,textId);
+        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView ,textId, isLocked);
         textLayout.setFrameLayout(frameLayout);
+        textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
 
         textId++;
         textLayout.setTextId(textId);
         textLayoutList2.add(textLayout);
+
 
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -432,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             return true;
                         case MotionEvent.ACTION_MOVE:
+                            if(!textLayout.getLocked()){
                             float newX = event.getRawX();
                             float newY = event.getRawY();
                             float dX = newX - lastX;
@@ -444,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             lastX = newX;
                             lastY = newY;
                             break;
-                    }
+                    }}
                     return true;
                 }
             });
@@ -463,6 +466,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             return true;
                         case MotionEvent.ACTION_MOVE:
+                            if(!textLayout.getLocked()){
                             float newX = event.getRawX();
                             float newY = event.getRawY();
                             float dX = newX - lastX;
@@ -475,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             lastX = newX;
                             lastY = newY;
                             break;
-                    }
+                    }}
                     return true;
                 }
             });
@@ -517,9 +521,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
 
     public void selectLayer(TextLayout textLayout) {
+
         unselectLayer(selectedLayer);
 
-
+        if(!textLayout.getLocked()) {
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -542,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
             }
-            selectedLayer = textLayout;
+            selectedLayer = textLayout;}
         }
 
     }
@@ -644,6 +649,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         // Call the selectLayer method in your MainActivity
         if (selectedTextLayout != null) {
             selectLayer(selectedTextLayout);
+        }
+    }
+    public void  onLockButtonClick(int index) {
+        TextLayout selectedTextLayout = findTextLayoutByText(index);
+        if (selectedTextLayout != null) {
+            if(selectedTextLayout.getLocked()) {
+                selectedTextLayout.setLocked(false);
+
+            } else {
+                selectedTextLayout.setLocked(true);
+                if(selectedLayer == selectedTextLayout){
+                    unselectLayer(selectedTextLayout);
+                }
+            }
+            adapter.selectedTextLayout = selectedTextLayout;
         }
     }
     private TextLayout findTextLayoutByText(int index) {

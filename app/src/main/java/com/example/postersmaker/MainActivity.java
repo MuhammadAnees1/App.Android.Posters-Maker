@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     Layers_Adapter adapter = new Layers_Adapter(this, textList);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
-    public final List<TextLayout> textLayoutList2 = new ArrayList<>();
+    public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn , fadeOut;
     private final List<CustomAction> actions = new ArrayList<>();
@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                 LayerRecycleView.setAdapter(adapter);
                 LayerRecycleView.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -570,8 +571,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}
     }
-
-
 
 
     void addAction(CustomAction action) {

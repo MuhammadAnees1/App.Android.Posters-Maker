@@ -1,6 +1,8 @@
 package com.example.postersmaker;
 
 
+import static com.example.postersmaker.MainActivity.textLayoutList2;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 
@@ -21,7 +23,9 @@ import java.util.List;
 public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHolder> {
     Context context;
     List<String> textList;
+
     String text;
+
     TextLayout selectedTextLayout;
 
     int index;
@@ -30,7 +34,6 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         this.context = context;
         this.textList = (textList != null) ? textList : new ArrayList<>();
     }
-
 
     @NonNull
     @Override
@@ -47,7 +50,24 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         text = textList.get(position);
          index = position;
+         TextLayout iflocked = null;
         holder.txtTool.setText(text);
+        for (int i = 0; i < textList.size(); i++) {
+            for (TextLayout textLayout : textLayoutList2) {
+                if (index == textLayout.getTextId()) {
+                    iflocked = textLayout;
+                }
+
+                if(iflocked != null){
+
+
+
+                if(iflocked.getLocked()) {
+                    holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                }
+            }}
+        }
+
 
         // Set up your buttons here, e.g., onClick listeners
         holder.moveLayerButton.setOnClickListener(v -> {
@@ -97,5 +117,5 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             editLayerButton = itemView.findViewById(R.id.EditLayerButton);
             lockLayerButton = itemView.findViewById(R.id.LockLayerButton);
         }
-    }
-}
+
+    }}

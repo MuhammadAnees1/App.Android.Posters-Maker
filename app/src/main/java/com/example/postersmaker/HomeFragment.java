@@ -317,12 +317,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     seekBar.setVisibility(View.VISIBLE);
                     seekBar.startAnimation(activity.fadeIn);
                 }
-                seekBar.setMax(80);
+                seekBar.setMax(activity.pxTodp(33));
 
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        float letterSpacing = progress / 80.0f;
+                        float letterSpacing = progress / (float)activity.pxTodp(33);
                         if (activity.selectedLayer != null) {
                             activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
                         }
@@ -356,14 +356,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 final Paint strokePaint = activity.selectedLayer.getTextView().getPaint();
                 strokePaint.setStyle(Paint.Style.STROKE);
 
-               minShadow = 20;
-               maxShadow = 100;
+               minShadow = activity.pxTodp(8);
+               maxShadow = activity.pxTodp(40);
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        float limitedProgress = Math.min(Math.max(progress, 0), 100);
-                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);
+                        float limitedProgress = Math.min(Math.max(progress, 0), activity.pxTodp(40));
+                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / (float)activity.pxTodp(40));
                         activity.selectedLayer.setShadowWidth((int) shadowValue);
 
                         // Map the progress value to the desired stroke width range

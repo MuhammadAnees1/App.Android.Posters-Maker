@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,8 +37,6 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected  {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     List<String> textList = new ArrayList<>();
-
-
     Layers_Adapter adapter = new Layers_Adapter(this, textList);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer ;
      Boolean isLocked;
-
     TextView textView;
     RecyclerView LayerRecycleView;
     Button deleteButton,rotateButton,resizeButton,saveButton,LayerButton ;
@@ -65,8 +63,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
-
-
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -76,11 +72,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-
-//        Uri imageUri = Uri.parse(getIntent().getStringExtra("imageUri"));
-//        if (imageUri != null) {
-//            imageView.setImageURI(imageUri);
-//        }
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
         imgUndo.setOnClickListener(new View.OnClickListener() {
@@ -169,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth()-40);
-
         frameLayout.setMinimumHeight(textView.getHeight()+20);
 
         deleteButton = new Button(this);
@@ -256,10 +246,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
             private float lastX = 0f, lastY=0f;
-
             int MAX_TEXT_SIZE = pxTodp(120);
-
-            // Set your maximum text size here
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -462,7 +449,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             float dX = newX - lastX;
                             float dY = newY - lastY;
 
-                            // Update the position of the frameLayout based on the drag movement
                             textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
                             textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
 
@@ -474,7 +460,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
-
         textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -487,34 +472,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return false;
             }
         });
-
-
-        // Inside the onTouchListener for the frameLayout
-
-        // Add the border layout and the resize button to the FrameLayout
         textLayout.getFrameLayout().addView(textLayout.getBorderLayout());
         textLayout.getFrameLayout().addView(textLayout.getResizeButton());
         textLayout.getFrameLayout().addView(textLayout.getDeleteButton());
         textLayout.getFrameLayout().addView(textLayout.getRotateButton());
-//        frameLayout.addView(textView);
-        textLayout.getFrameLayout().addView(textLayout.getSaveButton());
-        // Set the position of the FrameLayout on the screen
+       textLayout.getFrameLayout().addView(textLayout.getSaveButton());
         textLayout.getFrameLayout().setX(x);
         textLayout.getFrameLayout().setY(y);
-        // Set an OnTouchListener for the FrameLayout to enable dragging
-
-
-
-
 
         return textLayout;
     }
 
     public void selectLayer(TextLayout textLayout) {
-
         unselectLayer(selectedLayer);
-
-
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -539,8 +509,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
             selectedLayer = textLayout;}
         }
-
-
     public void unselectLayer(TextLayout textLayout) {
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
@@ -560,8 +528,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackground(null);}}
     }
-
-
     void addAction(CustomAction action) {
         if (currentActionIndex < actions.size() - 1) {
             actions.subList(currentActionIndex + 1, actions.size()).clear();
@@ -569,7 +535,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         actions.add(action);
         currentActionIndex = actions.size() - 1;
     }
-
     private void undo() {
         if (currentActionIndex >= 0) {
             CustomAction action = actions.get(currentActionIndex);
@@ -577,7 +542,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             currentActionIndex--;
         }
     }
-
     private void redo() {
         if (currentActionIndex < actions.size() - 1) {
             currentActionIndex++;
@@ -585,7 +549,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             action.redo();
         }
     }
-
     static class CustomAction {
         private final Runnable undoAction;
         private final Runnable redoAction;
@@ -613,7 +576,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int viewHeight = view.getHeight();
         return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
     }
-
     @Override
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
@@ -626,7 +588,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Implement as needed
                 break;
         }
-
     }
     public void onEditButtonClick(int index) {
 
@@ -665,8 +626,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         return null;
     }
-
-
     public void setHomeFragment(HomeFragment homeFragment) {
         this.homeFragment = homeFragment;
     }

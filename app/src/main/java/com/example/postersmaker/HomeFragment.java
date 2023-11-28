@@ -396,7 +396,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()-5);
+                selectedLayer.setY(selectedLayer.getY()-3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -405,7 +405,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()+5);
+                selectedLayer.setY(selectedLayer.getY()+3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -414,7 +414,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()-5);
+                selectedLayer.setX(selectedLayer.getX()-3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -423,7 +423,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()+5);
+                selectedLayer.setX(selectedLayer.getX()+3);
                 handler.postDelayed(this, 10);
             }
         }, 50);

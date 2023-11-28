@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextHandlerClass {
-
+    static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -30,7 +30,7 @@ public class TextHandlerClass {
 
                 // Add the text to the list
                 textList.add(text);
-
+                TextHandlerClass.textLayoutList = textLayoutList;
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
                     mainActivity.container.setVisibility(View.VISIBLE);
@@ -112,5 +112,6 @@ public class TextHandlerClass {
         });
 
         builder.show();
-    }
-}
+    }}
+
+

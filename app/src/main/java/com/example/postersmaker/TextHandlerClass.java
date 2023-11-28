@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
 import java.util.ArrayList;
@@ -16,6 +18,42 @@ import java.util.List;
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
+
+    static List<ViewGroup> viewGroup2 = new ArrayList<>();
+    public static void swapViewsInLayout(int fromIndex, int toIndex) {
+        if (fromIndex >= 0 && fromIndex < textLayoutList.size() &&
+                toIndex >= 0 && toIndex < textLayoutList.size()) {
+            int a= 0;
+            int b= 0;
+            FrameLayout fromFrameLayout = textLayoutList.get(fromIndex);
+            FrameLayout toFrameLayout = textLayoutList.get(toIndex);
+
+            if (fromFrameLayout != null && toFrameLayout != null) {
+                ViewGroup fromParent = (ViewGroup) fromFrameLayout.getParent();
+                ViewGroup toParent = (ViewGroup) toFrameLayout.getParent();
+
+                if (fromParent != null && toParent != null) {
+                    // Remove the views from their current parents
+                    for (int i = 0; i < fromParent.getChildCount(); i++) {
+                        if(fromParent.getChildAt(i) == fromFrameLayout){
+                        fromParent.removeView(fromParent.getChildAt(i));
+                        a = i;}
+                    }
+                    for (int i = 0; i < fromParent.getChildCount(); i++) {
+                        if(toParent.getChildAt(i) == toFrameLayout)
+                            toParent.removeView(toParent.getChildAt(i));
+                        b = i;
+                    }
+                    // Add the views to the new parents with layout parameters
+
+                    toParent.addView(fromFrameLayout, b );
+
+                    fromParent.addView(toFrameLayout, a);
+                }
+            }
+        }
+    }
+
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");
@@ -27,7 +65,6 @@ public class TextHandlerClass {
             public void onClick(DialogInterface dialog, int which) {
                 String text = input.getText().toString();
                 addTextToImage(context, textLayoutList, viewGroup, text, 400, 400);
-
                 // Add the text to the list
                 textList.add(text);
                 TextHandlerClass.textLayoutList = textLayoutList;
@@ -63,9 +100,9 @@ public class TextHandlerClass {
         }
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
         FrameLayout frameLayout = textLayout.getFrameLayout();
+
         textLayoutList.add(frameLayout);
         viewGroup.addView(frameLayout);
-
         mainActivity.addAction(new MainActivity.CustomAction(
                 // Define the undo logic here
                 () -> {
@@ -94,7 +131,6 @@ public class TextHandlerClass {
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         input.setText(textView.getText().toString());
-
         builder.setView(input);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -112,6 +148,7 @@ public class TextHandlerClass {
         });
 
         builder.show();
-    }}
+    }
+}
 
 

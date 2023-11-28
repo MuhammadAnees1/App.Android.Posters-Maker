@@ -13,12 +13,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -30,6 +32,7 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     Context context;
     List<String> textList;
     final ItemTouchHelper itemTouchHelper;
+    public static List<FrameLayout> updatedOrderList = new ArrayList<>();
     String text;
 
     TextLayout selectedTextLayout;
@@ -98,8 +101,6 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         holder.editLayerButton.setOnClickListener(v -> {
             // Handle edit layer button
             index = holder.getAdapterPosition();
-            Toast.makeText(context, ""+ index, Toast.LENGTH_SHORT).show();
-
             if (context instanceof MainActivity) {
 
                 ((MainActivity) context).onEditButtonClick(index);
@@ -151,35 +152,37 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
             int fromPosition = viewHolder.getAdapterPosition();
             int toPosition = target.getAdapterPosition();
-            // Check if positions are valid
-                // Ensure the indices are within the bounds of the list
 
-                // Swap the items if fromPosition is above toPosition
-                if (fromPosition < toPosition) {
-                    // Move the item in the list
+            // Ensure the indices are within the bounds of the list
+            if (fromPosition < toPosition) {
+                // Move the item in the list
+                Collections.swap(textList, fromPosition, toPosition);
 
+                if (context instanceof MainActivity) {
+                    Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition);
+                    Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
 
-                        Collections.swap(TextHandlerClass.textList, fromPosition, toPosition );
-
-                    if (context instanceof MainActivity) {
-
-                       Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition );
-                     }
-//                    Toast.makeText(context, ""+ TextHandlerClass.textList.indexOf(fromPosition) + " " + TextHandlerClass.textList.indexOf(toPosition), Toast.LENGTH_SHORT).show();
-
-                } else if (fromPosition > toPosition) {
-                    // Move the item in the list
-                    Collections.swap(TextHandlerClass.textList, fromPosition, toPosition + 1);
-                    if (context instanceof MainActivity) {
-
-                        Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition );
-                    }
-
-
+                    // Swap the views inside the ViewGroup
+                    TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
                 }
-                notifyItemMoved(fromPosition, toPosition);
-                return true;
+                Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
+            } else if (fromPosition > toPosition) {
+                // Move the item in the list
+                Collections.swap(textList, fromPosition, toPosition);
 
+                if (context instanceof MainActivity) {
+                    Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition);
+                    Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
+
+                    // Swap the views inside the ViewGroup
+                    TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
+                }
+                Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
+            }
+
+            notifyItemMoved(fromPosition, toPosition);
+
+            return true;
         }
 
         @Override
@@ -187,4 +190,6 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             // Handle swipe if needed
         }
     };
+
+
 }

@@ -157,8 +157,30 @@ public class TextHandlerClass {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newText = input.getText().toString();
+
+
+                int index = -1;
+
+                for (int i = 0; i < textLayoutList2.size(); i++) {
+                    TextLayout textLayout = textLayoutList2.get(i);
+                    if (textLayout.getTextView() == textView) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    textList.set(index, newText);
+                }
+
                 textView.setText(newText); // Update the existing TextView with the new text
                 textView.requestLayout();
+                if (context instanceof MainActivity) {
+                    MainActivity mainActivity = (MainActivity) context;
+
+                    mainActivity.adapter.updateData(new ArrayList<>());
+                mainActivity.adapter.textList.addAll(TextHandlerClass.getTextList());
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

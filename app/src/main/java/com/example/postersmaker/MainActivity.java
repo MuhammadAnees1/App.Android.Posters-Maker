@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -164,26 +165,29 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.getDeleteButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 ViewGroup viewGroup = findViewById(android.R.id.content);
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
 
-                TextHandlerClass.textList.remove(text);
+                // Find the index of the TextLayout in textLayoutList2
+                int index = textLayoutList2.indexOf(textLayout);
+
+                if (index != -1) {
+                    TextHandlerClass.textList.remove(index);
+                    textLayoutList2.remove(index);
+                }
+
+                textList.remove(text);
                 adapter.updateData(new ArrayList<>());
                 adapter.textList.addAll(TextHandlerClass.getTextList());
 
                 selectedLayer = null;
-                textLayoutList2.remove(textLayout);
-                textList.remove(text);
                 LayerRecycleView.setVisibility(View.GONE);
 
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);
                 }
-
-
             }
         });
         rotateButton = new Button(this);

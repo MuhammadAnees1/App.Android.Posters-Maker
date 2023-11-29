@@ -1,5 +1,7 @@
 package com.example.postersmaker;
 
+import static com.example.postersmaker.MainActivity.textLayoutList2;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
@@ -12,6 +14,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.carousel.MaskableFrameLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +30,12 @@ public class TextHandlerClass {
                 toIndex >= 0 && toIndex < textLayoutList.size()) {
             int a= 0;
             int b= 0;
-            FrameLayout fromFrameLayout = textLayoutList.get(fromIndex);
-            FrameLayout toFrameLayout = textLayoutList.get(toIndex);
+
+
+            TextLayout fromtextLayout = findTextLayoutByIndex(fromIndex);
+            TextLayout totextLayout = findTextLayoutByIndex(toIndex);
+            FrameLayout fromFrameLayout = fromtextLayout.getFrameLayout();
+            FrameLayout toFrameLayout = totextLayout.getFrameLayout();
 
             if (fromFrameLayout != null && toFrameLayout != null) {
                 ViewGroup fromParent = (ViewGroup) fromFrameLayout.getParent();
@@ -37,13 +46,17 @@ public class TextHandlerClass {
                     for (int i = 0; i < fromParent.getChildCount(); i++) {
                         if(fromParent.getChildAt(i) == fromFrameLayout){
                         fromParent.removeView(fromParent.getChildAt(i));
-                        a = i;}
+                        a = i;
+
+                        break;}
                     }
                     for (int i = 0; i < fromParent.getChildCount(); i++) {
-                        if(toParent.getChildAt(i) == toFrameLayout)
+                        if(toParent.getChildAt(i) == toFrameLayout){
                             toParent.removeView(toParent.getChildAt(i));
                         b = i;
+                        break;}
                     }
+//                    Toast.makeText(fromParent.getContext(), a+""+b, Toast.LENGTH_SHORT).show();
                     // Add the views to the new parents with layout parameters
 
                     toParent.addView(fromFrameLayout, b );
@@ -52,8 +65,16 @@ public class TextHandlerClass {
                 }
             }
         }
-    }
 
+    }
+    public static TextLayout findTextLayoutByIndex(int index) {
+        for (TextLayout textLayout : textLayoutList2) {
+            if (index == textLayoutList2.indexOf(textLayout)) {
+                return textLayout;
+            }
+        }
+        return null;
+    }
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");

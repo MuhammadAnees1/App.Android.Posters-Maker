@@ -646,6 +646,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         return null;
     }
 
+
     public void setHomeFragment(HomeFragment homeFragment) {
         this.homeFragment = homeFragment;
     }

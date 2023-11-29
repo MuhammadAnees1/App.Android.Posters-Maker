@@ -8,6 +8,7 @@ import static java.util.Collections.*;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -150,8 +151,8 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             ItemTouchHelper.UP | ItemTouchHelper.DOWN , 1) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-            int fromPosition = viewHolder.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
+            int fromPosition = viewHolder.getBindingAdapterPosition();
+            int toPosition = target.getBindingAdapterPosition();
 
             // Ensure the indices are within the bounds of the list
             if (fromPosition < toPosition) {
@@ -159,19 +160,20 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
                 Collections.swap(textList, fromPosition, toPosition);
 
                 if (context instanceof MainActivity) {
-                    Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition);
+                    Collections.swap(textLayoutList2, fromPosition, toPosition);
                     Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
 
                     // Swap the views inside the ViewGroup
                     TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
                 }
                 Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
-            } else if (fromPosition > toPosition) {
+                Collections.swap(TextHandlerClass.textList, fromPosition, toPosition);}
+            else if (fromPosition > toPosition) {
                 // Move the item in the list
                 Collections.swap(textList, fromPosition, toPosition);
 
                 if (context instanceof MainActivity) {
-                    Collections.swap(((MainActivity) context).textLayoutList2, fromPosition, toPosition);
+                    Collections.swap(textLayoutList2, fromPosition, toPosition);
                     Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
 
                     // Swap the views inside the ViewGroup

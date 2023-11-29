@@ -168,7 +168,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 ViewGroup viewGroup = findViewById(android.R.id.content);
                 viewGroup.removeView(textLayout.getFrameLayout());
                 textLayoutList.remove(textLayout.getFrameLayout());
+
                 TextHandlerClass.textList.remove(text);
+                adapter.updateData(new ArrayList<>());
+                adapter.textList.addAll(TextHandlerClass.getTextList());
+
                 selectedLayer = null;
                 textLayoutList2.remove(textLayout);
                 textList.remove(text);

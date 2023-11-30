@@ -567,6 +567,20 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
 
+    public List<Integer> getYourColorList() {
+        List<Integer> colors = new ArrayList<>();
+        colors.add(Color.RED);
+        colors.add(Color.GREEN);
+        colors.add(Color.BLUE);
+        colors.add(Color.YELLOW);
+        colors.add(Color.MAGENTA);
+
+        // Add more colors as needed
+
+        return colors;
+    }
+
+
     static class CustomAction {
         private final Runnable undoAction;
         private final Runnable redoAction;

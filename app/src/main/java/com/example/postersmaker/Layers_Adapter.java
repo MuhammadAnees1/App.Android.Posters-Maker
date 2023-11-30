@@ -33,7 +33,6 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     Context context;
     List<String> textList;
     final ItemTouchHelper itemTouchHelper;
-    public static List<FrameLayout> updatedOrderList = new ArrayList<>();
     String text;
 
     TextLayout selectedTextLayout;

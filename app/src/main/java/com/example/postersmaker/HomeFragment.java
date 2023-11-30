@@ -29,10 +29,21 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.dhaval2404.colorpicker.ColorPickerDialog;
+import com.github.dhaval2404.colorpicker.listener.ColorListener;
+import com.github.dhaval2404.colorpicker.model.ColorShape;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     TextLayout selectedLayer;
     MainActivity activity;
     FrameLayout frameLayout;
+    List<Integer> colors = getYourColorList();
+
     float lastSetTextSize = 1f;
     float initialTextSize;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
@@ -382,13 +393,45 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     }
                 });
                 break;
-
+            case Colour:
+//                new ColorPickerDialog
+//                        .Builder(getContext())
+//                        .setTitle("Pick Theme")
+//                        .setColorShape(ColorShape.SQAURE)
+//                        .setDefaultColor(R.color.black)
+//                        .setColorListener(new ColorListener() {
+//                            @Override
+//                            public void onColorSelected(int color, @NotNull String colorHex) {
+//
+//                                activity.selectedLayer.getTextView().setTextColor(color);}
+//                        })
+//                        .show();
+                showColorPickerFragment(colors);
+                break;
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
                 setDefaultState();
         }
 
+
     }
+
+    private void showColorPickerFragment(List<Integer> colors) {
+        ColorPickerFragment colorPickerFragment = ColorPickerFragment.newInstance(
+                colors,
+                new ColorPickerFragment.OnColorSelectedListener() {
+                    @Override
+                    public void onColorSelected(int color) {
+                        activity.selectedLayer.getTextView().setTextColor(color);
+                    }
+                }
+        );
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container1, colorPickerFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     void setDefaultStateFromExternal() {
         setDefaultState();
     }
@@ -433,7 +476,24 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             // Stop the continuous movement
             handler.removeCallbacksAndMessages(null);}
     }
+    public List<Integer> getYourColorList() {
+        List<Integer> colors = new ArrayList<>();
+        colors.add(Color.RED);
+        colors.add(Color.GREEN);
+        colors.add(Color.BLUE);
+        colors.add(Color.YELLOW);
+        colors.add(Color.MAGENTA);
+        colors.add(Color.CYAN);
+        colors.add(Color.DKGRAY);
+        colors.add(Color.GRAY);
+        colors.add(Color.LTGRAY);
+        colors.add(Color.WHITE);
+        colors.add(Color.BLACK);
 
+        // Add more colors as needed
+
+        return colors;
+    }
     @Override
 
     public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {

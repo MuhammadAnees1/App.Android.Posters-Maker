@@ -2,6 +2,8 @@ package com.example.postersmaker;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ColorPickerFragment extends Fragment {
+    static Drawable circleDrawable;
 
     private List<Integer> colors;
     private List<ShadeItem> shades;
@@ -121,7 +124,7 @@ public class ColorPickerFragment extends Fragment {
 
         private List<Integer> colors;
         private Context context;
-        private OnItemClickListener onItemClickListener;
+        private static OnItemClickListener onItemClickListener;
         private OnShadeItemClickListener onShadeItemClickListener;
 
         ColorAdapter(List<Integer> colors, Context context) {
@@ -133,9 +136,6 @@ public class ColorPickerFragment extends Fragment {
             this.onItemClickListener = onItemClickListener;
         }
 
-        public void setOnShadeItemClickListener(OnShadeItemClickListener listener) {
-            this.onShadeItemClickListener =  listener;
-        }
         public interface OnShadeItemClickListener {
             void onShadeItemClick(int shadeColor);
         }
@@ -149,7 +149,7 @@ public class ColorPickerFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ColorViewHolder holder, int position) {
             int color = colors.get(position);
-            holder.colorView.setBackgroundColor(color);
+            holder.setColor(color);
 
             holder.itemView.setOnClickListener(v -> {
                 // Handle color item click
@@ -170,7 +170,32 @@ public class ColorPickerFragment extends Fragment {
             ColorViewHolder(@NonNull View itemView) {
                 super(itemView);
                 colorView = itemView.findViewById(R.id.colorView);
+
+                // Set the initial color
+                int defaultColor = Color.parseColor("#FF0000"); // Replace with your default color
+                circleDrawable = createCircleDrawable(defaultColor);
+                colorView.setBackground(circleDrawable);
+
+                colorView.setOnClickListener(v -> {
+                    // Handle color item click
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onItemClick(getAdapterPosition());
+                    }
+                });
             }
+            void setColor(int color) {
+                // Update the color dynamically
+                circleDrawable = createCircleDrawable(color);
+                colorView.setBackground(circleDrawable);
+            }
+
+            private Drawable createCircleDrawable(int color) {
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.OVAL);
+                gradientDrawable.setColor(color);
+                return gradientDrawable;
+            }
+
         }
     }
 
@@ -202,11 +227,10 @@ public class ColorPickerFragment extends Fragment {
             View view = LayoutInflater.from(context).inflate(R.layout.item_shade, parent, false);
             return new ShadeViewHolder(view);
         }
-
         @Override
         public void onBindViewHolder(@NonNull ShadeViewHolder holder, int position) {
             ShadeItem shadeItem = shades.get(position);
-            holder.shadeView.setBackgroundColor(shadeItem.getColor());
+            holder.setColor(shadeItem.getShadeColor());
             holder.itemView.setOnClickListener(v -> {
                 if (onShadeItemClickListener != null) {
                     onShadeItemClickListener.onShadeItemClick(shadeItem.getShadeColor());
@@ -225,6 +249,24 @@ public class ColorPickerFragment extends Fragment {
             ShadeViewHolder(@NonNull View itemView) {
                 super(itemView);
                 shadeView = itemView.findViewById(R.id.shadeView);
+
+                // Set the initial color
+                int defaultColor = Color.parseColor("#FF0000"); // Replace with your default color
+                circleDrawable = createCircleDrawable(defaultColor);
+                shadeView.setBackground(circleDrawable);
+
+            }
+            void setColor(int color) {
+                // Update the color dynamically
+                circleDrawable = createCircleDrawable(color);
+                shadeView.setBackground(circleDrawable);
+            }
+
+            private Drawable createCircleDrawable(int color) {
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.OVAL);
+                gradientDrawable.setColor(color);
+                return gradientDrawable;
             }
         }
     }

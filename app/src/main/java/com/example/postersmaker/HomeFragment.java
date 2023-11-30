@@ -41,11 +41,12 @@ import java.util.List;
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     TextLayout selectedLayer;
     MainActivity activity;
-    FrameLayout frameLayout;
+    FrameLayout frameLayout,fragmentContainer1;
     List<Integer> colors = getYourColorList();
 
     float lastSetTextSize = 1f;
     float initialTextSize;
+    ColorPickerFragment colorPickerFragment;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
     SeekBar seekBar;
     Handler handler;
@@ -85,7 +86,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         lineStrokeButton = view.findViewById(R.id.LineStroke);
         dashStrokeButton = view.findViewById(R.id.DashStroke);
         dotStrokeButton = view.findViewById(R.id.DotStroke);
-
+        fragmentContainer1 = view.findViewById(R.id.fragment_container1);
 
 
         if (getActivity() instanceof MainActivity) {
@@ -99,7 +100,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         frameLayout = activity.frameLayout;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(editTextAdapter);
-
 
         TypeTextLayout.setLayoutManager(new GridLayoutManager(getContext(), 3));
         TypeTextLayout.setAdapter(typeTextAdapter);
@@ -201,6 +201,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     private void setDefaultState() {
         // Set your default UI state here
         FontsLayout.setVisibility(View.GONE);
+        fragmentContainer1.setVisibility(View.GONE);
         seekBar.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
         text_buttonsUp.setVisibility(View.GONE);
@@ -394,6 +395,11 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case Colour:
+                if ( fragmentContainer1.getVisibility() != View.VISIBLE) {
+                    setDefaultState();
+                    fragmentContainer1.setVisibility(View.VISIBLE);
+                    fragmentContainer1.startAnimation(activity.fadeIn);
+                }
 //                new ColorPickerDialog
 //                        .Builder(getContext())
 //                        .setTitle("Pick Theme")
@@ -427,7 +433,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 }
         );
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container1, colorPickerFragment);
+        transaction.replace(fragmentContainer1.getId(), colorPickerFragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }

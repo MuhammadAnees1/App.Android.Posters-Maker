@@ -5,10 +5,12 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,11 +20,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.dhaval2404.colorpicker.ColorPickerDialog;
+import com.github.dhaval2404.colorpicker.listener.ColorListener;
+import com.github.dhaval2404.colorpicker.model.ColorShape;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ColorPickerFragment extends Fragment {
     static Drawable circleDrawable;
+    private static List<GradientDrawable> colorDrawables = new ArrayList<>();
 
     private List<Integer> colors;
     private List<ShadeItem> shades;
@@ -76,6 +85,26 @@ public class ColorPickerFragment extends Fragment {
 
         RecyclerView colorRecyclerView = view.findViewById(R.id.colorRecycleView);
         RecyclerView shadeRecyclerView = view.findViewById(R.id.shadeRecycleView);
+
+
+        ImageView colorPickerButton = view.findViewById(R.id.colorPickerButton);
+colorPickerButton.setOnClickListener(v -> {
+
+
+                new ColorPickerDialog
+                        .Builder(getContext())
+                        .setTitle("Pick Theme")
+                        .setColorShape(ColorShape.SQAURE)
+                        .setDefaultColor(R.color.black)
+                        .setColorListener(new ColorListener() {
+                            @Override
+                            public void onColorSelected(int color, @NotNull String colorHex) {
+                               MainActivity activity = (MainActivity) requireActivity();
+                                activity.selectedLayer.getTextView().setTextColor(color);}
+                        })
+                        .show();
+
+                });
 
         LinearLayoutManager colorLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         LinearLayoutManager shadeLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -159,6 +188,7 @@ public class ColorPickerFragment extends Fragment {
             });
         }
 
+
         @Override
         public int getItemCount() {
             return colors.size();
@@ -200,8 +230,9 @@ public class ColorPickerFragment extends Fragment {
     }
 
     private static class ShadeAdapter extends RecyclerView.Adapter<ShadeAdapter.ShadeViewHolder> {
+        private static List<GradientDrawable> shadeDrawables = new ArrayList<>();
 
-        private List<ShadeItem> shades;
+        private static List<ShadeItem> shades;
         private final Context context;
         private OnShadeItemClickListener onShadeItemClickListener;
         public interface OnShadeItemClickListener {
@@ -231,6 +262,7 @@ public class ColorPickerFragment extends Fragment {
         public void onBindViewHolder(@NonNull ShadeViewHolder holder, int position) {
             ShadeItem shadeItem = shades.get(position);
             holder.setColor(shadeItem.getShadeColor());
+
             holder.itemView.setOnClickListener(v -> {
                 if (onShadeItemClickListener != null) {
                     onShadeItemClickListener.onShadeItemClick(shadeItem.getShadeColor());
@@ -255,7 +287,9 @@ public class ColorPickerFragment extends Fragment {
                 circleDrawable = createCircleDrawable(defaultColor);
                 shadeView.setBackground(circleDrawable);
 
+
             }
+
             void setColor(int color) {
                 // Update the color dynamically
                 circleDrawable = createCircleDrawable(color);
@@ -266,9 +300,12 @@ public class ColorPickerFragment extends Fragment {
                 GradientDrawable gradientDrawable = new GradientDrawable();
                 gradientDrawable.setShape(GradientDrawable.OVAL);
                 gradientDrawable.setColor(color);
+                shadeDrawables.add(gradientDrawable);
                 return gradientDrawable;
             }
+
         }
+
     }
 
     // Define your ShadeItem class as needed

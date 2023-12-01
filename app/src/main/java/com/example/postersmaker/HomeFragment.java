@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
@@ -43,7 +44,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     MainActivity activity;
     FrameLayout frameLayout,fragmentContainer1;
     List<Integer> colors = getYourColorList();
-
+    ImageView colorPickerButton;
     float lastSetTextSize = 1f;
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
@@ -87,7 +88,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         dashStrokeButton = view.findViewById(R.id.DashStroke);
         dotStrokeButton = view.findViewById(R.id.DotStroke);
         fragmentContainer1 = view.findViewById(R.id.fragment_container1);
-
+        colorPickerButton = view.findViewById(R.id.colorPickerButton);
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setHomeFragment(this);
@@ -395,11 +396,18 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case Colour:
-                if ( fragmentContainer1.getVisibility() != View.VISIBLE) {
+                if ( fragmentContainer1.getVisibility() != View.VISIBLE ) {
                     setDefaultState();
                     fragmentContainer1.setVisibility(View.VISIBLE);
                     fragmentContainer1.startAnimation(activity.fadeIn);
                 }
+
+
+
+                showColorPickerFragment(colors);
+//                colorPickerButton.setOnClickListener(v -> {
+//
+//
 //                new ColorPickerDialog
 //                        .Builder(getContext())
 //                        .setTitle("Pick Theme")
@@ -412,7 +420,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 //                                activity.selectedLayer.getTextView().setTextColor(color);}
 //                        })
 //                        .show();
-                showColorPickerFragment(colors);
+//
+//                });
                 break;
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE

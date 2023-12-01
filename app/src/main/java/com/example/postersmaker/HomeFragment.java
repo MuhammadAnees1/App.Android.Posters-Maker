@@ -42,9 +42,11 @@ import java.util.List;
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     TextLayout selectedLayer;
     MainActivity activity;
-    FrameLayout frameLayout,fragmentContainer1;
-    List<Integer> colors = getYourColorList();
-    ImageView colorPickerButton;
+    FrameLayout frameLayout,fragmentContainer1, fontContainer;
+     List<Integer> colors = getYourColorList();
+
+
+
     float lastSetTextSize = 1f;
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
@@ -53,7 +55,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     Handler handler;
     TextView buttonApplyFont;
     String currentText;
-    RelativeLayout  FontsLayout;
     LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
     RecyclerView recyclerView, TypeTextLayout;
@@ -79,8 +80,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         rightButton = view.findViewById(R.id.RightButton);
         text_buttonsUp = view.findViewById(R.id.Text_buttonsUp);
         seekBar = view.findViewById(R.id.seekBarFor);
-        FontsLayout = view.findViewById(R.id.FontsLayout);
-        buttonApplyFont = view.findViewById(R.id.font1);
         recyclerView = view.findViewById(R.id.editTextLayout);
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
         StrokeLayout = view.findViewById(R.id.StrokeLayout);
@@ -88,7 +87,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         dashStrokeButton = view.findViewById(R.id.DashStroke);
         dotStrokeButton = view.findViewById(R.id.DotStroke);
         fragmentContainer1 = view.findViewById(R.id.fragment_container1);
-        colorPickerButton = view.findViewById(R.id.colorPickerButton);
+        fontContainer = view.findViewById(R.id.font_container);
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setHomeFragment(this);
@@ -201,7 +200,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
     private void setDefaultState() {
         // Set your default UI state here
-        FontsLayout.setVisibility(View.GONE);
+        fontContainer.setVisibility(View.GONE);
         fragmentContainer1.setVisibility(View.GONE);
         seekBar.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
@@ -280,18 +279,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case Fonts:
-                if (FontsLayout.getVisibility() != View.VISIBLE) {
+                if (fontContainer.getVisibility() != View.VISIBLE) {
                     setDefaultState();
-                    FontsLayout.setVisibility(View.VISIBLE);
-                    FontsLayout.startAnimation(activity.fadeIn);
+                    fontContainer.setVisibility(View.VISIBLE);
+                    fontContainer.startAnimation(activity.fadeIn);
                 }
-                buttonApplyFont.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Typeface customFont1 = ResourcesCompat.getFont(activity, R.font.abril_fatface);
-                        selectedLayer.getTextView().setTypeface(customFont1);
-                    }
-                });
+
+                showFontSelectionFragment();
                 break;
             case Shadow:
                 if (seekBar.getVisibility() != View.VISIBLE) {
@@ -405,23 +399,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
 
                 showColorPickerFragment(colors);
-//                colorPickerButton.setOnClickListener(v -> {
-//
-//
-//                new ColorPickerDialog
-//                        .Builder(getContext())
-//                        .setTitle("Pick Theme")
-//                        .setColorShape(ColorShape.SQAURE)
-//                        .setDefaultColor(R.color.black)
-//                        .setColorListener(new ColorListener() {
-//                            @Override
-//                            public void onColorSelected(int color, @NotNull String colorHex) {
-//
-//                                activity.selectedLayer.getTextView().setTextColor(color);}
-//                        })
-//                        .show();
-//
-//                });
                 break;
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
@@ -429,6 +406,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         }
 
 
+    }
+    private void showFontSelectionFragment() {
+        // Replace "your_fragment_container_id" with the actual ID of your fragment container
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        FontFragment fontFragment = new FontFragment();
+        transaction.replace(R.id.font_container, fontFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     private void showColorPickerFragment(List<Integer> colors) {
@@ -446,7 +431,32 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         transaction.addToBackStack(null);
         transaction.commit();
     }
-
+    static List<Integer> getFontList() {
+        List<Integer> fontList = new ArrayList<>();
+        fontList.add(R.font.abril_fatface);
+        fontList.add(R.font.bangers);
+        fontList.add(R.font.alex_brush);
+        fontList.add(R.font.f1);
+        fontList.add(R.font.f100);
+        fontList.add(R.font.f11);
+        fontList.add(R.font.f16);
+        fontList.add(R.font.f17);
+        fontList.add(R.font.f19);
+        fontList.add(R.font.f21);
+        fontList.add(R.font.f41);
+        fontList.add(R.font.f46);
+        fontList.add(R.font.f47);
+        fontList.add(R.font.f48);
+        fontList.add(R.font.f51);
+        fontList.add(R.font.f52);
+        fontList.add(R.font.f60);
+        fontList.add(R.font.f67);
+        fontList.add(R.font.f83);
+        fontList.add(R.font.f92);
+        fontList.add(R.font.f93);
+        fontList.add(R.font.f98);
+        return fontList;
+    }
     void setDefaultStateFromExternal() {
         setDefaultState();
     }
@@ -491,21 +501,30 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             // Stop the continuous movement
             handler.removeCallbacksAndMessages(null);}
     }
-    public List<Integer> getYourColorList() {
+    static List<Integer> getYourColorList() {
         List<Integer> colors = new ArrayList<>();
-        colors.add(Color.RED);
-        colors.add(Color.GREEN);
-        colors.add(Color.BLUE);
-        colors.add(Color.YELLOW);
-        colors.add(Color.MAGENTA);
-        colors.add(Color.CYAN);
-        colors.add(Color.DKGRAY);
-        colors.add(Color.GRAY);
-        colors.add(Color.LTGRAY);
-        colors.add(Color.WHITE);
-        colors.add(Color.BLACK);
 
-        // Add more colors as needed
+        colors.add(0xFFED0A3F); // Red
+        colors.add(0xFFE91E63); // Pink
+        colors.add(0xFFFF2C93); //Light Pink
+        colors.add(0xFF9C27B0); // Purple
+        colors.add(0xFF673AB7); // DEEP PURPLE 500
+        colors.add(0xFF3F51B5); // INDIGO 500
+        colors.add(0xFF2196F3); // BLUE 500
+        colors.add(0xFF03A9F4); // LIGHT BLUE 500
+        colors.add(0xFF00BCD4); // CYAN 500
+        colors.add(0xFF009688); // TEAL 500
+        colors.add(0xFF4CAF50); // GREEN 500
+        colors.add(0xFF8BC34A); // LIGHT GREEN 500
+        colors.add(0xFFCDDC39); // LIME 500
+        colors.add(0xFFFFEB3B); // YELLOW 500
+        colors.add(0xFFFFC107); // AMBER 500
+        colors.add(0xFFFF9800); // ORANGE 500
+        colors.add(0xFF795548); // BROWN 500
+        colors.add(0xFF607D8B); // BLUE GREY 500
+        colors.add(0xFF9E9E9E); // GREY 500
+        colors.add(0xFFFFFFFF); // WHITE
+        colors.add(0xFF000000); // BLACK
 
         return colors;
     }

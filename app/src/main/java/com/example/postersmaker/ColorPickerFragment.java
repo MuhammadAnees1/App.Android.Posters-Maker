@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,7 +67,7 @@ public class ColorPickerFragment extends Fragment {
     }
 
     private void initializeColors() {
-        // Initialize your color data if needed
+
     }
 
     private void initializeShades() {
@@ -76,9 +77,6 @@ public class ColorPickerFragment extends Fragment {
             shades.add(new ShadeItem(color));
         }
     }
-
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_color_picker, container, false);
@@ -88,9 +86,7 @@ public class ColorPickerFragment extends Fragment {
 
 
         ImageView colorPickerButton = view.findViewById(R.id.colorPickerButton);
-colorPickerButton.setOnClickListener(v -> {
-
-
+        colorPickerButton.setOnClickListener(v -> {
                 new ColorPickerDialog
                         .Builder(getContext())
                         .setTitle("Pick Theme")
@@ -103,9 +99,7 @@ colorPickerButton.setOnClickListener(v -> {
                                 activity.selectedLayer.getTextView().setTextColor(color);}
                         })
                         .show();
-
                 });
-
         LinearLayoutManager colorLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         LinearLayoutManager shadeLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 

@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         borderLayout.setLayoutParams(borderLayoutParams);
         int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
         borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
-        borderLayout.setBackgroundColor(Color.parseColor("#b05c56"));
         borderLayout.setGravity(Gravity.CENTER);
         textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
@@ -145,7 +144,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-        textView.setTextColor(Color.WHITE);
         borderLayout.setMinimumHeight(textView.getHeight() + 20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);

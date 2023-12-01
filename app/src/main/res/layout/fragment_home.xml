@@ -38,45 +38,7 @@
         tools:ignore="MissingConstraints" />
 
 
-    <RelativeLayout
-        android:id="@+id/FontsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/seekBarFor">
 
-
-        <TextView
-            android:id="@+id/font1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/abril_fatface"
-            android:gravity="center"
-            android:text="Hello Apply Fonts "
-            android:textColor="@color/white" />
-
-        <TextView
-            android:id="@+id/font2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/font1"
-            android:fontFamily="@font/alex_brush"
-            android:gravity="center"
-            android:text="Hello Apply Fonts "
-            android:textColor="@color/white" />
-
-        <TextView
-            android:id="@+id/font3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/font2"
-            android:fontFamily="@font/bangers"
-            android:gravity="center"
-            android:text="Hello Apply Fonts "
-            android:textColor="@color/white" />
-
-
-    </RelativeLayout>
     <LinearLayout
         android:id="@+id/StrokeLayout"
         android:layout_width="200dp"
@@ -196,6 +158,16 @@
 
     <FrameLayout
         android:id="@+id/fragment_container1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#6F424242"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLayout"
+        tools:ignore="MissingConstraints" />
+    <FrameLayout
+        android:id="@+id/font_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#6F424242"

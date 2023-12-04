@@ -49,7 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void openNextActivity(Uri imageUri) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, Crop_Image_activity.class);
         intent.putExtra("imageUri", imageUri.toString());
         startActivity(intent);
     }

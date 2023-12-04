@@ -506,7 +506,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         colors.add(0xFFED0A3F); // Red
         colors.add(0xFFE91E63); // Pink
-        colors.add(0xFFFF2C93); //Light Pink
+        colors.add(0xFFFF2C93); // Light Pink
         colors.add(0xFF9C27B0); // Purple
         colors.add(0xFF673AB7); // DEEP PURPLE 500
         colors.add(0xFF3F51B5); // INDIGO 500

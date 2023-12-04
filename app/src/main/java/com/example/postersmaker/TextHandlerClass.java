@@ -124,21 +124,21 @@ public class TextHandlerClass {
 
         textLayoutList.add(frameLayout);
         viewGroup.addView(frameLayout);
-        mainActivity.addAction(new MainActivity.CustomAction(
-                // Define the undo logic here
-                () -> {
-                    // Define how to undo the action
-                    viewGroup.removeView(frameLayout);
-                    textLayoutList.remove(frameLayout);
-                },
-                // Define the redo logic here
-                () -> {
-                    // Define how to redo the action
-                    viewGroup.addView(frameLayout);
-                    textLayoutList.add(frameLayout);
-
-                }
-        ));
+//        mainActivity.addAction(new MainActivity.CustomAction(
+//                // Define the undo logic here
+//                () -> {
+//                    // Define how to undo the action
+//                    viewGroup.removeView(frameLayout);
+//                    textLayoutList.remove(frameLayout);
+//                },
+//                // Define the redo logic here
+//                () -> {
+//                    // Define how to redo the action
+//                    viewGroup.addView(frameLayout);
+//                    textLayoutList.add(frameLayout);
+//
+//                }
+//        ));
     }
 
     // Retrieve the array of texts

@@ -1,7 +1,7 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -15,15 +15,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+/** @noinspection deprecation*/
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
+    private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
@@ -32,17 +32,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     RelativeLayout borderLayout;
     TranslateAnimation fadeIn, fadeOut;
-    private final List<CustomAction> actions = new ArrayList<>();
+//    private final List<CustomAction> actions = new ArrayList<>();
     public TextLayout selectedLayer;
     Boolean isLocked;
     TextView textView;
 
     Button deleteButton, rotateButton, resizeButton, saveButton, LayerButton;
     HomeFragment homeFragment;
-    private int currentActionIndex = -1;
+//    private int currentActionIndex = -1;
     public ImageView imageView, imgUndo, imgRedo;
     FrameLayout frameLayout, container;
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,31 +68,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
-        imgUndo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                undo();
+//        imgUndo.setOnClickListener(v -> undo());
+//
+//        imgRedo.setOnClickListener(v -> redo());
+
+        LayerButton.setOnClickListener(v -> {
+
+            if (LayerRecycleView.getVisibility() == View.VISIBLE) {
+                LayerRecycleView.setVisibility(View.GONE);
+            } else {
+                LayerRecycleView.setVisibility(View.VISIBLE);
             }
-        });
 
-        imgRedo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                redo();
-            }
-        });
-
-        LayerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (LayerRecycleView.getVisibility() == View.VISIBLE) {
-                    LayerRecycleView.setVisibility(View.GONE);
-                } else {
-                    LayerRecycleView.setVisibility(View.VISIBLE);
-                }
-
-            }
         });
 
 
@@ -126,21 +114,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
 
-//        borderLayout.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                float x = event.getX();
-//                float y = event.getY();
-//
-//                switch (event.getAction()) {
-//                    case MotionEvent.ACTION_MOVE:
-//
-//                        borderLayout.setX(x - borderLayout.getWidth() / 2);
-//                        borderLayout.setY(y - borderLayout.getHeight() / 2);
-//                        break;}
-//                return false;
-//            }
-//        });
+
         textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
@@ -160,32 +134,29 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         deleteButtonParams.setMargins(0, pxTodp(-29), pxTodp(-33), 0);
         deleteButton.setLayoutParams(deleteButtonParams);
 
-        textLayout.getDeleteButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ViewGroup viewGroup = findViewById(android.R.id.content);
-                viewGroup.removeView(textLayout.getFrameLayout());
-                textLayoutList.remove(textLayout.getFrameLayout());
+        textLayout.getDeleteButton().setOnClickListener(v -> {
+            ViewGroup viewGroup = findViewById(android.R.id.content);
+            viewGroup.removeView(textLayout.getFrameLayout());
+            textLayoutList.remove(textLayout.getFrameLayout());
 
-                // Find the index of the TextLayout in textLayoutList2
-                int index = textLayoutList2.indexOf(textLayout);
+            // Find the index of the TextLayout in textLayoutList2
+            int index = textLayoutList2.indexOf(textLayout);
 
-                if (index != -1) {
-                    TextHandlerClass.textList.remove(index);
-                    textLayoutList2.remove(index);
-                }
+            if (index != -1) {
+                TextHandlerClass.textList.remove(index);
+                textLayoutList2.remove(index);
+            }
 
-                textList.remove(text);
-                adapter.updateData(new ArrayList<>());
-                adapter.textList.addAll(TextHandlerClass.getTextList());
+            textList.remove(text);
+            adapter.updateData(new ArrayList<>());
+            adapter.textList.addAll(TextHandlerClass.getTextList());
 
-                selectedLayer = null;
-                LayerRecycleView.setVisibility(View.GONE);
+            selectedLayer = null;
+            LayerRecycleView.setVisibility(View.GONE);
 
-                if (container.getVisibility() == View.VISIBLE) {
-                    container.setVisibility(View.GONE);
-                    container.startAnimation(fadeOut);
-                }
+            if (container.getVisibility() == View.VISIBLE) {
+                container.setVisibility(View.GONE);
+                container.startAnimation(fadeOut);
             }
         });
         rotateButton = new Button(this);
@@ -242,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         resizeButton.setLayoutParams(buttonParams);
         textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
             private float lastX = 0f, lastY = 0f;
-            int MAX_TEXT_SIZE = pxTodp(120);
+            final int MAX_TEXT_SIZE = pxTodp(120);
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -252,13 +223,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         if (lastX == 0f && lastY == 0f) {
                             lastX = textLayout.getFrameLayout().getX();
                             lastY = textLayout.getFrameLayout().getY();
-                        } else {
+                         }
+                        else {
                             lastX = event.getRawX();
                             lastY = event.getRawY();
-                        }
+                         }
 
-                        callSetDefaultState();
-                        break;
+                         callSetDefaultState();
+                         break;
 
                     case MotionEvent.ACTION_UP:
 
@@ -325,11 +297,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         float newSize = textSize;
                         if (dy > 0) {
                             if (params.height > textHeight && textLayout.getTextView().getWidth() < params.width - pxTodp(24) && textLayout.getFrameLayout().getWidth() < imageView.getWidth() - pxTodp(24)) {
-                                newSize = textSize + dy / 5f;
+                                newSize = textSize + dy / 4.3f;
                             }
                         } else if (dy < 0) {
                             if (textLayout.getFrameLayout().getWidth() < imageView.getWidth() - pxTodp(24)) {
-                                newSize = textSize + dy / 5f;
+                                newSize = textSize + dy / 4.3f;
                             }
                         }
 
@@ -369,32 +341,26 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
         saveButton.setLayoutParams(saveButtonParams);
         if (selectedLayer != null && textLayout.getFrameLayout() != null) {
-            textLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    unselectLayer(selectedLayer);
-                    selectedLayer = null;
-                    callSetDefaultState();
-                    if (container.getVisibility() == View.VISIBLE) {
-                        container.setVisibility(View.GONE);
-                        container.startAnimation(fadeOut);
-                    }
-
-
-                }
-            });
-        }
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            textLayout.getSaveButton().setOnClickListener(v -> {
                 unselectLayer(selectedLayer);
                 selectedLayer = null;
-                LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);
                 }
+
+
+            });
+        }
+        imageView.setOnClickListener(v -> {
+            unselectLayer(selectedLayer);
+            selectedLayer = null;
+            LayerRecycleView.setVisibility(View.GONE);
+            callSetDefaultState();
+            if (container.getVisibility() == View.VISIBLE) {
+                container.setVisibility(View.GONE);
+                container.startAnimation(fadeOut);
             }
         });
         if (selectedLayer != null && textLayout.getFrameLayout() != null) {
@@ -465,17 +431,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
-        textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        unselectLayer(selectedLayer);
-                        selectLayer(textLayout);
-
-                }
-                return false;
+        textLayout.getBorderLayout().setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                unselectLayer(selectedLayer);
+                selectLayer(textLayout);
             }
+            return false;
         });
         textLayout.getFrameLayout().addView(textLayout.getBorderLayout());
         textLayout.getFrameLayout().addView(textLayout.getResizeButton());
@@ -488,10 +449,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         return textLayout;
     }
 
+
     public void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
         if (!textLayout.getLocked()) {
-            if (textLayout != null) {
+
                 FrameLayout layer = textLayout.getFrameLayout();
                 if (layer != null) {
                     Button resizeButton = textLayout.getResizeButton();
@@ -515,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
                 selectedLayer = textLayout;
-            }
+
         }
     }
 
@@ -541,90 +503,81 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
 
-    void addAction(CustomAction action) {
-        if (currentActionIndex < actions.size() - 1) {
-            actions.subList(currentActionIndex + 1, actions.size()).clear();
-        }
-        actions.add(action);
-        currentActionIndex = actions.size() - 1;
-    }
+//    void addAction(CustomAction action) {
+//        if (currentActionIndex < actions.size() - 1) {
+//            actions.subList(currentActionIndex + 1, actions.size()).clear();
+//        }
+//        actions.add(action);
+//        currentActionIndex = actions.size() - 1;
+//    }
 
-    private void undo() {
-        if (currentActionIndex >= 0) {
-            CustomAction action = actions.get(currentActionIndex);
-            action.undo();
-            currentActionIndex--;
-        }
-    }
-
-    private void redo() {
-        if (currentActionIndex < actions.size() - 1) {
-            currentActionIndex++;
-            CustomAction action = actions.get(currentActionIndex);
-            action.redo();
-        }
-    }
-
-    public List<Integer> getYourColorList() {
-        List<Integer> colors = new ArrayList<>();
-        colors.add(Color.RED);
-        colors.add(Color.GREEN);
-        colors.add(Color.BLUE);
-        colors.add(Color.YELLOW);
-        colors.add(Color.MAGENTA);
-
-        // Add more colors as needed
-
-        return colors;
-    }
+//    private void undo() {
+//        if (currentActionIndex >= 0) {
+//            CustomAction action = actions.get(currentActionIndex);
+//            action.undo();
+//            currentActionIndex--;
+//        }
+//    }
+//
+//    private void redo() {
+//        if (currentActionIndex < actions.size() - 1) {
+//            currentActionIndex++;
+//            CustomAction action = actions.get(currentActionIndex);
+//            action.redo();
+//        }
+//    }
 
 
-    static class CustomAction {
-        private final Runnable undoAction;
-        private final Runnable redoAction;
 
-        public CustomAction(Runnable undoAction, Runnable redoAction) {
-            this.undoAction = undoAction;
-            this.redoAction = redoAction;
-        }
-
-        public void undo() {
-            undoAction.run();
-        }
-
-        public void redo() {
-            redoAction.run();
-        }
-    }
+//    static class CustomAction {
+//        private final Runnable undoAction;
+//        private final Runnable redoAction;
+//
+//        public CustomAction(Runnable undoAction, Runnable redoAction) {
+//            this.undoAction = undoAction;
+//            this.redoAction = redoAction;
+//        }
+//
+//        public void undo() {
+//            undoAction.run();
+//        }
+//
+//        public void redo() {
+//            redoAction.run();
+//        }
+//    }
 
     private double getAngle(double x, double y, float pivotX, float pivotY) {
         double rad = Math.atan2(y - pivotY, x - pivotX) + Math.PI;
         return (rad * 180 / Math.PI + 180) % 360;
     }
 
-    private boolean isViewInBounds(View view, int x, int y) {
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        int viewX = location[0];
-        int viewY = location[1];
-        int viewWidth = view.getWidth();
-        int viewHeight = view.getHeight();
-        return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
-    }
+//    private boolean isViewInBounds(View view, int x, int y) {
+//        int[] location = new int[2];
+//        view.getLocationOnScreen(location);
+//        int viewX = location[0];
+//        int viewY = location[1];
+//        int viewWidth = view.getWidth();
+//        int viewHeight = view.getHeight();
+//        return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
+//    }
 
     @Override
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
-                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
+                TextHandlerClass.showTextDialog(this, textLayoutList, findViewById(android.R.id.content));
                 break;
             case Photo:
+                startActivityForResult(new Intent(this, Image_pick.class), REQUEST_CODE_PICK_IMAGE);
+                break;
             case FILTER:
             case EMOJI:
                 // Implement as needed
                 break;
         }
     }
+
 
     public void onEditButtonClick(int index) {
 

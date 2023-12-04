@@ -7,10 +7,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context=".MainActivity">
-
-
-
-
     <ImageView
         android:id="@+id/previewImageView"
         android:layout_width="wrap_content"
@@ -62,10 +58,9 @@
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constrainedWidth="true"
-        app:layout_constraintEnd_toEndOf="@+id/LayerButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/LayerButton"
-        tools:listitem="@layout/row_editing_tools" />
+        tools:listitem="@layout/item_layers" />
 
     <ImageView
         android:id="@+id/imgGallery"

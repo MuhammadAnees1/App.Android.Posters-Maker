@@ -2,28 +2,48 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+
+import android.graphics.Path;
+import android.net.Uri;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class  TextLayout {
+public class TextLayout {
+
 
     private FrameLayout frameLayout;
     private RelativeLayout borderLayout;
     private Button deleteButton;
     private Button rotateButton;
     private Button resizeButton;
+    DottedStrokeTextView textView2;
     private Button saveButton;
     private TextView textView;
+    private Boolean isLocked = false;
+    private Uri imageUri;
+
+    public Uri getImageUri() {
+        return imageUri;
+    }
+
+    public void setImageUri(Uri imageUri) {
+    }
+
+    private int shadowWidth = 20;
     Paint textPaint;
 
-    public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView) {
+    public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView , Boolean isLocked,Uri imageUri) {
         this.frameLayout = frameLayout;
         this.borderLayout = borderLayout;
         this.deleteButton = deleteButton;
@@ -32,8 +52,27 @@ public class  TextLayout {
         this.saveButton = saveButton;
         this.textView = textView;
         this.textPaint = new Paint();
+        this.textView2 = new DottedStrokeTextView(frameLayout.getContext());
+        this.isLocked = isLocked;
+        this.imageUri = imageUri;
 
+        textPaint.setColor(Color.BLACK);
+    }
+    public Boolean getLocked() {
+        return isLocked;
+    }
+    public void setLocked(Boolean locked) {
+        isLocked = locked;
+    }
 
+    public int getShadowWidth() {
+        return shadowWidth;
+    }
+
+    public void setShadowWidth(int shadowWidth) {
+        this.shadowWidth = shadowWidth;
+        applyShadowEffect(textView, shadowWidth, Color.RED);
+        invalidate();
     }
 
     public FrameLayout getFrameLayout() {
@@ -112,75 +151,111 @@ public class  TextLayout {
         textPaint.setStrokeWidth(strokeWidth);
         // You might perform additional actions here if needed
     }
+    public  float getStrokeWidth() {
+        return textPaint.getStrokeWidth();
+    }
+    public  void setStrokeColor(int strokeColor) {
+        textPaint.setColor(strokeColor);
+    }
 
     public void setStrokeType(StrokeType strokeType) {
         // Set the stroke type (line, dash, dot)
         switch (strokeType) {
             case LINE:
                 Toast.makeText(frameLayout.getContext(), "lines", Toast.LENGTH_SHORT).show();
+                applyShadowEffect(textView,getShadowWidth() , Color.RED); // Replace 5 with your desired shadow width
 
-                // Assuming textPaint is defined somewhere in your code
-                Paint textPaints = getTextView().getPaint();
-
-                // Increase the text shadow for LINE stroke type
-                float shadowValue = 10.0f; // You can adjust this value based on your preference
-                textPaints.setShadowLayer(shadowValue, 0, 0, Color.BLACK);
-
-                Log.d(TAG, "onStrokeTypeSelected: " + textPaints);
-
-                // Notify the parent view to request a layout pass
-                getFrameLayout().requestLayout();
+                Log.d(TAG, "setStrokeType: " + textPaint);
                 break;
-
 
             case DASH:
-                Toast.makeText(frameLayout.getContext(), "dash", Toast.LENGTH_SHORT).show();
+                applyDottedStroke(textView2, 20, Color.RED);
 
-                // Assuming textPaint is defined somewhere in your code
-                Paint textsPaint = textView.getPaint();
-
-                // Apply dash stroke to the round of the text
-                textsPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-                // You can set custom dash effects if needed
-                textsPaint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
-                textsPaint.setColor(Color.BLACK);
-
-                // Clear the shadow layer for other stroke types
-                textsPaint.clearShadowLayer();
-
-                Log.d(TAG, "setStrokeType: " + textsPaint);
-
-                // Notify the parent view to request a layout pass
-                frameLayout.requestLayout();
                 break;
-
             case DOT:
                 // Apply dot stroke to the round of the text
-                textPaint.setStyle(Paint.Style.FILL);
+                textPaint.setStyle(Paint.Style.STROKE);
                 // You can set custom dot effects if needed
                 textPaint.setPathEffect(new DashPathEffect(new float[]{1, 5}, 0));
                 textPaint.setColor(Color.BLACK);
-
-                // Clear the shadow layer for other stroke types
-                textPaint.clearShadowLayer();
                 break;
-
             default:
                 // Default case, reset to normal
                 textPaint.setStyle(Paint.Style.FILL);
                 textPaint.setPathEffect(null);
-                textPaint.clearShadowLayer();
+                textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                 break;
         }
         invalidate();
     }
+    private void applyDottedStroke(DottedStrokeTextView textView2, float strokeWidth, int strokeColor) {
+        Paint paint = textView2.getPaint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setColor(strokeColor);
+        paint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
 
-    private float dpToPx(float dp) {
-        float density = frameLayout.getContext().getResources().getDisplayMetrics().density;
-        return dp * density;
+        textView2.setTextColor(strokeColor); // Set text color to the stroke color
+        textView2.invalidate(); // Invalidate to trigger a redraw with the new stroke effect
     }
+    private void applyShadowEffect(TextView textView, float shadowWidth, int shadowColor) {
+        textView.setShadowLayer(shadowWidth, 0, 0, shadowColor);
+    }
+
     private void invalidate() {
         // Implement your custom invalidation logic here
         frameLayout.invalidate();
+    }
+
+    public boolean isTextViewVisible() {
+        // Check if the TextView is visible or not
+        return textView.getVisibility() == View.VISIBLE;
+    }
+
+    public class DottedStrokeTextView extends androidx.appcompat.widget.AppCompatTextView {
+
+        private Paint dottedStrokePaint;
+
+        public DottedStrokeTextView(Context context) {
+            super(context);
+            init();
+        }
+
+        public DottedStrokeTextView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        public DottedStrokeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+            init();
+        }
+
+        private void init() {
+            dottedStrokePaint = new Paint();
+            dottedStrokePaint.setStyle(Paint.Style.STROKE);
+            dottedStrokePaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 0));
+            dottedStrokePaint.setColor(getCurrentTextColor());
+            dottedStrokePaint.setStrokeWidth(5); // Set your desired stroke width
+        }
+        @Override
+        protected void onDraw(Canvas canvas) {
+            // Draw the original text
+            super.onDraw(canvas);
+
+            // Draw the dotted stroke around the text
+            canvas.drawPath(getPath(), dottedStrokePaint);
+        }
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            // Adjust the path whenever the size of the view changes
+            super.onSizeChanged(w, h, oldw, oldh);
+            invalidate();
+        }
+        private Path getPath() {
+            Path path = new Path();
+            path.addRect(0, 0, getWidth(), getHeight(), Path.Direction.CW);
+            return path;
+        }
     }
 }

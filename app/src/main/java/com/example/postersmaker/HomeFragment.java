@@ -1,24 +1,27 @@
 package com.example.postersmaker;
 
 import android.annotation.SuppressLint;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -27,22 +30,37 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.dhaval2404.colorpicker.ColorPickerDialog;
+import com.github.dhaval2404.colorpicker.listener.ColorListener;
+import com.github.dhaval2404.colorpicker.model.ColorShape;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     TextLayout selectedLayer;
-    String currentText;
     MainActivity activity;
-    FrameLayout frameLayout;
+    FrameLayout frameLayout,fragmentContainer1, fontContainer;
+    List<Integer> colors = getYourColorList();
+
+
+
     float lastSetTextSize = 1f;
     float initialTextSize;
+    ColorPickerFragment colorPickerFragment;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
     SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
-    RelativeLayout  FontsLayout;
+    String currentText;
     LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
     RecyclerView recyclerView, TypeTextLayout;
     Button UpButton, downButton, leftButton, rightButton ,editButton ;
+    private Paint textPaint;
+    private Paint strokePaint;
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
     private final TypeTextAdapter typeTextAdapter = new TypeTextAdapter(this);
 
@@ -62,26 +80,26 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         rightButton = view.findViewById(R.id.RightButton);
         text_buttonsUp = view.findViewById(R.id.Text_buttonsUp);
         seekBar = view.findViewById(R.id.seekBarFor);
-        FontsLayout = view.findViewById(R.id.FontsLayout);
-        buttonApplyFont = view.findViewById(R.id.font1);
         recyclerView = view.findViewById(R.id.editTextLayout);
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
         StrokeLayout = view.findViewById(R.id.StrokeLayout);
         lineStrokeButton = view.findViewById(R.id.LineStroke);
         dashStrokeButton = view.findViewById(R.id.DashStroke);
         dotStrokeButton = view.findViewById(R.id.DotStroke);
-
+        fragmentContainer1 = view.findViewById(R.id.fragment_container1);
+        fontContainer = view.findViewById(R.id.font_container);
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setHomeFragment(this);
         }
-
+        textPaint = new Paint();
+        strokePaint = new Paint();
+        strokePaint.setStyle(Paint.Style.STROKE);
         handler = new Handler();
         activity = (MainActivity) requireActivity();
         frameLayout = activity.frameLayout;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(editTextAdapter);
-
 
         TypeTextLayout.setLayoutManager(new GridLayoutManager(getContext(), 3));
         TypeTextLayout.setAdapter(typeTextAdapter);
@@ -176,12 +194,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         currentStrokeType = strokeType;
         if (activity.selectedLayer != null) {
             activity.selectedLayer.setStrokeType(strokeType);
+
         }
     }
 
     private void setDefaultState() {
         // Set your default UI state here
-        FontsLayout.setVisibility(View.GONE);
+        fontContainer.setVisibility(View.GONE);
+        fragmentContainer1.setVisibility(View.GONE);
         seekBar.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
         text_buttonsUp.setVisibility(View.GONE);
@@ -212,7 +232,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
                 // Set minimum and maximum text size
                 float minTextSize = 10.0f;
-                float maxTextSize = 300.0f;
+                float maxTextSize = activity.pxTodp(120);
 
                 // Set initial text size
                 selectedLayer = activity.selectedLayer;
@@ -259,50 +279,21 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case Fonts:
-                if (FontsLayout.getVisibility() != View.VISIBLE) {
+                if (fontContainer.getVisibility() != View.VISIBLE) {
                     setDefaultState();
-                    FontsLayout.setVisibility(View.VISIBLE);
-                    FontsLayout.startAnimation(activity.fadeIn);
+                    fontContainer.setVisibility(View.VISIBLE);
+                    fontContainer.startAnimation(activity.fadeIn);
                 }
-                buttonApplyFont.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Typeface customFont1 = ResourcesCompat.getFont(activity, R.font.abril_fatface);
-                        activity.selectedLayer.getTextView().setTypeface(customFont1);
-                    }
-                });
-                break;
-            case Space:
-                if (seekBar.getVisibility() != View.VISIBLE) {
-                    setDefaultState();
-                    seekBar.setVisibility(View.VISIBLE);
-                    seekBar.startAnimation(activity.fadeIn);
-                }
-                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        float letterSpacing = progress / 80.0f;
-                        if (activity.selectedLayer != null) {
-                            activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
-                        }
-                    }
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar) {
-                        // Handle touch event start if needed
-                    }
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar) {
-                        // Handle touch event stop if needed
-                    }
-                });
+
+                showFontSelectionFragment();
                 break;
             case Shadow:
                 if (seekBar.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     seekBar.setVisibility(View.VISIBLE);
                     seekBar.startAnimation(activity.fadeIn);}
-                final float minShadow = 0.0f; // Set your minimum shadow value
-                final float maxShadow = 20.0f; // Set your maximum shadow value
+                float minShadow = 0.0f; // Set your minimum shadow value
+                float maxShadow = 20.0f; // Set your maximum shadow value
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -327,6 +318,32 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     }
                 });
                 break;
+            case Space:
+                if (seekBar.getVisibility() != View.VISIBLE) {
+                    setDefaultState();
+                    seekBar.setVisibility(View.VISIBLE);
+                    seekBar.startAnimation(activity.fadeIn);
+                }
+                seekBar.setMax(activity.pxTodp(33));
+
+                seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        float letterSpacing = progress / (float)activity.pxTodp(33);
+                        if (activity.selectedLayer != null) {
+                            activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
+                        }
+                    }
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event start if needed
+                    }
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+                        // Handle touch event stop if needed
+                    }
+                });
+                break;
             case stroke:
 
                 lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));
@@ -342,33 +359,23 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 // Set your minimum and maximum stroke width
                 final float minStrokeWidth = 1.0f;
                 final float maxStrokeWidth = 10.0f;
-
                 // Create a Paint object for stroke
                 final Paint strokePaint = activity.selectedLayer.getTextView().getPaint();
                 strokePaint.setStyle(Paint.Style.STROKE);
 
-                // Modify the logic in seekBar.setOnSeekBarChangeListener accordingly
+                minShadow = activity.pxTodp(8);
+                maxShadow = activity.pxTodp(40);
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        // Constrain the progress within the desired range
-                        float limitedProgress = Math.min(Math.max(progress, 0), 100);
+                        float limitedProgress = Math.min(Math.max(progress, 0), activity.pxTodp(40));
+                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / (float)activity.pxTodp(40));
+                        activity.selectedLayer.setShadowWidth((int) shadowValue);
 
                         // Map the progress value to the desired stroke width range
-                        float strokeWidth = minStrokeWidth + (maxStrokeWidth - minStrokeWidth) * (limitedProgress / 100.0f);
 
-                        // Check if the current stroke type is LINE
-                        if (currentStrokeType == StrokeType.LINE && activity.selectedLayer != null) {
-                            // Increase the text shadow based on the progress
-                            float shadowValue = limitedProgress / 100.0f; // You can adjust this value based on your preference
-                            activity.selectedLayer.getTextView().getPaint().setShadowLayer(shadowValue, 0, 0, Color.BLACK);
-                        }
-                        // Apply the stroke width to the selectedLayer's TextView
-                        strokePaint.setStrokeWidth(strokeWidth);
-                        strokePaint.setColor(Color.BLACK);
 
-                        // Redraw the TextView to reflect the changes
-                        activity.selectedLayer.getTextView().invalidate();
                     }
 
                     @Override
@@ -382,11 +389,73 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     }
                 });
                 break;
+            case Colour:
+                if ( fragmentContainer1.getVisibility() != View.VISIBLE ) {
+                    setDefaultState();
+                    fragmentContainer1.setVisibility(View.VISIBLE);
+                    fragmentContainer1.startAnimation(activity.fadeIn);
+                }
 
+
+
+                showColorPickerFragment(colors);
+                break;
             default:
                 // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
                 setDefaultState();
         }
+
+
+    }
+    private void showFontSelectionFragment() {
+        // Replace "your_fragment_container_id" with the actual ID of your fragment container
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        FontFragment fontFragment = new FontFragment();
+        transaction.replace(R.id.font_container, fontFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    private void showColorPickerFragment(List<Integer> colors) {
+        ColorPickerFragment colorPickerFragment = ColorPickerFragment.newInstance(
+                colors,
+                new ColorPickerFragment.OnColorSelectedListener() {
+                    @Override
+                    public void onColorSelected(int color) {
+                        activity.selectedLayer.getTextView().setTextColor(color);
+                    }
+                }
+        );
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(fragmentContainer1.getId(), colorPickerFragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+    static List<Integer> getFontList() {
+        List<Integer> fontList = new ArrayList<>();
+        fontList.add(R.font.abril_fatface);
+        fontList.add(R.font.bangers);
+        fontList.add(R.font.alex_brush);
+        fontList.add(R.font.f1);
+        fontList.add(R.font.f100);
+        fontList.add(R.font.f11);
+        fontList.add(R.font.f16);
+        fontList.add(R.font.f17);
+        fontList.add(R.font.f19);
+        fontList.add(R.font.f21);
+        fontList.add(R.font.f41);
+        fontList.add(R.font.f46);
+        fontList.add(R.font.f47);
+        fontList.add(R.font.f48);
+        fontList.add(R.font.f51);
+        fontList.add(R.font.f52);
+        fontList.add(R.font.f60);
+        fontList.add(R.font.f67);
+        fontList.add(R.font.f83);
+        fontList.add(R.font.f92);
+        fontList.add(R.font.f93);
+        fontList.add(R.font.f98);
+        return fontList;
     }
     void setDefaultStateFromExternal() {
         setDefaultState();
@@ -395,7 +464,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()-5);
+                selectedLayer.setY(selectedLayer.getY()-3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -404,7 +473,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()+5);
+                selectedLayer.setY(selectedLayer.getY()+3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -413,7 +482,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()-5);
+                selectedLayer.setX(selectedLayer.getX()-3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -422,7 +491,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()+5);
+                selectedLayer.setX(selectedLayer.getX()+3);
                 handler.postDelayed(this, 10);
             }
         }, 50);
@@ -432,12 +501,42 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             // Stop the continuous movement
             handler.removeCallbacksAndMessages(null);}
     }
+    static List<Integer> getYourColorList() {
+        List<Integer> colors = new ArrayList<>();
+
+        colors.add(0xFFED0A3F); // Red
+        colors.add(0xFFE91E63); // Pink
+        colors.add(0xFFFF2C93); //Light Pink
+        colors.add(0xFF9C27B0); // Purple
+        colors.add(0xFF673AB7); // DEEP PURPLE 500
+        colors.add(0xFF3F51B5); // INDIGO 500
+        colors.add(0xFF2196F3); // BLUE 500
+        colors.add(0xFF03A9F4); // LIGHT BLUE 500
+        colors.add(0xFF00BCD4); // CYAN 500
+        colors.add(0xFF009688); // TEAL 500
+        colors.add(0xFF4CAF50); // GREEN 500
+        colors.add(0xFF8BC34A); // LIGHT GREEN 500
+        colors.add(0xFFCDDC39); // LIME 500
+        colors.add(0xFFFFEB3B); // YELLOW 500
+        colors.add(0xFFFFC107); // AMBER 500
+        colors.add(0xFFFF9800); // ORANGE 500
+        colors.add(0xFF795548); // BROWN 500
+        colors.add(0xFF607D8B); // BLUE GREY 500
+        colors.add(0xFF9E9E9E); // GREY 500
+        colors.add(0xFFFFFFFF); // WHITE
+        colors.add(0xFF000000); // BLACK
+
+        return colors;
+    }
     @Override
+
     public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
         Typeface currentTypeface = activity.selectedLayer.getTextView().getTypeface();
 
+
         switch (toolType) {
             case formatBold:
+
                 // Toggle bold
                 if (currentTypeface != null) {
                     if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
@@ -447,6 +546,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     } else if ((currentTypeface.getStyle() == Typeface.ITALIC)) {
                         activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD_ITALIC);
                     }
+
                 }
                 else {
                     activity.selectedLayer.getTextView().setTypeface(null, Typeface.BOLD);
@@ -465,14 +565,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
                 currentText = activity.selectedLayer.getTextView().getText().toString();
                 activity.selectedLayer.getTextView().setText(currentText);
+                break;
 
-                break;
-            case formatCenter:
-                // Set text alignment to center
-                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                currentText = activity.selectedLayer.getTextView().getText().toString();
-                activity.selectedLayer.getTextView().setText(currentText);
-                break;
             case formatRight:
                 // Set text alignment to the right
                 activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
@@ -495,6 +589,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     activity.selectedLayer.getTextView().setTypeface(null, Typeface.ITALIC);
                 }
                 break;
+            case formatCenter:
+                // Set text alignment to center
+                activity.selectedLayer.getTextView().setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                currentText = activity.selectedLayer.getTextView().getText().toString();
+                activity.selectedLayer.getTextView().setText(currentText);
+                break;
             case Format:
                 String originalText = activity.selectedLayer.getTextView().getText().toString();
                 if (originalText.equals(originalText.toLowerCase())) {
@@ -508,5 +608,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 }
                 break;
         }
+
     }
+
 }

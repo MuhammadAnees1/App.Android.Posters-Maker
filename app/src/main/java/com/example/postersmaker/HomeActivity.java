@@ -43,7 +43,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
     private void openGallery() {
         galleryLauncher.launch("image/*");
     }

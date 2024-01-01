@@ -53,7 +53,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     private StrokeType currentStrokeType = StrokeType.LINE;
     static RecyclerView recyclerView;
     RecyclerView TypeTextLayout;
-    Button UpButton, downButton, leftButton, rightButton ,editButton,Image_control_button,Image_control_opacity,flipButton ;
+    Button UpButton, downButton, leftButton, rightButton ,editButton,flipButton ;
+    static Button Image_control_button,Image_control_opacity;
     Paint textPaint;
     private Paint strokePaint;
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);

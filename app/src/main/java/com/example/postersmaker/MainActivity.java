@@ -96,9 +96,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
-         parentLayout = findViewById(R.id.parentLayout);
+        parentLayout = findViewById(R.id.parentLayout);
 
-         fadeIn = new TranslateAnimation(0, 0, 400, 0);
+        fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
@@ -367,7 +367,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if(selectedLayer1 != null) {
 
 
-        unselectLayers(selectedLayer1);}
+            unselectLayers(selectedLayer1);}
+
+
         if (!textLayout.getLocked()) {
             if (textLayout != null) {
                 FrameLayout layer = textLayout.getFrameLayout();
@@ -390,6 +392,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         // Animation duration in milliseconds
                         container.startAnimation(fadeIn);
                     }
+                    if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE){
+                        HomeFragment.Image_control_opacity.setVisibility(View.GONE);
+                        HomeFragment.Image_control_button.setVisibility(View.GONE);
+                    }
+                    HomeFragment.recyclerView.setVisibility(View.VISIBLE);
                     // Set the background resource to indicate selection
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
@@ -552,18 +559,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
 
     private void openEmojiFragment() {
-            EmojiFragment emojiFragment = new EmojiFragment();
-            emojiFragment.setEmojiListener(new EmojiFragment.EmojiListener() {
-                @Override
-                public void onEmojiClick(String emojiUnicode) {
-                    // Handle the clicked emoji, if needed
-                    createTextLayout(emojiUnicode, 300, 300);
-                    EmojiList.add(emojiUnicode);
-                }
-            });
+        EmojiFragment emojiFragment = new EmojiFragment();
+        emojiFragment.setEmojiListener(new EmojiFragment.EmojiListener() {
+            @Override
+            public void onEmojiClick(String emojiUnicode) {
+                // Handle the clicked emoji, if needed
+                createTextLayout(emojiUnicode, 300, 300);
+                EmojiList.add(emojiUnicode);
+            }
+        });
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            emojiFragment.show(fragmentManager, emojiFragment.getTag());
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        emojiFragment.show(fragmentManager, emojiFragment.getTag());
 
     }
     public void onEditButtonClick(int index) {
@@ -773,10 +780,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     public static void selectLayers(ImageLayout imageLayout) {
         unselectLayers(selectedLayer1);
+
         if(selectedLayer1 != null){
 
 
-        unselectLayer(selectedLayer);}
+            unselectLayer(selectedLayer);}
         selectedLayer1 = imageLayout;
         if (imageLayout != null ) {
             FrameLayout layer = imageLayout.getFrameLayout();
@@ -798,6 +806,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     // Animation duration in milliseconds
 //                    container.startAnimation(fadeIn);
                 }
+                if(HomeFragment.recyclerView.getVisibility() == View.VISIBLE){
+                    HomeFragment.recyclerView.setVisibility(View.GONE);
+                }
+                HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
+                HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
             }

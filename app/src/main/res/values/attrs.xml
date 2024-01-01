@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="BlurBuilder">
+        <attr name="radius" format="integer" />
+    </declare-styleable>
+</resources>

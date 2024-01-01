@@ -7,27 +7,53 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context=".MainActivity">
-    <ImageView
-        android:id="@+id/previewImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="450dp"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        android:src="@drawable/placeholder_image"
+
+    <FrameLayout
+        android:id="@+id/parentLayout"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        app:layout_constraintBottom_toTopOf="@+id/imgUndo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LayerButton"
-        tools:ignore="MissingConstraints" />
-    <Button
-        android:id="@+id/LayerButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:text="Layers"
-        android:drawablePadding="5dp"
-        android:drawableEnd="@drawable/baseline_layers_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgShare" />
+        app:layout_constraintTop_toBottomOf="@+id/LayerButton">
+
+        <com.jgabrielfreitas.core.BlurImageView
+        android:id="@+id/previewImageView"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/andd"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+        <View
+            android:id="@+id/previewImageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="400dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:background="#4D000000"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+
+    </FrameLayout>
+
+        <Button
+            android:id="@+id/LayerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:drawableEnd="@drawable/baseline_layers_24"
+            android:drawablePadding="5dp"
+            android:text="Layers"
+            android:textColor="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imgShare" />
 
     <ImageView
         android:id="@+id/imgUndo"
@@ -62,27 +88,7 @@
         app:layout_constraintTop_toBottomOf="@+id/LayerButton"
         tools:listitem="@layout/item_layers" />
 
-    <ImageView
-        android:id="@+id/imgGallery"
-        android:layout_width="@dimen/top_tool_icon_width"
-        android:layout_height="wrap_content"
-        android:background="@color/semi_black_transparent"
-        android:padding="8dp"
-        android:src="@drawable/gallery_icon"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints" />
 
-    <ImageView
-        android:id="@+id/imgCamera"
-        android:layout_width="@dimen/top_tool_icon_width"
-        android:layout_height="wrap_content"
-        android:background="@color/semi_black_transparent"
-        android:padding="8dp"
-        android:src="@drawable/baseline_photo_camera_24"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
-        app:layout_constraintStart_toEndOf="@id/imgGallery"
-        tools:ignore="MissingConstraints" />
 
     <ImageView
         android:id="@+id/imgClose"
@@ -114,6 +120,7 @@
         android:src="@drawable/baseline_save_as_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imgShare"
         android:layout_width="@dimen/top_tool_icon_width"
@@ -121,8 +128,8 @@
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
         android:src="@drawable/baseline_share_24"
-        app:layout_constraintEnd_toStartOf="@+id/imgUndo"
-        app:layout_constraintStart_toEndOf="@+id/imgCamera"
+        app:layout_constraintEnd_toStartOf="@+id/imgSave"
+        app:layout_constraintStart_toEndOf="@+id/imgClose"
         tools:ignore="MissingConstraints" />
 
     <FrameLayout
@@ -132,5 +139,6 @@
         android:layout_marginTop="10dp"
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         tools:ignore="MissingConstraints" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

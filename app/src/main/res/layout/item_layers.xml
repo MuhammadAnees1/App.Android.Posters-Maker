@@ -25,6 +25,15 @@
         android:textColor="@color/white"
         android:text="ABCD abcd"
         />
+    <ImageView
+        android:id="@+id/layerNameImageView"
+        android:layout_width="40dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/white"
+        android:text="ABCD abcd"
+        />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/EditLayerButton"

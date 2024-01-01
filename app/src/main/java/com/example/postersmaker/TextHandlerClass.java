@@ -1,21 +1,20 @@
 package com.example.postersmaker;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.carousel.MaskableFrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +22,13 @@ import java.util.List;
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
+//    static List<Pair<ImageLayout, String> > combinedList = new ArrayList<>();
 
-    static List<ViewGroup> viewGroup2 = new ArrayList<>();
     public static void swapViewsInLayout(int fromIndex, int toIndex) {
         if (fromIndex >= 0 && fromIndex < textLayoutList.size() &&
                 toIndex >= 0 && toIndex < textLayoutList.size()) {
             int a= 0;
             int b= 0;
-
-
             TextLayout fromtextLayout = findTextLayoutByIndex(fromIndex);
             TextLayout totextLayout = findTextLayoutByIndex(toIndex);
             FrameLayout fromFrameLayout = fromtextLayout.getFrameLayout();
@@ -48,7 +45,8 @@ public class TextHandlerClass {
                             fromParent.removeView(fromParent.getChildAt(i));
                             a = i;
 
-                            break;}
+                            break;
+                        }
                     }
                     for (int i = 0; i < fromParent.getChildCount(); i++) {
                         if(toParent.getChildAt(i) == toFrameLayout){
@@ -112,33 +110,39 @@ public class TextHandlerClass {
         });
         builder.show();
     }
-
     public static void addTextToImage(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup, String text, float x, float y) {
         MainActivity mainActivity = (MainActivity) context;
+
         // Unselect the old layer if there is one
         if (mainActivity.selectedLayer != null) {
             mainActivity.unselectLayer(mainActivity.selectedLayer);
         }
+
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
         FrameLayout frameLayout = textLayout.getFrameLayout();
 
-        textLayoutList.add(frameLayout);
-        viewGroup.addView(frameLayout);
-        mainActivity.addAction(new MainActivity.CustomAction(
-                // Define the undo logic here
-                () -> {
-                    // Define how to undo the action
-                    viewGroup.removeView(frameLayout);
-                    textLayoutList.remove(frameLayout);
-                },
-                // Define the redo logic here
-                () -> {
-                    // Define how to redo the action
-                    viewGroup.addView(frameLayout);
-                    textLayoutList.add(frameLayout);
+        // Check if the frameLayout already has a parent
+        if (frameLayout.getParent() == null) {
+            // Add the frameLayout to the viewGroup
+            viewGroup.addView(frameLayout);
+            textLayoutList.add(frameLayout);
 
-                }
-        ));
+            // Add an action for undo and redo
+            mainActivity.addAction(new MainActivity.CustomAction(
+                    () -> {
+                        // Undo logic: remove the frameLayout from the viewGroup
+                        viewGroup.removeView(frameLayout);
+                        textLayoutList.remove(frameLayout);
+                    },
+                    () -> {
+                        // Redo logic: add the frameLayout back to the viewGroup
+                        viewGroup.addView(frameLayout);
+                        textLayoutList.add(frameLayout);
+                    }
+            ));
+        } else {
+            Log.e(TAG, "addTextToImage: FrameLayout already has a parent");
+        }
     }
 
     // Retrieve the array of texts
@@ -157,7 +161,6 @@ public class TextHandlerClass {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newText = input.getText().toString();
-
 
                 int index = -1;
 

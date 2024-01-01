@@ -15,12 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PostersMaker"
         tools:targetApi="31">
-        <activity
-            android:name=".Image_pick_activity"
-            android:exported="false" />
-        <activity
-            android:name=".Crop_Image_activity"
-            android:exported="false" />
+
         <activity
             android:name=".SplashScreen"
             android:exported="true" />

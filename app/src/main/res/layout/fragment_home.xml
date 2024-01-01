@@ -12,32 +12,55 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/tool_bg"
+        android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/Image_control_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/semi_black_transparent"
+        android:drawableTop="@drawable/settings"
+        android:visibility="gone"
+        android:text="Control"
+        android:textColor="#FFF7F7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TypeTextLayout"
+        tools:ignore="MissingConstraints" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/Image_control_opacity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/semi_black_transparent"
+        android:drawableTop="@drawable/transparency"
+        android:visibility="gone"
+        android:text="Opacity"
+        android:textColor="#FFF7F7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TypeTextLayout"
+        tools:ignore="MissingConstraints" />
 
     <SeekBar
         android:id="@+id/seekBarFor"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="60dp"
-       android:layout_marginHorizontal="80dp"
-        app:layout_constraintTop_toBottomOf="@+id/editTextLayout"
-        tools:ignore="MissingConstraints"
-         />
+        android:layout_marginHorizontal="80dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/Image_control_opacity"
+        tools:ignore="MissingConstraints" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/TypeTextLayout"
         android:layout_width="300dp"
         android:layout_height="150dp"
-        android:visibility="gone"
         android:background="@color/tool_bg"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextLayout"
         tools:ignore="MissingConstraints" />
-
-
 
     <LinearLayout
         android:id="@+id/StrokeLayout"
@@ -48,8 +71,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBarFor">
-
-
         <TextView
             android:id="@+id/LineStroke"
             android:layout_width="wrap_content"
@@ -59,7 +80,6 @@
             android:text="Line"
             android:textColor="@color/white"
             app:drawableStartCompat="@drawable/line_stroke" />
-
         <TextView
             android:id="@+id/DashStroke"
             android:layout_width="wrap_content"
@@ -69,27 +89,24 @@
             android:text="Dash"
             android:textColor="@color/white"
             app:drawableStartCompat="@drawable/dash_stroke" />
-
         <TextView
             android:id="@+id/DotStroke"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="Dash"
+            android:text="Dot"
             android:textColor="@color/white"
             app:drawableStartCompat="@drawable/dash_stroke"/>
-
-
     </LinearLayout>
-
 
     <LinearLayout
         android:id="@+id/Text_buttonsUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/TypeTextLayout">
+        app:layout_constraintTop_toTopOf="@+id/seekBarFor">
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/EditButton"
             android:layout_width="60dp"
@@ -98,13 +115,26 @@
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_edit_24"
             android:text="Edit"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/FlipButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:background="@color/semi_black_transparent"
+            android:drawableTop="@drawable/baseline_edit_24"
+            android:text="Flip"
+            android:textColor="@color/white"
+            android:visibility="gone" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/UpButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_weight="1"
             android:layout_toStartOf="@+id/button7"
+            android:layout_weight="1"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_keyboard_arrow_up_24"
             android:text="Up"
@@ -115,18 +145,18 @@
             android:layout_width="66dp"
             android:layout_height="60dp"
             android:layout_toStartOf="@+id/UpButton"
+            android:layout_weight="1"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_keyboard_arrow_down_24"
             android:text="Down"
-            android:layout_weight="1"
             android:textColor="@color/white" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/LeftButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_weight="1"
             android:layout_toStartOf="@+id/RightButton"
+            android:layout_weight="1"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_keyboard_arrow_left_24"
             android:text="Left"
@@ -136,24 +166,22 @@
             android:id="@+id/RightButton"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_weight="1"
             android:layout_toStartOf="@+id/DownButton"
+            android:layout_weight="1"
             android:background="@color/semi_black_transparent"
             android:drawableTop="@drawable/baseline_chevron_right_24"
             android:text="Right"
             android:textColor="@color/white" />
-
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/button7"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentEnd="true"
-            android:layout_weight="1"
-            android:background="@color/semi_black_transparent"
-            android:drawableTop="@drawable/baseline_content_copy_24"
-            android:text="Copy"
-            android:textColor="@color/white" />
+        <!--        <androidx.appcompat.widget.AppCompatButton-->
+        <!--            android:id="@+id/button7"-->
+        <!--            android:layout_width="60dp"-->
+        <!--            android:layout_height="60dp"-->
+        <!--            android:layout_alignParentEnd="true"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:background="@color/semi_black_transparent"-->
+        <!--            android:drawableTop="@drawable/baseline_content_copy_24"-->
+        <!--            android:text="Copy"-->
+        <!--            android:textColor="@color/white" />-->
     </LinearLayout>
 
     <FrameLayout

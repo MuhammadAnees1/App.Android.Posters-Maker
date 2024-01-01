@@ -1,52 +1,46 @@
 package com.example.postersmaker;
 
+import static android.app.ProgressDialog.show;
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.annotation.SuppressLint;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.media.Image;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.dhaval2404.colorpicker.ColorPickerDialog;
-import com.github.dhaval2404.colorpicker.listener.ColorListener;
-import com.github.dhaval2404.colorpicker.model.ColorShape;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
+    static TranslateAnimation fadeIn;
     TextLayout selectedLayer;
+    ImageLayout selectedLayer1;
     MainActivity activity;
     FrameLayout frameLayout,fragmentContainer1, fontContainer;
-     List<Integer> colors = getYourColorList();
-
-
-
+    List<Integer> colors = getYourColorList();
     float lastSetTextSize = 1f;
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
@@ -57,13 +51,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     String currentText;
     LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
-    RecyclerView recyclerView, TypeTextLayout;
-    Button UpButton, downButton, leftButton, rightButton ,editButton ;
-    private Paint textPaint;
+    static RecyclerView recyclerView;
+    RecyclerView TypeTextLayout;
+    Button UpButton, downButton, leftButton, rightButton ,editButton,Image_control_button,Image_control_opacity,flipButton ;
+    Paint textPaint;
     private Paint strokePaint;
     private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
     private final TypeTextAdapter typeTextAdapter = new TypeTextAdapter(this);
-
+    boolean openedFromImagePickerManager = false;
     public HomeFragment(){
     }
     @SuppressLint("ClickableViewAccessibility")
@@ -88,121 +83,200 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         dotStrokeButton = view.findViewById(R.id.DotStroke);
         fragmentContainer1 = view.findViewById(R.id.fragment_container1);
         fontContainer = view.findViewById(R.id.font_container);
+        Image_control_button= view.findViewById(R.id.Image_control_button);
+        Image_control_opacity= view.findViewById(R.id.Image_control_opacity);
+        flipButton = view.findViewById(R.id.FlipButton);
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            openedFromImagePickerManager = arguments.getBoolean("openedFromImagePickerManager", true);
+        }
+        if (openedFromImagePickerManager) {
+            setDefaultState();
+            Image_control_button.setVisibility(View.VISIBLE);
+            Image_control_opacity.setVisibility(View.VISIBLE);
+            }
+        else {
+            if(recyclerView.getVisibility() != View.VISIBLE) {
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setHomeFragment(this);
         }
+        fadeIn = new TranslateAnimation(0, 0, 400, 0);
+        fadeIn.setDuration(400);
+
         textPaint = new Paint();
         strokePaint = new Paint();
         strokePaint.setStyle(Paint.Style.STROKE);
+
         handler = new Handler();
         activity = (MainActivity) requireActivity();
         frameLayout = activity.frameLayout;
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(editTextAdapter);
 
         TypeTextLayout.setLayoutManager(new GridLayoutManager(getContext(), 3));
         TypeTextLayout.setAdapter(typeTextAdapter);
-        editButton.setOnTouchListener(new View.OnTouchListener() {
+
+        Image_control_opacity.setOnClickListener(v -> {
+            setDefaultState();
+                seekBar.setVisibility(View.VISIBLE);
+
+        });
+        flipButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                    if (activity.selectedLayer != null) {
-                        selectedLayer = activity.selectedLayer;
-                        TextHandlerClass.edittextDialog(getContext(), selectedLayer.getTextView());
+            public void onClick(View view) {
+                selectedLayer1 = MainActivity.selectedLayer1;
+                    // Get the current scaleX value of the ImageView
+                    float currentScaleX = selectedLayer1.getImageView().getScaleX();
+                    // Flip the image horizontally by changing the scaleX value
+                    selectedLayer1.getImageView().setScaleX(-currentScaleX);
+                    // You can also use the following line to flip the image vertically
+                    // imageView.setScaleY(-imageView.getScaleY());
+                    // Show a toast message to indicate that the image has been flipped
+                    Toast.makeText(activity, "Image flipped", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+        Image_control_button.setOnClickListener(v -> {
+            if(text_buttonsUp.getVisibility() != View.VISIBLE){
+                setDefaultState();
+                text_buttonsUp.setVisibility(View.VISIBLE);
+                editButton.setVisibility(View.GONE);
+                flipButton.setVisibility(View.VISIBLE);
+//                    text_buttonsUp.startAnimation(activity.fadeIn);
+
+            }
+        });
+        seekBar.setProgress(100); // Set the initial progress to 100
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float opacity = progress / 100f; // Convert progress to a float between 0 and 1
+                selectedLayer1 = MainActivity.selectedLayer1;
+
+                // Ensure that selectedLayer1 and its ImageView are not null
+                if (selectedLayer1 != null && selectedLayer1.getImageView() != null) {
+                    selectedLayer1.getImageView().setAlpha(opacity);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Not needed for this example
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Not needed for this example
+            }
+        });
+
+        editButton.setOnTouchListener((view1, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                if (MainActivity.selectedLayer != null) {
+                    selectedLayer = MainActivity.selectedLayer;
+                    TextHandlerClass.edittextDialog(getContext(), selectedLayer.getTextView());
+                }
+            }
+            return true;
+        });
+        UpButton.setOnTouchListener((view12, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+
+
+                    if (MainActivity.selectedLayer != null) {
+                        selectedLayer = MainActivity.selectedLayer;
+                        moveFrameLayoutUpContinuously();
                     }
-                }
-                return true;
+                    else {
+                        selectedLayer1 = MainActivity.selectedLayer1;
+                        moveFrameLayoutUpContinuously();
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    // Stop moving the FrameLayout
+                    stopMovingFrameLayout();
+                    break;
             }
+            return true;
         });
-        UpButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
+        downButton.setOnTouchListener((view13, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
 
-                        if (activity.selectedLayer != null) {
-                            selectedLayer = activity.selectedLayer;
-                            moveFrameLayoutUpContinuously();
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        // Stop moving the FrameLayout
-                        stopMovingFrameLayout();
-                        break;
-                }
-                return true;
+                    if (MainActivity.selectedLayer != null) {
+                        selectedLayer = MainActivity.selectedLayer;
+                        moveFrameLayoutDownContinuously();
+                    }
+                    else {
+                        selectedLayer1 = MainActivity.selectedLayer1;
+                        moveFrameLayoutDownContinuously();
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    // Stop moving the FrameLayout
+                    stopMovingFrameLayout();
+                    break;
             }
+            return true;
         });
-        downButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (activity.selectedLayer != null) {
-                            selectedLayer = activity.selectedLayer;
-                            moveFrameLayoutDownContinuously();
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        // Stop moving the FrameLayout
-                        stopMovingFrameLayout();
-                        break;
-                }
-                return true;
+        leftButton.setOnTouchListener((view14, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (MainActivity.selectedLayer != null) {
+                        selectedLayer = MainActivity.selectedLayer;
+                        moveFrameLayoutLeftContinuously();
+                    }
+                    else {
+                        selectedLayer1 = MainActivity.selectedLayer1;
+                        moveFrameLayoutLeftContinuously();
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    stopMovingFrameLayout();
+                    break;
             }
+            return true;
         });
-        leftButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (activity.selectedLayer != null) {
-                            selectedLayer = activity.selectedLayer;
-                            moveFrameLayoutLeftContinuously();
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        stopMovingFrameLayout();
-                        break;
-                }
-                return true;
+        rightButton.setOnTouchListener((view15, motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (MainActivity.selectedLayer != null) {
+                        selectedLayer = MainActivity.selectedLayer;
+                        moveFrameLayoutRightContinuously();
+                    }
+                    else {
+                        selectedLayer1 = MainActivity.selectedLayer1;
+                        moveFrameLayoutRightContinuously();
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    stopMovingFrameLayout();
+                    break;
             }
+            return true;
         });
-        rightButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (activity.selectedLayer != null) {
-                            selectedLayer = activity.selectedLayer;
-                            moveFrameLayoutRightContinuously();
-                        }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        stopMovingFrameLayout();
-                        break;
-                }
-                return true;
-            }
-        });
-
         return view;
     }
-
     private void onStrokeTypeSelected(StrokeType strokeType) {
         currentStrokeType = strokeType;
-        if (activity.selectedLayer != null) {
-            activity.selectedLayer.setStrokeType(strokeType);
-
+        if (MainActivity.selectedLayer != null) {
+            MainActivity.selectedLayer.setStrokeType(strokeType);
         }
     }
-
     private void setDefaultState() {
         // Set your default UI state here
         fontContainer.setVisibility(View.GONE);
         fragmentContainer1.setVisibility(View.GONE);
         seekBar.setVisibility(View.GONE);
+        Image_control_button.setVisibility(View.GONE);
+        Image_control_opacity.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
         text_buttonsUp.setVisibility(View.GONE);
         StrokeLayout.setVisibility(View.GONE);
@@ -210,32 +284,32 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     @Override
     public void onToolSelected(ToolTypesForEditAdaptor toolType) {
         switch (toolType) {
-
             case Control:
                 if(text_buttonsUp.getVisibility() != View.VISIBLE){
                     setDefaultState();
                     text_buttonsUp.setVisibility(View.VISIBLE);
-                    text_buttonsUp.startAnimation(activity.fadeIn);}
+                    editButton.setVisibility(View.VISIBLE);
+                    text_buttonsUp.startAnimation(fadeIn);
+                }
                 break;
             case Style:
                 if(TypeTextLayout.getVisibility() != View.VISIBLE){
                     setDefaultState();
                     TypeTextLayout.setVisibility(View.VISIBLE);
-                    TypeTextLayout.startAnimation(activity.fadeIn);}
-
+                    TypeTextLayout.startAnimation(MainActivity.fadeIn);}
                 break;
             case text_size:
                 if(seekBar.getVisibility() != View.VISIBLE){
                     setDefaultState();
                     seekBar.setVisibility(View.VISIBLE);
-                    seekBar.startAnimation(activity.fadeIn);}
+                    seekBar.startAnimation(MainActivity.fadeIn);}
 
                 // Set minimum and maximum text size
                 float minTextSize = 10.0f;
                 float maxTextSize = activity.pxTodp(120);
 
                 // Set initial text size
-                selectedLayer = activity.selectedLayer;
+                selectedLayer = MainActivity.selectedLayer;
                 if(selectedLayer != null) {
                     initialTextSize = selectedLayer.getTextView().getTextSize();
                     lastSetTextSize = initialTextSize;
@@ -257,16 +331,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                         textSize = Math.max(minTextSize, Math.min(textSize, maxTextSize));
 
                         textSize = Math.min(textSize, initialTextSize);
-
-
                         // Set the text size
                         activity.selectedLayer.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-
                         // Notify the parent view to request a layout pass
                         selectedLayer.getFrameLayout().requestLayout();
 
                     }
-
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar) {
                         // Handle touch event start if needed
@@ -282,7 +352,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 if (fontContainer.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     fontContainer.setVisibility(View.VISIBLE);
-                    fontContainer.startAnimation(activity.fadeIn);
+                    fontContainer.startAnimation(MainActivity.fadeIn);
                 }
 
                 showFontSelectionFragment();
@@ -291,7 +361,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 if (seekBar.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     seekBar.setVisibility(View.VISIBLE);
-                    seekBar.startAnimation(activity.fadeIn);}
+                    seekBar.startAnimation(MainActivity.fadeIn);}
                 float minShadow = 0.0f; // Set your minimum shadow value
                 float maxShadow = 20.0f; // Set your maximum shadow value
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -304,7 +374,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                         float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);
 
                         // Apply the shadow to the selectedLayer's TextView
-                        activity.selectedLayer.getTextView().setShadowLayer(shadowValue, shadowValue, shadowValue, Color.BLACK);
+                        MainActivity.selectedLayer.getTextView().setShadowLayer(shadowValue, shadowValue, shadowValue, Color.BLACK);
                     }
 
                     @Override
@@ -325,7 +395,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     seekBar.startAnimation(activity.fadeIn);
                 }
                 seekBar.setMax(activity.pxTodp(33));
-
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -345,10 +414,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 });
                 break;
             case stroke:
-
                 lineStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.LINE));
                 dashStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DASH));
                 dotStrokeButton.setOnClickListener(v -> onStrokeTypeSelected(StrokeType.DOT));
+
                 if (StrokeLayout.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     StrokeLayout.setVisibility(View.VISIBLE);
@@ -356,26 +425,18 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     StrokeLayout.startAnimation(activity.fadeIn);
                 }
 
-                // Set your minimum and maximum stroke width
                 final float minStrokeWidth = 1.0f;
                 final float maxStrokeWidth = 10.0f;
-                // Create a Paint object for stroke
+
                 final Paint strokePaint = activity.selectedLayer.getTextView().getPaint();
                 strokePaint.setStyle(Paint.Style.STROKE);
 
-               minShadow = activity.pxTodp(8);
-               maxShadow = activity.pxTodp(40);
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         float limitedProgress = Math.min(Math.max(progress, 0), activity.pxTodp(40));
-                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / (float)activity.pxTodp(40));
-                        activity.selectedLayer.setShadowWidth((int) shadowValue);
-
-                        // Map the progress value to the desired stroke width range
-
-
+                        float strokeWidth = minStrokeWidth + (maxStrokeWidth - minStrokeWidth) * (limitedProgress / (float) activity.pxTodp(40));
+                        strokePaint.setStrokeWidth(strokeWidth);
                     }
 
                     @Override
@@ -388,6 +449,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                         // Add logic if needed when the user stops tracking touch on the SeekBar
                     }
                 });
+
                 break;
             case Colour:
                 if ( fragmentContainer1.getVisibility() != View.VISIBLE ) {
@@ -395,17 +457,11 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     fragmentContainer1.setVisibility(View.VISIBLE);
                     fragmentContainer1.startAnimation(activity.fadeIn);
                 }
-
-
-
                 showColorPickerFragment(colors);
                 break;
-            default:
-                // Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
+            default:// Unselecting the text_size button, so set seekBar to GONE and text_buttonsUp to VISIBLE
                 setDefaultState();
         }
-
-
     }
     private void showFontSelectionFragment() {
         // Replace "your_fragment_container_id" with the actual ID of your fragment container
@@ -464,8 +520,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()-3);
-                handler.postDelayed(this, 10);
+                if (MainActivity.selectedLayer != null) {
+                    selectedLayer.setY(selectedLayer.getY() - 3);
+                    handler.postDelayed(this, 10);
+                }else {
+                    selectedLayer1.setY(selectedLayer1.getY() - 3);
+                    handler.postDelayed(this, 10);
+                }
             }
         }, 50);
     }
@@ -473,8 +534,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setY(selectedLayer.getY()+3);
-                handler.postDelayed(this, 10);
+                if (MainActivity.selectedLayer != null) {
+                    selectedLayer.setY(selectedLayer.getY()+3);
+                    handler.postDelayed(this, 10);
+                } else {
+                    selectedLayer1.setY(selectedLayer1.getY()+3);
+                    handler.postDelayed(this, 10);
+                }
             }
         }, 50);
     }
@@ -482,8 +548,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()-3);
-                handler.postDelayed(this, 10);
+                if (MainActivity.selectedLayer != null) {
+                    selectedLayer.setX(selectedLayer.getX() - 3);
+                    handler.postDelayed(this, 10);
+                } else {
+                    selectedLayer1.setX(selectedLayer1.getX() - 3);
+                    handler.postDelayed(this, 10);
+                }
             }
         }, 50);
     }
@@ -491,22 +562,27 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectedLayer.setX(selectedLayer.getX()+3);
-                handler.postDelayed(this, 10);
+                if (MainActivity.selectedLayer != null) {
+                    selectedLayer.setX(selectedLayer.getX() + 3);
+                    handler.postDelayed(this, 10);
+                } else {
+                    selectedLayer1.setX(selectedLayer1.getX() +3);
+                    handler.postDelayed(this, 10);
+                }
             }
         }, 50);
     }
     private void stopMovingFrameLayout() {
-        if (selectedLayer != null) {
-            // Stop the continuous movement
-            handler.removeCallbacksAndMessages(null);}
+        if (selectedLayer != null || selectedLayer1 != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
     static List<Integer> getYourColorList() {
         List<Integer> colors = new ArrayList<>();
 
         colors.add(0xFFED0A3F); // Red
         colors.add(0xFFE91E63); // Pink
-        colors.add(0xFFFF2C93); // Light Pink
+        colors.add(0xFFFF2C93); //Light Pink
         colors.add(0xFF9C27B0); // Purple
         colors.add(0xFF673AB7); // DEEP PURPLE 500
         colors.add(0xFF3F51B5); // INDIGO 500
@@ -536,7 +612,6 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         switch (toolType) {
             case formatBold:
-
                 // Toggle bold
                 if (currentTypeface != null) {
                     if ((currentTypeface.getStyle() == Typeface.BOLD_ITALIC)) {
@@ -554,10 +629,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 break;
             case FormatUnderlined:
                 // Underline the text
-                if ((activity.selectedLayer.getTextView().getPaintFlags() & Paint.UNDERLINE_TEXT_FLAG) != 0) {
-                    activity.selectedLayer.getTextView().setPaintFlags(activity.selectedLayer.getTextView().getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
+                if ((MainActivity.selectedLayer.getTextView().getPaintFlags() & Paint.UNDERLINE_TEXT_FLAG) != 0) {
+                    MainActivity.selectedLayer.getTextView().setPaintFlags(MainActivity.selectedLayer.getTextView().getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                 } else {
-                    activity.selectedLayer.getTextView().setPaintFlags(activity.selectedLayer.getTextView().getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    activity.selectedLayer.getTextView().setPaintFlags(MainActivity.selectedLayer.getTextView().getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                 }
                 break;
             case formatLeft:
@@ -612,6 +687,3 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     }
 
 }
-
-
-

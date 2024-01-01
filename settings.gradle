@@ -2,21 +2,19 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-
-
-
         gradlePluginPortal()
     }
 }
-
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }
+        // Add other repositories if needed
+        maven { url 'https://jitpack.io' }
     }
 }
+
 
 rootProject.name = "Posters Maker"
 include ':app'

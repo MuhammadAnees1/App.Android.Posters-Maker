@@ -3,28 +3,17 @@ package com.example.postersmaker;
 
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
-import static java.util.Collections.*;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,17 +23,11 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     List<String> textList;
     final ItemTouchHelper itemTouchHelper;
     String text;
-
     TextLayout selectedTextLayout;
-
     int index;
-
     public Layers_Adapter(Context context, List<String> textList, RecyclerView recyclerView) {
         this.context = context;
         this.textList = (textList != null) ? textList : new ArrayList<>();
-
-        // Set up the ItemTouchHelper
-
 
         itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -55,11 +38,11 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_layers, parent, false);
         return new ViewHolder(view);
     }
-
     public void updateData(List<String> newTextList) {
         textList = newTextList;
         notifyDataSetChanged();
     }
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         text = textList.get(position);
@@ -71,31 +54,19 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
                 if (index == textLayoutList2.indexOf(textLayout)) {
                     iflocked = textLayout;
                 }
-
                 if(iflocked != null){
-
-
-
                     if(iflocked.getLocked()) {
                         holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
                     }
-                }}
-        }
-
-
-        // Set up your buttons here, e.g., onClick listeners
-        holder.moveLayerButton. setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        itemTouchHelper.startDrag(holder);
-                        break;
                 }
-                return true;
             }
-
+        }
+        // Set up your buttons here, e.g., onClick listeners
+        holder.moveLayerButton. setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                itemTouchHelper.startDrag(holder);
+            }
+            return true;
         });
 
         holder.editLayerButton.setOnClickListener(v -> {
@@ -121,9 +92,8 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
                     } else {
                         holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
                     }
-                }}
-
-
+                }
+            }
         });
     }
 
@@ -131,11 +101,9 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     public int getItemCount() {
         return textList.size();
     }
-
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtTool;
         Button moveLayerButton, editLayerButton, lockLayerButton;
-        int index;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -145,44 +113,35 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             lockLayerButton = itemView.findViewById(R.id.LockLayerButton);
         }
     }
-
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
             ItemTouchHelper.UP | ItemTouchHelper.DOWN , 1) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-            int fromPosition = viewHolder.getBindingAdapterPosition();
-            int toPosition = target.getBindingAdapterPosition();
+
+            int fromPosition = viewHolder.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
 
             // Ensure the indices are within the bounds of the list
-            if (fromPosition < toPosition) {
+            if (!textList.isEmpty() && fromPosition < textList.size() && toPosition < textList.size()) {
                 // Move the item in the list
                 Collections.swap(textList, fromPosition, toPosition);
-
                 if (context instanceof MainActivity) {
-                    Collections.swap(textLayoutList2, fromPosition, toPosition);
-                    Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
-
+                    if (!textLayoutList2.isEmpty() && fromPosition < textLayoutList2.size() && toPosition < textLayoutList2.size()) {
+                        Collections.swap(textLayoutList2, fromPosition, toPosition);
+                    }
+                    if (!((MainActivity) context).textLayoutList.isEmpty() && fromPosition < ((MainActivity) context).textLayoutList.size() && toPosition < ((MainActivity) context).textLayoutList.size()) {
+                        Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
+                    }
                     // Swap the views inside the ViewGroup
                     TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
                 }
-                Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
-                Collections.swap(TextHandlerClass.textList, fromPosition, toPosition);}
-            else if (fromPosition > toPosition) {
-                // Move the item in the list
-                Collections.swap(textList, fromPosition, toPosition);
-
-                if (context instanceof MainActivity) {
-                    Collections.swap(textLayoutList2, fromPosition, toPosition);
-                    Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
-
-                    // Swap the views inside the ViewGroup
-                    TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
+                if (!TextHandlerClass.textLayoutList.isEmpty() && fromPosition < TextHandlerClass.textLayoutList.size() && toPosition < TextHandlerClass.textLayoutList.size()
+                        && !TextHandlerClass.textList.isEmpty() && fromPosition < TextHandlerClass.textList.size() && toPosition < TextHandlerClass.textList.size()) {
+                    Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
+                    Collections.swap(TextHandlerClass.textList, fromPosition, toPosition);
                 }
-                Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
+                notifyItemMoved(fromPosition, toPosition);
             }
-
-            notifyItemMoved(fromPosition, toPosition);
-
             return true;
         }
 
@@ -191,6 +150,4 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             // Handle swipe if needed
         }
     };
-
-
 }

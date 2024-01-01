@@ -1,9 +1,15 @@
 package com.example.postersmaker;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -15,42 +21,67 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.jgabrielfreitas.core.BlurImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-/** @noinspection deprecation*/
+
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
-    private static final int REQUEST_CODE_PICK_IMAGE = 1;
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
+    public static List<String> EmojiList = new ArrayList<>();
     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
+    public static List<ImageLayout> imageLayoutList2 = new ArrayList<>();
     RelativeLayout borderLayout;
-    TranslateAnimation fadeIn, fadeOut;
-//    private final List<CustomAction> actions = new ArrayList<>();
-    public TextLayout selectedLayer;
+    static TranslateAnimation fadeIn;
+    TranslateAnimation fadeOut;
+    private final List<CustomAction> actions = new ArrayList<>();
+    public static TextLayout selectedLayer;
+    public static ImageLayout selectedLayer1;
     Boolean isLocked;
     TextView textView;
-
     Button deleteButton, rotateButton, resizeButton, saveButton, LayerButton;
-    HomeFragment homeFragment;
-//    private int currentActionIndex = -1;
-    public ImageView imageView, imgUndo, imgRedo;
-    FrameLayout frameLayout, container;
+    static HomeFragment homeFragment;
+    private int currentActionIndex = -1;
+    static BlurImageView imageView;
+    public static ImageView  imageView2;
+    public ImageView imgUndo,imgRedo;
+    View previewImageView1;
+    static FrameLayout container,frameLayout,parentLayout;
+    public static void OpacityBackground(int progress) {
+        imageView.setVisibility(View.VISIBLE);
+        float opacity = progress / 100f;
+        imageView.setAlpha(opacity);
+    }
 
-    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        imageView = findViewById(R.id.previewImageView);
-        imageView.setImageResource(R.drawable.blank);
+
+        imageView = (BlurImageView) findViewById(R.id.previewImageView);
+        previewImageView1 = findViewById(R.id.previewImageView1);
         container = findViewById(R.id.fragment_container);
+
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
@@ -59,32 +90,58 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         frameLayout = new FrameLayout(this);
         adapter = new Layers_Adapter(MainActivity.this, textList, LayerRecycleView);
-
-
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
         adapter.textList.addAll(TextHandlerClass.getTextList());
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
-
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
-//        imgUndo.setOnClickListener(v -> undo());
-//
-//        imgRedo.setOnClickListener(v -> redo());
+         parentLayout = findViewById(R.id.parentLayout);
 
-        LayerButton.setOnClickListener(v -> {
-
-            if (LayerRecycleView.getVisibility() == View.VISIBLE) {
+         fadeIn = new TranslateAnimation(0, 0, 400, 0);
+        fadeIn.setDuration(400);
+        fadeOut = new TranslateAnimation(0, 0, 0, 400);
+        fadeOut.setDuration(400);
+        parentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unselectLayer(selectedLayer);
+                unselectLayers(selectedLayer1);
+                selectedLayer = null;
+                selectedLayer1 = null;
                 LayerRecycleView.setVisibility(View.GONE);
-            } else {
-                LayerRecycleView.setVisibility(View.VISIBLE);
+                callSetDefaultState();
+                if (container.getVisibility() == View.VISIBLE) {
+                    container.setVisibility(View.GONE);
+//                    container.startAnimation(fadeOut);
+                }
             }
-
         });
+        imgUndo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                undo();
+            }
+        });
+        imgRedo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                redo();
+            }
+        });
+        LayerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+                if (LayerRecycleView.getVisibility() == View.VISIBLE) {
+                    LayerRecycleView.setVisibility(View.GONE);
+                } else {
+                    LayerRecycleView.setVisibility(View.VISIBLE);
+                }
 
+            }
+        });
     }
-
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
         frameLayout = new FrameLayout(this);
@@ -98,9 +155,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
-
         textLayoutList2.add(textLayout);
-
 
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -108,13 +163,28 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
         borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setGravity(Gravity.CENTER);
+
         textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
 
-
+//        borderLayout.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                float x = event.getX();
+//                float y = event.getY();
+//
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_MOVE:
+//
+//                        borderLayout.setX(x - borderLayout.getWidth() / 2);
+//                        borderLayout.setY(y - borderLayout.getHeight() / 2);
+//                        break;}
+//                return false;
+//            }
+//        });
         textView = new TextView(this);
         textView.setText(text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
@@ -124,30 +194,30 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
 
-        deleteButton = new Button(this);
+
+        deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
         textLayout.setDeleteButton(deleteButton);
-        deleteButton.setBackgroundResource(R.drawable.close);
-        deleteButton.setScaleX(0.26f);
-        deleteButton.setScaleY(0.26f);
-        FrameLayout.LayoutParams deleteButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        deleteButtonParams.gravity = Gravity.TOP | Gravity.END;
-        deleteButtonParams.setMargins(0, pxTodp(-29), pxTodp(-33), 0);
-        deleteButton.setLayoutParams(deleteButtonParams);
 
         textLayout.getDeleteButton().setOnClickListener(v -> {
             ViewGroup viewGroup = findViewById(android.R.id.content);
+
+            // Remove the TextLayout's frameLayout from the view hierarchy
             viewGroup.removeView(textLayout.getFrameLayout());
+
+            // Remove the frameLayout from your lists
             textLayoutList.remove(textLayout.getFrameLayout());
+            parentLayout.removeView(textLayout.getFrameLayout());
 
             // Find the index of the TextLayout in textLayoutList2
             int index = textLayoutList2.indexOf(textLayout);
 
-            if (index != -1) {
+            if (index != -1 && index < TextHandlerClass.textList.size()) {
+                // Remove the TextLayout from your data structure
                 TextHandlerClass.textList.remove(index);
                 textLayoutList2.remove(index);
             }
 
-            textList.remove(text);
+            // Update your adapter or UI as needed
             adapter.updateData(new ArrayList<>());
             adapter.textList.addAll(TextHandlerClass.getTextList());
 
@@ -159,216 +229,57 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 container.startAnimation(fadeOut);
             }
         });
-        rotateButton = new Button(this);
-        rotateButton.setBackgroundResource(R.drawable.rotate);
-        rotateButton.setScaleX(0.26f);
-        rotateButton.setScaleY(0.26f);
+
+        rotateButton = ButtonCreator.createRotateButton(this, 0.26f, 0.26f, -33, -29);
         textLayout.setRotateButton(rotateButton);
-        FrameLayout.LayoutParams rotateButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rotateButtonParams.setMargins(pxTodp(-33), pxTodp(-29), 0, 0);
-        rotateButtonParams.gravity = Gravity.TOP | Gravity.START;
-        rotateButton.setLayoutParams(rotateButtonParams);
+        textLayout.getRotateButton().setOnTouchListener(new RotateTouchListener(textLayout));
 
-        textLayout.getRotateButton().setOnTouchListener(new View.OnTouchListener() {
-            private double startAngle;
-            final float rotationSpeed = 0.0238f;
-            private float currentRotation = 0f;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        selectLayer(textLayout);
-                        callSetDefaultState();
-                        // Store the initial rotation angle
-                        startAngle = getAngle((event.getX() / 10), (event.getY() / 10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
-                        return true;
-
-                    case MotionEvent.ACTION_MOVE:
-                        double currentAngle = getAngle((event.getX() / 10), (event.getY() / 10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
-
-                        // Calculate the angle difference and apply the rotation speed factor
-                        float newRotation = (float) (Math.toDegrees(currentAngle - startAngle) * rotationSpeed);
-                        currentRotation += newRotation;
-
-                        // Apply the new rotation to the FrameLayout
-                        textLayout.getFrameLayout().setRotation(currentRotation);
-                        return true;
-                }
-                return true;
-            }
-        });
         // Add the TextView to the border layout
         borderLayout.addView(textView);
         // Create a button to resize the text
-        resizeButton = new Button(this);
+        resizeButton = ButtonCreator.createResizeButton(this, 0.26f, 0.26f, -31, -29);
         textLayout.setResizeButton(resizeButton);
-        resizeButton.setBackgroundResource(R.drawable.resize);
-        resizeButton.setScaleX(0.26f);
-        resizeButton.setScaleY(0.26f);
-        FrameLayout.LayoutParams buttonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        buttonParams.gravity = Gravity.BOTTOM | Gravity.END;
-        buttonParams.setMargins(0, 0, pxTodp(-31), pxTodp(-29));
-        resizeButton.setLayoutParams(buttonParams);
-        textLayout.getResizeButton().setOnTouchListener(new View.OnTouchListener() {
-            private float lastX = 0f, lastY = 0f;
-            final int MAX_TEXT_SIZE = pxTodp(120);
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        selectLayer(textLayout);
-                        if (lastX == 0f && lastY == 0f) {
-                            lastX = textLayout.getFrameLayout().getX();
-                            lastY = textLayout.getFrameLayout().getY();
-                         }
-                        else {
-                            lastX = event.getRawX();
-                            lastY = event.getRawY();
-                         }
+        ResizeTouchListener textResizeTouchListener = new ResizeTouchListener(textLayout);
+        resizeButton.setOnTouchListener(textResizeTouchListener);
 
-                         callSetDefaultState();
-                         break;
-
-                    case MotionEvent.ACTION_UP:
-
-
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX();
-                        float newY = event.getRawY();
-
-                        // Calculate the direction of resizing based on the current rotation angle
-                        float currentRotation = textLayout.getFrameLayout().getRotation();
-                        double angleInRadians = Math.toRadians(currentRotation);
-                        float cosTheta = (float) Math.cos(angleInRadians);
-                        float sinTheta = (float) Math.sin(angleInRadians);
-
-                        // Calculate the relative movement in the rotated coordinates
-                        float dx = (newX - lastX) * cosTheta + (newY - lastY) * sinTheta;
-                        float dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
-
-                        // Apply resizing along the layout's axes in the rotated coordinates
-                        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) textLayout.getBorderLayout().getLayoutParams();
-                        int currentWidth = params.width;
-                        int currentHeight = params.height;
-
-                        // Check for minimum and maximum dimensions
-                        int minWidth = pxTodp(40); // Minimum width
-                        int minHeight = textLayout.getTextView().getHeight(); // Minimum height
-                        int maxWidth = textLayout.getFrameLayout().getWidth() - pxTodp(32);
-                        int maxHeight = imageView.getHeight();
-
-                        if (currentWidth + dx < minWidth) {
-                            params.width = minWidth;
-                        } else if (currentWidth + dx > maxWidth) {
-                            params.width = maxWidth;
-                        } else {
-                            params.width += dx * 2;
-                        }
-
-                        // Calculate the number of lines in the text
-                        int textHeight = textLayout.getTextView().getLineCount() * textLayout.getTextView().getLineHeight();
-
-                        // If the width is less than the text width, increase the height to accommodate the text
-                        if (params.width < textLayout.getTextView().getWidth()) {
-                            params.height = Math.max(textHeight, textLayout.getTextView().getHeight());
-                        } else {
-                            if (currentHeight + dy < minHeight) {
-                                params.height = minHeight;
-                            } else if (currentHeight + dy > maxHeight) {
-                                params.height = maxHeight;
-                            } else {
-                                params.height += dy;
-                            }
-                        }
-                        // Check for maximum height
-                        if (params.height > maxHeight) {
-                            params.height = maxHeight;
-                        }
-                        // Apply the new dimensions to the border layout
-
-
-                        // Adjust the text size based on the height and width limits
-                        float textSize = textLayout.getTextView().getTextSize();
-                        float newSize = textSize;
-                        if (dy > 0) {
-                            if (params.height > textHeight && textLayout.getTextView().getWidth() < params.width - pxTodp(24) && textLayout.getFrameLayout().getWidth() < imageView.getWidth() - pxTodp(24)) {
-                                newSize = textSize + dy / 4.3f;
-                            }
-                        } else if (dy < 0) {
-                            if (textLayout.getFrameLayout().getWidth() < imageView.getWidth() - pxTodp(24)) {
-                                newSize = textSize + dy / 4.3f;
-                            }
-                        }
-
-                        textLayout.getBorderLayout().setLayoutParams(params);
-
-
-                        // Check for maximum text size
-                        if (newSize > MAX_TEXT_SIZE) {
-                            newSize = MAX_TEXT_SIZE;
-                        }
-                        if (newSize < pxTodp(19)) {
-                            newSize = pxTodp(19);
-                        }
-                        // Adjust text size based on the height and width limits
-                        float maxWidthBasedSize = Math.min(params.width, params.height);
-                        if (newSize > maxWidthBasedSize) {
-                            newSize = maxWidthBasedSize;
-                        }
-                        textLayout.getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX, newSize);
-                        lastX = newX;
-                        lastY = newY;
-                        params.height = textLayout.getTextView().getHeight() + textLayout.getTextView().getLineHeight();
-                        textLayout.getTextView().setMaxWidth(params.width - pxTodp(24));
-
-                        break;
-                }
-                return true;
-            }
-        });
-        saveButton = new Button(this);
+        saveButton = ButtonCreator.createSaveButton(this, 0.282f, 0.282f, -30, -18);
         textLayout.setSaveButton(saveButton);
-        saveButton.setBackgroundResource(R.drawable.checked);
-        saveButton.setScaleX(0.282f);
-        saveButton.setScaleY(0.282f);
-        FrameLayout.LayoutParams saveButtonParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        saveButtonParams.setMargins(pxTodp(-30), 0, 0, pxTodp(-18));
-        saveButtonParams.gravity = Gravity.BOTTOM | Gravity.START;
-        saveButton.setLayoutParams(saveButtonParams);
+
         if (selectedLayer != null && textLayout.getFrameLayout() != null) {
-            textLayout.getSaveButton().setOnClickListener(v -> {
+            textLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unselectLayer(selectedLayer);
+                    unselectLayers(selectedLayer1);
+                    selectedLayer = null;
+                    callSetDefaultState();
+                    if (container.getVisibility() == View.VISIBLE) {
+                        container.setVisibility(View.GONE);
+                        container.startAnimation(fadeOut);
+                    }
+                }
+            });
+        }
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 unselectLayer(selectedLayer);
+                unselectLayers(selectedLayer1);
                 selectedLayer = null;
+                selectedLayer1 = null;
+                LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);
                 }
-
-
-            });
-        }
-        imageView.setOnClickListener(v -> {
-            unselectLayer(selectedLayer);
-            selectedLayer = null;
-            LayerRecycleView.setVisibility(View.GONE);
-            callSetDefaultState();
-            if (container.getVisibility() == View.VISIBLE) {
-                container.setVisibility(View.GONE);
-                container.startAnimation(fadeOut);
             }
         });
         if (selectedLayer != null && textLayout.getFrameLayout() != null) {
             textLayout.setTextView(textView);
-
             textLayout.getTextView().setOnTouchListener(new View.OnTouchListener() {
                 private float lastX, lastY;
-
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     switch (event.getAction()) {
@@ -376,20 +287,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             lastX = event.getRawX();
                             lastY = event.getRawY();
                             unselectLayer(selectedLayer);
+                            unselectLayers(selectedLayer1);
                             selectLayer(textLayout);
-
                             return true;
+
                         case MotionEvent.ACTION_MOVE:
                             if (!textLayout.getLocked()) {
                                 float newX = event.getRawX();
                                 float newY = event.getRawY();
                                 float dX = newX - lastX;
                                 float dY = newY - lastY;
-
                                 // Update the position of the frameLayout based on the drag movement
                                 textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
                                 textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
-
                                 lastX = newX;
                                 lastY = newY;
                                 break;
@@ -398,17 +308,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     return true;
                 }
             });
-
             textLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
                 private float lastX, lastY;
-
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             lastX = event.getRawX();
                             lastY = event.getRawY();
-                            unselectLayer(selectedLayer);
                             selectLayer(textLayout);
 
                             return true;
@@ -431,12 +338,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
-        textLayout.getBorderLayout().setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                unselectLayer(selectedLayer);
-                selectLayer(textLayout);
+        textLayout.getBorderLayout().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        unselectLayer(selectedLayer);
+                        unselectLayers(selectedLayer1);
+                        selectLayer(textLayout);
+
+                }
+                return false;
             }
-            return false;
         });
         textLayout.getFrameLayout().addView(textLayout.getBorderLayout());
         textLayout.getFrameLayout().addView(textLayout.getResizeButton());
@@ -445,15 +358,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.getFrameLayout().addView(textLayout.getSaveButton());
         textLayout.getFrameLayout().setX(x);
         textLayout.getFrameLayout().setY(y);
+        parentLayout.addView(textLayout.getFrameLayout());
 
         return textLayout;
     }
-
-
-    public void selectLayer(TextLayout textLayout) {
+    public static void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
-        if (!textLayout.getLocked()) {
+        if(selectedLayer1 != null) {
 
+
+        unselectLayers(selectedLayer1);}
+        if (!textLayout.getLocked()) {
+            if (textLayout != null) {
                 FrameLayout layer = textLayout.getFrameLayout();
                 if (layer != null) {
                     Button resizeButton = textLayout.getResizeButton();
@@ -470,6 +386,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     }
                     if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
                         container.setVisibility(View.VISIBLE);
+//                        HomeFragment.recyclerView.setVisibility(View.VISIBLE);
                         // Animation duration in milliseconds
                         container.startAnimation(fadeIn);
                     }
@@ -477,11 +394,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
                 selectedLayer = textLayout;
-
+            }
         }
     }
-
-    public void unselectLayer(TextLayout textLayout) {
+    public static void unselectLayer(TextLayout textLayout) {
         if (textLayout != null) {
             FrameLayout layer = textLayout.getFrameLayout();
             if (layer != null) {
@@ -495,93 +411,162 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.INVISIBLE);
                     saveButton.setVisibility(View.INVISIBLE);
                 }
-
                 callSetDefaultState();
                 // Set the background resource to indicate selection
                 layer.setBackground(null);
             }
         }
     }
+    void addAction(CustomAction action) {
+        if (currentActionIndex < actions.size() - 1) {
+            actions.subList(currentActionIndex + 1, actions.size()).clear();
+        }
+        actions.add(action);
+        currentActionIndex = actions.size() - 1;
+    }
+    private void undo() {
+        if (currentActionIndex >= 0) {
+            CustomAction action = actions.get(currentActionIndex);
+            action.undo();
+            currentActionIndex--;
+        }
+    }
+    private void redo() {
+        if (currentActionIndex < actions.size() - 1) {
+            currentActionIndex++;
+            CustomAction action = actions.get(currentActionIndex);
+            action.redo();
+        }
+    }
+    public void updateBackgroundImage(String backgroundFileName) {
+        imageView.setVisibility(View.INVISIBLE);
+        try {
+            InputStream inputStream = getAssets().open("Cover/" + backgroundFileName);
+            Drawable drawable = Drawable.createFromStream(inputStream, null);
+            // Set the drawable as the background of the FrameLayout
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                parentLayout.setBackground(drawable);
+            } else {
+                parentLayout.setBackgroundDrawable(drawable);
+            }
+            parentLayout.setVisibility(View.VISIBLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateBackgroundGallaryImage(String imagePath) {
+        Glide.with(this)
+                .load(imagePath)
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        // Set the loaded image as the background of the FrameLayout
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            parentLayout.setBackground(resource);
+                        } else {
+                            // For older versions of Android
+                            parentLayout.setBackgroundDrawable(resource);
+                        }
 
-//    void addAction(CustomAction action) {
-//        if (currentActionIndex < actions.size() - 1) {
-//            actions.subList(currentActionIndex + 1, actions.size()).clear();
-//        }
-//        actions.add(action);
-//        currentActionIndex = actions.size() - 1;
-//    }
+                        // Ensure visibility
+                        parentLayout.setVisibility(View.VISIBLE);
+                    }
 
-//    private void undo() {
-//        if (currentActionIndex >= 0) {
-//            CustomAction action = actions.get(currentActionIndex);
-//            action.undo();
-//            currentActionIndex--;
-//        }
-//    }
-//
-//    private void redo() {
-//        if (currentActionIndex < actions.size() - 1) {
-//            currentActionIndex++;
-//            CustomAction action = actions.get(currentActionIndex);
-//            action.redo();
-//        }
-//    }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        // Handle any cleanup or additional operations when the image loading is cleared
+                    }
+                });
+    }
 
+    public void applyEffectOnBackgroundImage(String backgroundFileName) {
+        Glide.with(this)
+                .load("file:///android_asset/effect/" + backgroundFileName)
+                .into(imageView);
+    }
 
+    static class CustomAction {
+        private final Runnable undoAction;
+        private final Runnable redoAction;
 
-//    static class CustomAction {
-//        private final Runnable undoAction;
-//        private final Runnable redoAction;
-//
-//        public CustomAction(Runnable undoAction, Runnable redoAction) {
-//            this.undoAction = undoAction;
-//            this.redoAction = redoAction;
-//        }
-//
-//        public void undo() {
-//            undoAction.run();
-//        }
-//
-//        public void redo() {
-//            redoAction.run();
-//        }
-//    }
+        public CustomAction(Runnable undoAction, Runnable redoAction) {
+            this.undoAction = undoAction;
+            this.redoAction = redoAction;
+        }
 
-    private double getAngle(double x, double y, float pivotX, float pivotY) {
+        public void undo() {
+            undoAction.run();
+        }
+
+        public void redo() {
+            redoAction.run();
+        }
+    }
+    static double getAngle(double x, double y, float pivotX, float pivotY) {
         double rad = Math.atan2(y - pivotY, x - pivotX) + Math.PI;
         return (rad * 180 / Math.PI + 180) % 360;
     }
-
-//    private boolean isViewInBounds(View view, int x, int y) {
-//        int[] location = new int[2];
-//        view.getLocationOnScreen(location);
-//        int viewX = location[0];
-//        int viewY = location[1];
-//        int viewWidth = view.getWidth();
-//        int viewHeight = view.getHeight();
-//        return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
-//    }
-
+    private boolean isViewInBounds(View view, int x, int y) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int viewX = location[0];
+        int viewY = location[1];
+        int viewWidth = view.getWidth();
+        int viewHeight = view.getHeight();
+        return (x >= viewX && x <= (viewX + viewWidth)) && (y >= viewY && y <= (viewY + viewHeight));
+    }
     @Override
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
-                TextHandlerClass.showTextDialog(this, textLayoutList, findViewById(android.R.id.content));
+                TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
                 break;
             case Photo:
-                startActivityForResult(new Intent(this, Image_pick.class), REQUEST_CODE_PICK_IMAGE);
+                ImagePickerManager.openGallery(MainActivity.this);
                 break;
             case FILTER:
+                FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
+                EffectFragment effectFragment = new EffectFragment();
+                fragmentTransaction.replace(R.id.fragment_container, effectFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+                break;
             case EMOJI:
-                // Implement as needed
+                openEmojiFragment();
+                break;
+            case Background:
+                FragmentTransaction fragmentTransaction0 = this.getSupportFragmentManager().beginTransaction();
+                BackGroundFragment backGroundFragment = new BackGroundFragment();
+                fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
+                fragmentTransaction0.addToBackStack(null);
+                fragmentTransaction0.commit();
+                break;
+            case Frames:
+                FragmentTransaction fragmentTransaction1 = this.getSupportFragmentManager().beginTransaction();
+                FrameFragment frameFragment = new FrameFragment();
+                fragmentTransaction1.replace(R.id.fragment_container, frameFragment);
+                fragmentTransaction1.addToBackStack(null);
+                fragmentTransaction1.commit();
                 break;
         }
     }
 
+    private void openEmojiFragment() {
+            EmojiFragment emojiFragment = new EmojiFragment();
+            emojiFragment.setEmojiListener(new EmojiFragment.EmojiListener() {
+                @Override
+                public void onEmojiClick(String emojiUnicode) {
+                    // Handle the clicked emoji, if needed
+                    createTextLayout(emojiUnicode, 300, 300);
+                    EmojiList.add(emojiUnicode);
+                }
+            });
 
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            emojiFragment.show(fragmentManager, emojiFragment.getTag());
+
+    }
     public void onEditButtonClick(int index) {
-
-
         // Find the TextLayout in textLayoutList based on the text
         TextLayout selectedTextLayout = findTextLayoutByText(index);
 
@@ -590,7 +575,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             selectLayer(selectedTextLayout);
         }
     }
-
     public void onLockButtonClick(int index) {
         TextLayout selectedTextLayout = findTextLayoutByText(index);
         if (selectedTextLayout != null) {
@@ -606,7 +590,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             adapter.selectedTextLayout = selectedTextLayout;
         }
     }
-
     public TextLayout findTextLayoutByText(int index) {
 
         for (TextLayout textLayout : textLayoutList2) {
@@ -618,20 +601,228 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         return null;
     }
-
-
     public void setHomeFragment(HomeFragment homeFragment) {
         this.homeFragment = homeFragment;
     }
-
     public int pxTodp(int px) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, getResources().getDisplayMetrics());
     }
-
-    public void callSetDefaultState() {
+    public static void callSetDefaultState() {
         if (homeFragment != null) {
             homeFragment.setDefaultStateFromExternal();
         }
     }
+    @SuppressLint("ClickableViewAccessibility")
+    ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
+        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, isLocked, null, imageView2);
+        imageLayout.setFrameLayout(frameLayout);
+        imageLayout.setLocked(false);
+        frameLayout.setTag(imageLayout);
+        selectedLayer1 = imageLayout;
+        imageLayoutList2.add(imageLayout);
 
+        frameLayout = new FrameLayout(this);
+        frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        frameLayout.setBackgroundResource(R.drawable.border_style);
+        imageLayout.setFrameLayout(frameLayout);
+        frameLayout.setMinimumWidth(20);
+        Log.d(TAG, "createImageLayout: " + imageUri);
+
+        RelativeLayout borderLayouts = new RelativeLayout(this);
+        RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15, getResources().getDisplayMetrics());
+        borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
+        borderLayouts.setLayoutParams(borderLayoutParams);
+        imageLayout.setBorderLayout(borderLayouts);
+        borderLayouts.setGravity(Gravity.CENTER);
+
+        imageView2 = new ImageView(this);
+        if (imageUri != null) {
+            // Load the main image
+            Glide.with(this)
+                    .load(imageUri)
+                    .into(imageView2);
+        } else if (frameFileName != null) {
+            // Load the frame image
+            Glide.with(this)
+                    .load("file:///android_asset/Basic/" + frameFileName)
+                    .into(imageView2);
+        }
+        imageLayout.setImageView(imageView2);
+        Log.d(TAG, "createImageLayout: After setImageURI" + imageView2);
+        imageView2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        imageView2.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
+        imageLayout.setDeleteButton(deleteButton);
+
+        imageLayout.getDeleteButton().setOnClickListener(v -> {
+            // Remove the ImageView and FrameLayout associated with the ImageLayout
+            parentLayout.removeView(imageLayout.getFrameLayout());
+            imageLayoutList2.remove(imageLayout);
+
+            // Check and unselect the layer
+            if (selectedLayer1 == imageLayout) {
+                unselectLayers(selectedLayer1);
+
+            }
+        });
+
+        resizeButton = ButtonCreator.createResizeButton(this, 0.26f, 0.26f, -31, -29);
+        imageLayout.setResizeButton(resizeButton);
+        ResizeTouchListener imageResizeTouchListener = new ResizeTouchListener(imageLayout);
+        resizeButton.setOnTouchListener(imageResizeTouchListener);
+
+        rotateButton = ButtonCreator.createRotateButton(this, 0.26f, 0.26f, -33, -29);
+        imageLayout.setRotateButton(rotateButton);
+        imageLayout.getRotateButton().setOnTouchListener(new RotateTouchListener(imageLayout));
+
+        saveButton = ButtonCreator.createSaveButton(this, 0.282f, 0.282f, -30, -18);
+        imageLayout.setSaveButton(saveButton);
+
+        imageLayout.getBorderLayout().setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                unselectLayers(selectedLayer1);
+                unselectLayer(selectedLayer);
+                selectLayers(imageLayout);
+            }
+            return false;
+        });
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                unselectLayers(selectedLayer1);
+                unselectLayer(selectedLayer);
+                selectedLayer1 = null;
+                LayerRecycleView.setVisibility(View.GONE);
+                callSetDefaultState();
+                if (container.getVisibility() == View.VISIBLE) {
+                    container.setVisibility(View.GONE);
+//                    container.startAnimation(fadeOut);
+                }
+            }
+        });
+        imageLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
+            private float lastX, lastY;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = event.getRawX();
+                        lastY = event.getRawY();
+                        unselectLayers(selectedLayer1);
+                        unselectLayer(selectedLayer);
+                        selectLayers(imageLayout);
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        if (!imageLayout.getLocked()) {
+                            float newX = event.getRawX();
+                            float newY = event.getRawY();
+                            float dX = newX - lastX;
+                            float dY = newY - lastY;
+                            imageLayout.getFrameLayout().setX(imageLayout.getFrameLayout().getX() + dX);
+                            imageLayout.getFrameLayout().setY(imageLayout.getFrameLayout().getY() + dY);
+                            lastX = newX;
+                            lastY = newY;
+                            break;
+                        }
+                }
+                return true;
+            }
+        });
+        borderLayouts.addView(imageLayout.getImageView());
+        imageLayout.getFrameLayout().addView(imageLayout.getBorderLayout());
+        imageLayout.getFrameLayout().addView(imageLayout.getResizeButton());
+        imageLayout.getFrameLayout().addView(imageLayout.getDeleteButton());
+        imageLayout.getFrameLayout().addView(imageLayout.getRotateButton());
+        imageLayout.getFrameLayout().addView(imageLayout.getSaveButton());
+        imageLayout.getFrameLayout().setX(x);
+        imageLayout.getFrameLayout().setY(y);
+
+        if (selectedLayer1 != null && imageLayout.getFrameLayout() != null) {
+            imageLayout.getSaveButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    unselectLayers(selectedLayer1);
+                    unselectLayer(selectedLayer);
+                    selectedLayer1 = null;
+                    callSetDefaultState();
+                }
+            });
+        }
+
+        parentLayout.addView(imageLayout.getFrameLayout());
+        return imageLayout;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        if (fragment instanceof BackGroundFragment) {
+            BackGroundFragment backgroundFragment = (BackGroundFragment) fragment;
+            backgroundFragment.handleActivityResult(requestCode, resultCode, data);
+        } else {
+            Toast.makeText(this, "Null", Toast.LENGTH_SHORT).show();
+        }
+        // Forward the result to ImagePickerManager for handling
+        ImagePickerManager.handleActivityResult(this, requestCode, resultCode, data);
+    }
+
+    public static void selectLayers(ImageLayout imageLayout) {
+        unselectLayers(selectedLayer1);
+        if(selectedLayer1 != null){
+
+
+        unselectLayer(selectedLayer);}
+        selectedLayer1 = imageLayout;
+        if (imageLayout != null ) {
+            FrameLayout layer = imageLayout.getFrameLayout();
+            if (layer != null) {
+                Button resizeButton = imageLayout.getResizeButton();
+                Button deleteButton = imageLayout.getDeleteButton();
+                Button rotateButton = imageLayout.getRotateButton();
+                Button saveButton = imageLayout.getSaveButton();
+
+                // Make the associated buttons and features visible
+                if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                    resizeButton.setVisibility(View.VISIBLE);
+                    deleteButton.setVisibility(View.VISIBLE);
+                    rotateButton.setVisibility(View.VISIBLE);
+                    saveButton.setVisibility(View.VISIBLE);
+                }
+                if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
+                    container.setVisibility(View.VISIBLE);
+                    // Animation duration in milliseconds
+//                    container.startAnimation(fadeIn);
+                }
+                // Set the background resource to indicate selection
+                layer.setBackgroundResource(R.drawable.border_style);
+            }
+        }
+    }
+    public static void unselectLayers(ImageLayout selectedLayer1) {
+        if (selectedLayer1 != null) {
+
+            FrameLayout layer = selectedLayer1.getFrameLayout();
+            if (layer != null) {
+                Button resizeButton = selectedLayer1.getResizeButton();
+                Button deleteButton = selectedLayer1.getDeleteButton();
+                Button rotateButton = selectedLayer1.getRotateButton();
+                Button saveButton = selectedLayer1.getSaveButton();
+                if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                    resizeButton.setVisibility(View.INVISIBLE);
+                    deleteButton.setVisibility(View.INVISIBLE);
+                    rotateButton.setVisibility(View.INVISIBLE);
+                    saveButton.setVisibility(View.INVISIBLE);
+                }
+
+                callSetDefaultState();
+                // Set the background resource to indicate selection
+                layer.setBackground(null);
+            }
+        }
+    }
 }

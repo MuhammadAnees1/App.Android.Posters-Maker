@@ -17,6 +17,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mToolList.add(new ToolModel("Text", R.drawable.baseline_text_fields_24, ToolTypeForCustomAdaptor.TEXT));
         mToolList.add(new ToolModel("Filter", R.drawable.ic_photo_filter, ToolTypeForCustomAdaptor.FILTER));
         mToolList.add(new ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolTypeForCustomAdaptor.EMOJI));
+        mToolList.add(new ToolModel("Frames", R.drawable.baseline_filter_frames_24, ToolTypeForCustomAdaptor.Frames));
         mToolList.add(new ToolModel("Background", R.drawable.background, ToolTypeForCustomAdaptor.Background));
     }
     public interface OnItemSelected {
@@ -56,12 +57,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             super(itemView);
             imgToolIcon = itemView.findViewById(R.id.imgToolIcon);
             txtTool = itemView.findViewById(R.id.txtTool);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemSelected.onToolSelected(mToolList.get(getLayoutPosition()).mToolType);
-                }
-            });
+            itemView.setOnClickListener(v -> mOnItemSelected.onToolSelected(mToolList.get(getLayoutPosition()).mToolType));
         }
     }
 }

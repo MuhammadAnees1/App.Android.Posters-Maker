@@ -16,12 +16,21 @@ public class ImageLayout {
     private Boolean isLocked = false;
     private Uri imageUri;
     ImageView imageView;
+    int id;
 
     public Uri getImageUri() {
         return imageUri;
     }
 
-    public ImageLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton , Boolean isLocked, Uri imageUri, ImageView imageView) {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public ImageLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton , Boolean isLocked, Uri imageUri, ImageView imageView, int id) {
         this.frameLayout = frameLayout;
         this.borderLayout = borderLayout;
         this.deleteButton = deleteButton;
@@ -31,6 +40,7 @@ public class ImageLayout {
         this.isLocked = isLocked;
         this.imageView = imageView;
         this.imageUri = imageUri;
+        this.id = id;
     }
     public void setImageUri(Uri imageUri) {
         this.imageUri = imageUri;

@@ -114,8 +114,8 @@ public class TextHandlerClass {
         MainActivity mainActivity = (MainActivity) context;
 
         // Unselect the old layer if there is one
-        if (mainActivity.selectedLayer != null) {
-            mainActivity.unselectLayer(mainActivity.selectedLayer);
+        if (MainActivity.selectedLayer != null) {
+            MainActivity.unselectLayer(MainActivity.selectedLayer);
         }
 
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);

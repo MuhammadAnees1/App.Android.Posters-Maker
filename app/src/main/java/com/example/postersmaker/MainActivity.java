@@ -2,6 +2,8 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -46,7 +48,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     private final CustomAdapter customAdapter = new CustomAdapter(this);
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
-    public static List<String> EmojiList = new ArrayList<>();
+    int idT, idI ;
+    int Tid = 0;
     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
@@ -142,19 +145,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 } else {
                     LayerRecycleView.setVisibility(View.VISIBLE);
                 }
-                combinedItemList.clear();
-                Layers_Adapter.combinedItemList.clear();
-                for (TextLayout textLayout : textLayoutList2) {
-                    CombinedItem combinedItem = new CombinedItem(textLayout.getTextView().getText().toString());
-                    combinedItemList.add(combinedItem);
-                }
-
-// Iterate through imageLayoutList2 and add CombinedItem instances to combinedItemList
-                for (ImageLayout imageLayout : imageLayoutList2) {
-                    CombinedItem combinedItem = new CombinedItem(imageLayout);
-                    combinedItemList.add(combinedItem);
-                }
-                Layers_Adapter.combinedItemList.addAll(combinedItemList);
+//                combinedItemList.clear();
+//                Layers_Adapter.combinedItemList.clear();
+//                for (TextLayout textLayout : textLayoutList2) {
+//                    CombinedItem combinedItem = new CombinedItem(textLayout.getTextView().getText().toString());
+//                    combinedItemList.add(combinedItem);
+//                }
+//
+//                for (ImageLayout imageLayout : imageLayoutList) {
+//                    CombinedItem combinedItem = new CombinedItem(imageLayout);
+//                    combinedItemList.add(combinedItem);
+//                }
+               Layers_Adapter.combinedItemList = combinedItemList;
             }
         });
 
@@ -167,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout.setBackgroundResource(R.drawable.border_style);
 
         frameLayout.setMinimumWidth(20);
-        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView, isLocked);
+        TextLayout textLayout = new TextLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, textView, isLocked, idT);
         textLayout.setFrameLayout(frameLayout);
         textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
@@ -227,6 +229,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             // Find the index of the TextLayout in textLayoutList2
             int index = textLayoutList2.indexOf(textLayout);
+
+
+            for ( int i : CombinedItem.ids ){
+                if(i == textLayout.getId()){
+                    combinedItemList.remove(CombinedItem.ids.indexOf(i));
+
+                    CombinedItem.ids.remove((Integer) i);
+                    break;
+                }
+
+            }
 
             if (index != -1 && index < TextHandlerClass.textList.size()) {
                 // Remove the TextLayout from your data structure
@@ -376,8 +389,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.getFrameLayout().setX(x);
         textLayout.getFrameLayout().setY(y);
         parentLayout.addView(textLayout.getFrameLayout());
-
-        return textLayout;
+        idT = Tid + 1;
+        Tid++;
+        textLayout.setId(idT);
+        CombinedItem.ids.add(idT);
+        combinedItemList.add(new CombinedItem(textLayout));
+            return textLayout;
     }
     public static void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
@@ -409,11 +426,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         // Animation duration in milliseconds
                         container.startAnimation(fadeIn);
                     }
-                    if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE){
-                        HomeFragment.Image_control_opacity.setVisibility(View.GONE);
-                        HomeFragment.Image_control_button.setVisibility(View.GONE);
+                    if(HomeFragment.Image_control_opacity != null && HomeFragment.Image_control_button != null) {
+                        if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE ) {
+                            HomeFragment.Image_control_opacity.setVisibility(View.GONE);
+                            HomeFragment.Image_control_button.setVisibility(View.GONE);
+                        }
                     }
-                    HomeFragment.recyclerView.setVisibility(View.VISIBLE);
+                    if(HomeFragment.recyclerView != null){
+                    HomeFragment.recyclerView.setVisibility(View.VISIBLE);}
                     // Set the background resource to indicate selection
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
@@ -582,7 +602,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onEmojiClick(String emojiUnicode) {
                 // Handle the clicked emoji, if needed
                 createTextLayout(emojiUnicode, 300, 300);
-                EmojiList.add(emojiUnicode);
+                textList.add(emojiUnicode);
+                TextHandlerClass.textList.add(emojiUnicode);
+                container.setVisibility(View.VISIBLE);
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+                HomeFragment homeFragment = new HomeFragment();
+                fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
@@ -638,7 +666,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @SuppressLint("ClickableViewAccessibility")
     ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
-        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, isLocked, null, imageView2);
+        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI);
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
         frameLayout.setTag(imageLayout);
@@ -683,15 +711,34 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageLayout.setDeleteButton(deleteButton);
 
         imageLayout.getDeleteButton().setOnClickListener(v -> {
-            // Remove the ImageView and FrameLayout associated with the ImageLayout
-            parentLayout.removeView(imageLayout.getFrameLayout());
-            imageLayoutList2.remove(imageLayout);
 
-            // Check and unselect the layer
+
+            for ( int i : CombinedItem.ids ){
+                if(i == imageLayout.getId()){
+                    combinedItemList.remove(CombinedItem.ids.indexOf(i));
+                    CombinedItem.ids.remove((Integer) i);
+                    break;
+                }else{
+                    Toast.makeText(this, "NF", Toast.LENGTH_SHORT).show();
+                }
+            }
+            imageLayoutList.remove(imageLayout);
+            imageLayoutList2.remove(imageLayout);
+            Toast.makeText(this, "bnhj", Toast.LENGTH_SHORT).show();
+            parentLayout.removeView(imageLayout.getFrameLayout());
+            adapter.updateData(new ArrayList<>());
+            adapter.notifyDataSetChanged();
+            LayerRecycleView.setVisibility(View.GONE);
+
+            if (container.getVisibility() == View.VISIBLE) {
+                container.setVisibility(View.GONE);
+                container.startAnimation(fadeOut);
+            }
             if (selectedLayer1 == imageLayout) {
                 unselectLayers(selectedLayer1);
 
             }
+
         });
 
         resizeButton = ButtonCreator.createResizeButton(this, 0.26f, 0.26f, -31, -29);
@@ -720,6 +767,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 unselectLayers(selectedLayer1);
                 unselectLayer(selectedLayer);
                 selectedLayer1 = null;
+
                 LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
                 if (container.getVisibility() == View.VISIBLE) {
@@ -778,6 +826,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
 
         parentLayout.addView(imageLayout.getFrameLayout());
+        idI = Tid + 1;
+        Tid++;
+        imageLayout.setId(idI);
+        CombinedItem.ids.add(idI);
+        combinedItemList.add(new CombinedItem(imageLayout));
+
         return imageLayout;
     }
 
@@ -790,8 +844,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if (fragment instanceof BackGroundFragment) {
             BackGroundFragment backgroundFragment = (BackGroundFragment) fragment;
             backgroundFragment.handleActivityResult(requestCode, resultCode, data);
-        } else {
-            Toast.makeText(this, "Null", Toast.LENGTH_SHORT).show();
         }
         // Forward the result to ImagePickerManager for handling
         ImagePickerManager.handleActivityResult(this, requestCode, resultCode, data);

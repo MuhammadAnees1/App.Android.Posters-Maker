@@ -29,10 +29,9 @@ import java.util.List;
 
 public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHolder> {
     Context context;
-    List<String> textList;
     static List<CombinedItem> combinedItemList;
-
-    final ItemTouchHelper itemTouchHelper;
+    List<String> textList;
+//    final ItemTouchHelper itemTouchHelper;
     String text;
     TextLayout selectedTextLayout;
     int index;
@@ -40,8 +39,8 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         this.context = context;
         combinedItemList = (combinedItemList != null) ? combinedItemList : new ArrayList<>();
 
-        itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+//        itemTouchHelper = new ItemTouchHelper(simpleCallback);
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
     }
     @NonNull
     @Override
@@ -58,15 +57,15 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         CombinedItem combinedItem = combinedItemList.get(position);
 
-        String text = combinedItem.getText();
+        TextLayout textLayout2 = combinedItem.getTextlayout2();
         ImageLayout imageLayout = combinedItem.getImageLayout();
         Uri imageUri = imageLayout != null ? imageLayout.getImageUri() : null;
-        Toast.makeText(context, "" + imageUri, Toast.LENGTH_SHORT).show();
-        Log.d("TAG", "onBindViewHolder: " + imageUri);
+
 
         // Now, based on the type of the item, set the appropriate data in the ViewHolder
-        if (text != null) {
+        if (textLayout2 != null) {
             // It's a text item
+            String text = textLayout2.getTextView().getText().toString();
             holder.txtTool.setText(text);
             holder.txtTool.setVisibility(View.VISIBLE);
         } else if (imageLayout != null) {
@@ -75,26 +74,9 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         }
 
 
-        //        text = textList.get(position);
-//        index = position;
-//        TextLayout iflocked = null;
-//        holder.txtTool.setText(text);
-//        for (int i = 0; i < textList.size(); i++) {
-//            for (TextLayout textLayout : textLayoutList2) {
-//                if (index == textLayoutList2.indexOf(textLayout)) {
-//                    iflocked = textLayout;
-//                }
-//                if(iflocked != null){
-//                    if(iflocked.getLocked()) {
-//                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
-//                    }
-//                }
-//            }
-//        }
-        // Set up your buttons here, e.g., onClick listeners
         holder.moveLayerButton. setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                itemTouchHelper.startDrag(holder);
+//                itemTouchHelper.startDrag(holder);
             }
             return true;
         });
@@ -144,42 +126,42 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             lockLayerButton = itemView.findViewById(R.id.LockLayerButton);
             imageView3 = itemView.findViewById(R.id.layerNameImageView);  // Add this line
         }
-    }
-    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP | ItemTouchHelper.DOWN , 1) {
-        @Override
-        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-
-            int fromPosition = viewHolder.getAdapterPosition();
-            int toPosition = target.getAdapterPosition();
-
-            // Ensure the indices are within the bounds of the list
-            if (!textList.isEmpty() && fromPosition < textList.size() && toPosition < textList.size()) {
-                // Move the item in the list
-                Collections.swap(textList, fromPosition, toPosition);
-                if (context instanceof MainActivity) {
-                    if (!textLayoutList2.isEmpty() && fromPosition < textLayoutList2.size() && toPosition < textLayoutList2.size()) {
-                        Collections.swap(textLayoutList2, fromPosition, toPosition);
-                    }
-                    if (!((MainActivity) context).textLayoutList.isEmpty() && fromPosition < ((MainActivity) context).textLayoutList.size() && toPosition < ((MainActivity) context).textLayoutList.size()) {
-                        Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
-                    }
-                    // Swap the views inside the ViewGroup
-                    TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
-                }
-                if (!TextHandlerClass.textLayoutList.isEmpty() && fromPosition < TextHandlerClass.textLayoutList.size() && toPosition < TextHandlerClass.textLayoutList.size()
-                        && !TextHandlerClass.textList.isEmpty() && fromPosition < TextHandlerClass.textList.size() && toPosition < TextHandlerClass.textList.size()) {
-                    Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
-                    Collections.swap(TextHandlerClass.textList, fromPosition, toPosition);
-                }
-                notifyItemMoved(fromPosition, toPosition);
-            }
-            return true;
-        }
-
-        @Override
-        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            // Handle swipe if needed
-        }
-    };
-}
+    }}
+//    ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
+//            ItemTouchHelper.UP | ItemTouchHelper.DOWN , 1) {
+//        @Override
+//        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+//
+//            int fromPosition = viewHolder.getAdapterPosition();
+//            int toPosition = target.getAdapterPosition();
+//
+//            // Ensure the indices are within the bounds of the list
+//            if (!textList.isEmpty() && fromPosition < textList.size() && toPosition < textList.size()) {
+//                // Move the item in the list
+//                Collections.swap(textList, fromPosition, toPosition);
+//                if (context instanceof MainActivity) {
+//                    if (!textLayoutList2.isEmpty() && fromPosition < textLayoutList2.size() && toPosition < textLayoutList2.size()) {
+//                        Collections.swap(textLayoutList2, fromPosition, toPosition);
+//                    }
+//                    if (!((MainActivity) context).textLayoutList.isEmpty() && fromPosition < ((MainActivity) context).textLayoutList.size() && toPosition < ((MainActivity) context).textLayoutList.size()) {
+//                        Collections.swap(((MainActivity) context).textLayoutList, fromPosition, toPosition);
+//                    }
+//                    // Swap the views inside the ViewGroup
+//                    TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
+//                }
+//                if (!TextHandlerClass.textLayoutList.isEmpty() && fromPosition < TextHandlerClass.textLayoutList.size() && toPosition < TextHandlerClass.textLayoutList.size()
+//                        && !TextHandlerClass.textList.isEmpty() && fromPosition < TextHandlerClass.textList.size() && toPosition < TextHandlerClass.textList.size()) {
+//                    Collections.swap(TextHandlerClass.textLayoutList, fromPosition, toPosition);
+//                    Collections.swap(TextHandlerClass.textList, fromPosition, toPosition);
+//                }
+//                notifyItemMoved(fromPosition, toPosition);
+//            }
+//            return true;
+//        }
+//
+//        @Override
+//        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+//            // Handle swipe if needed
+//        }
+//    };
+//}

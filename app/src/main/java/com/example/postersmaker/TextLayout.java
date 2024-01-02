@@ -33,8 +33,11 @@ public class TextLayout {
     private TextView textView;
     private Boolean isLocked ;
     Paint textPaint;
+    int id;
 
-    public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView , Boolean isLocked) {
+
+
+    public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView , Boolean isLocked, int id) {
         this.frameLayout = frameLayout;
         this.borderLayout = borderLayout;
         this.deleteButton = deleteButton;
@@ -45,7 +48,15 @@ public class TextLayout {
         this.textPaint = new Paint();
         this.textView2 = new DottedStrokeTextView(frameLayout.getContext());
         this.isLocked = isLocked;
+        this.id = id;
         textPaint.setColor(Color.BLACK);
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
     public Boolean getLocked() {
         return isLocked;

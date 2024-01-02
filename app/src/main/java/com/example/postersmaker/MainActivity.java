@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static ImageLayout selectedLayer1;
     Boolean isLocked;
     TextView textView;
-    Button deleteButton, rotateButton, resizeButton, saveButton, LayerButton;
+    Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
     private int currentActionIndex = -1;
     static BlurImageView imageView;
@@ -145,17 +145,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 } else {
                     LayerRecycleView.setVisibility(View.VISIBLE);
                 }
-//                combinedItemList.clear();
-//                Layers_Adapter.combinedItemList.clear();
-//                for (TextLayout textLayout : textLayoutList2) {
-//                    CombinedItem combinedItem = new CombinedItem(textLayout.getTextView().getText().toString());
-//                    combinedItemList.add(combinedItem);
-//                }
-//
-//                for (ImageLayout imageLayout : imageLayoutList) {
-//                    CombinedItem combinedItem = new CombinedItem(imageLayout);
-//                    combinedItemList.add(combinedItem);
-//                }
+
                Layers_Adapter.combinedItemList = combinedItemList;
             }
         });
@@ -231,15 +221,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             int index = textLayoutList2.indexOf(textLayout);
 
 
-            for ( int i : CombinedItem.ids ){
-                if(i == textLayout.getId()){
-                    combinedItemList.remove(CombinedItem.ids.indexOf(i));
-
-                    CombinedItem.ids.remove((Integer) i);
+            for ( int i=0 ; i<CombinedItem.ids.size() ; i++) {
+                int td = CombinedItem.ids.get(i);
+                if(td == textLayout.getId()){
+                    combinedItemList.remove(CombinedItem.ids.indexOf(td));
+                    CombinedItem.ids.remove((Integer) td);
                     break;
-                }
-
-            }
+                }}
 
             if (index != -1 && index < TextHandlerClass.textList.size()) {
                 // Remove the TextLayout from your data structure
@@ -391,10 +379,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         parentLayout.addView(textLayout.getFrameLayout());
         idT = Tid + 1;
         Tid++;
-        textLayout.setId(idT);
-        CombinedItem.ids.add(idT);
+        textLayout.setId(Tid);
+        CombinedItem.ids.add(Tid);
         combinedItemList.add(new CombinedItem(textLayout));
-            return textLayout;
+        Toast.makeText(this, ""+Tid, Toast.LENGTH_SHORT).show();
+
+        return textLayout;
     }
     public static void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
@@ -666,7 +656,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @SuppressLint("ClickableViewAccessibility")
     ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
-        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI);
+        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI);
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
         frameLayout.setTag(imageLayout);
@@ -703,28 +693,25 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .into(imageView2);
         }
         imageLayout.setImageView(imageView2);
-        Log.d(TAG, "createImageLayout: After setImageURI" + imageView2);
         imageView2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         imageView2.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
-        imageLayout.setDeleteButton(deleteButton);
+        deleteButton2 = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
+        imageLayout.setDeleteButton(deleteButton2);
 
         imageLayout.getDeleteButton().setOnClickListener(v -> {
 
 
-            for ( int i : CombinedItem.ids ){
-                if(i == imageLayout.getId()){
-                    combinedItemList.remove(CombinedItem.ids.indexOf(i));
-                    CombinedItem.ids.remove((Integer) i);
+            for ( int i=0 ; i<CombinedItem.ids.size() ; i++) {
+                int td = CombinedItem.ids.get(i);
+                if(td == imageLayout.getId()){
+                    combinedItemList.remove(CombinedItem.ids.indexOf(td));
+                    CombinedItem.ids.remove((Integer) td);
                     break;
-                }else{
-                    Toast.makeText(this, "NF", Toast.LENGTH_SHORT).show();
                 }
             }
             imageLayoutList.remove(imageLayout);
             imageLayoutList2.remove(imageLayout);
-            Toast.makeText(this, "bnhj", Toast.LENGTH_SHORT).show();
             parentLayout.removeView(imageLayout.getFrameLayout());
             adapter.updateData(new ArrayList<>());
             adapter.notifyDataSetChanged();
@@ -761,6 +748,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
             return false;
         });
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -826,10 +814,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
 
         parentLayout.addView(imageLayout.getFrameLayout());
-        idI = Tid + 1;
         Tid++;
-        imageLayout.setId(idI);
-        CombinedItem.ids.add(idI);
+        idI = Tid;
+        imageLayout.setId(Tid);
+        CombinedItem.ids.add(Tid);
         combinedItemList.add(new CombinedItem(imageLayout));
 
         return imageLayout;
@@ -874,7 +862,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
                 if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
                     container.setVisibility(View.VISIBLE);
-                    // Animation duration in milliseconds
 //                    container.startAnimation(fadeIn);
                 }
                 if(HomeFragment.recyclerView.getVisibility() == View.VISIBLE){

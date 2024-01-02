@@ -68,9 +68,11 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             String text = textLayout2.getTextView().getText().toString();
             holder.txtTool.setText(text);
             holder.txtTool.setVisibility(View.VISIBLE);
+            holder.imageView3.setVisibility(View.GONE);
         } else if (imageLayout != null) {
             holder.imageView3.setImageURI(imageUri);
             holder.imageView3.setVisibility(View.VISIBLE);
+            holder.txtTool.setVisibility(View.GONE);
         }
 
 

@@ -2,6 +2,8 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static java.security.AccessController.getContext;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-public class TextLayout   {
+public class TextLayout {
     private FrameLayout frameLayout;
     private RelativeLayout borderLayout;
     private Button deleteButton;
@@ -31,6 +33,7 @@ public class TextLayout   {
     private TextView textView;
     private Boolean isLocked ;
     Paint textPaint;
+
     public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView , Boolean isLocked) {
         this.frameLayout = frameLayout;
         this.borderLayout = borderLayout;

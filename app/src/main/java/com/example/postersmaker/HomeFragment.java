@@ -96,10 +96,12 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             setDefaultState();
             Image_control_button.setVisibility(View.VISIBLE);
             Image_control_opacity.setVisibility(View.VISIBLE);
+            flipButton.setVisibility(View.INVISIBLE);
             }
         else {
             if(recyclerView.getVisibility() != View.VISIBLE) {
                 recyclerView.setVisibility(View.VISIBLE);
+                flipButton.setVisibility(View.INVISIBLE);
             }
         }
 

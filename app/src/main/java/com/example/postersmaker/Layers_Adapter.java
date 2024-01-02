@@ -1,19 +1,28 @@
 package com.example.postersmaker;
 
 
+import static com.example.postersmaker.MainActivity.imageView;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,13 +30,15 @@ import java.util.List;
 public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHolder> {
     Context context;
     List<String> textList;
+    static List<CombinedItem> combinedItemList;
+
     final ItemTouchHelper itemTouchHelper;
     String text;
     TextLayout selectedTextLayout;
     int index;
     public Layers_Adapter(Context context, List<String> textList, RecyclerView recyclerView) {
         this.context = context;
-        this.textList = (textList != null) ? textList : new ArrayList<>();
+        combinedItemList = (combinedItemList != null) ? combinedItemList : new ArrayList<>();
 
         itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -45,22 +56,41 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        text = textList.get(position);
-        index = position;
-        TextLayout iflocked = null;
-        holder.txtTool.setText(text);
-        for (int i = 0; i < textList.size(); i++) {
-            for (TextLayout textLayout : textLayoutList2) {
-                if (index == textLayoutList2.indexOf(textLayout)) {
-                    iflocked = textLayout;
-                }
-                if(iflocked != null){
-                    if(iflocked.getLocked()) {
-                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
-                    }
-                }
-            }
+        CombinedItem combinedItem = combinedItemList.get(position);
+
+        String text = combinedItem.getText();
+        ImageLayout imageLayout = combinedItem.getImageLayout();
+        Uri imageUri = imageLayout != null ? imageLayout.getImageUri() : null;
+        Toast.makeText(context, "" + imageUri, Toast.LENGTH_SHORT).show();
+        Log.d("TAG", "onBindViewHolder: " + imageUri);
+
+        // Now, based on the type of the item, set the appropriate data in the ViewHolder
+        if (text != null) {
+            // It's a text item
+            holder.txtTool.setText(text);
+            holder.txtTool.setVisibility(View.VISIBLE);
+        } else if (imageLayout != null) {
+            holder.imageView3.setImageURI(imageUri);
+            holder.imageView3.setVisibility(View.VISIBLE);
         }
+
+
+        //        text = textList.get(position);
+//        index = position;
+//        TextLayout iflocked = null;
+//        holder.txtTool.setText(text);
+//        for (int i = 0; i < textList.size(); i++) {
+//            for (TextLayout textLayout : textLayoutList2) {
+//                if (index == textLayoutList2.indexOf(textLayout)) {
+//                    iflocked = textLayout;
+//                }
+//                if(iflocked != null){
+//                    if(iflocked.getLocked()) {
+//                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+//                    }
+//                }
+//            }
+//        }
         // Set up your buttons here, e.g., onClick listeners
         holder.moveLayerButton. setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -99,11 +129,12 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return textList.size();
+        return combinedItemList.size();
     }
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView txtTool;
         Button moveLayerButton, editLayerButton, lockLayerButton;
+        ImageView imageView3;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -111,6 +142,7 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             moveLayerButton = itemView.findViewById(R.id.MoveLayerButton);
             editLayerButton = itemView.findViewById(R.id.EditLayerButton);
             lockLayerButton = itemView.findViewById(R.id.LockLayerButton);
+            imageView3 = itemView.findViewById(R.id.layerNameImageView);  // Add this line
         }
     }
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(

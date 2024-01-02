@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     public static List<ImageLayout> imageLayoutList2 = new ArrayList<>();
+
+    List<CombinedItem> combinedItemList = new ArrayList<>();
+
     RelativeLayout borderLayout;
     static TranslateAnimation fadeIn;
     TranslateAnimation fadeOut;
@@ -91,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         frameLayout = new FrameLayout(this);
         adapter = new Layers_Adapter(MainActivity.this, textList, LayerRecycleView);
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
-        adapter.textList.addAll(TextHandlerClass.getTextList());
+//        adapter.textList.addAll(TextHandlerClass.getTextList());
+
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
@@ -138,9 +142,22 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 } else {
                     LayerRecycleView.setVisibility(View.VISIBLE);
                 }
+                combinedItemList.clear();
+                Layers_Adapter.combinedItemList.clear();
+                for (TextLayout textLayout : textLayoutList2) {
+                    CombinedItem combinedItem = new CombinedItem(textLayout.getTextView().getText().toString());
+                    combinedItemList.add(combinedItem);
+                }
 
+// Iterate through imageLayoutList2 and add CombinedItem instances to combinedItemList
+                for (ImageLayout imageLayout : imageLayoutList2) {
+                    CombinedItem combinedItem = new CombinedItem(imageLayout);
+                    combinedItemList.add(combinedItem);
+                }
+                Layers_Adapter.combinedItemList.addAll(combinedItemList);
             }
         });
+
     }
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y) {
@@ -651,6 +668,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .into(imageView2);
         } else if (frameFileName != null) {
             // Load the frame image
+
+
             Glide.with(this)
                     .load("file:///android_asset/Basic/" + frameFileName)
                     .into(imageView2);

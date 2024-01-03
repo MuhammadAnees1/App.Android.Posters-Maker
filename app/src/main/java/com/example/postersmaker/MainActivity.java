@@ -2,6 +2,7 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
+import static com.example.postersmaker.HomeFragment.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static TextLayout selectedLayer;
     public static ImageLayout selectedLayer1;
     Boolean isLocked;
+    boolean isframe ;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
@@ -73,7 +75,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static ImageView  imageView2;
     public ImageView imgUndo,imgRedo;
     View previewImageView1;
-    static FrameLayout container,frameLayout,parentLayout;
+    static FrameLayout container,container2,frameLayout,parentLayout;
+
     public static void OpacityBackground(int progress) {
         imageView.setVisibility(View.VISIBLE);
         float opacity = progress / 100f;
@@ -88,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView = (BlurImageView) findViewById(R.id.previewImageView);
         previewImageView1 = findViewById(R.id.previewImageView1);
         container = findViewById(R.id.fragment_container);
-
+        container2 = findViewById(R.id.fragment_container3);
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
@@ -122,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
 //                    container.startAnimation(fadeOut);
+                }
+                if (container2.getVisibility() == View.VISIBLE) {
+                    container2.setVisibility(View.GONE);
                 }
             }
         });
@@ -247,6 +253,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 container.setVisibility(View.GONE);
                 container.startAnimation(fadeOut);
             }
+            if(container2.getVisibility() == View.VISIBLE) {
+                container2.setVisibility(View.GONE);
+            }
         });
 
         rotateButton = ButtonCreator.createRotateButton(this, 0.26f, 0.26f, -33, -29);
@@ -277,6 +286,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         container.setVisibility(View.GONE);
                         container.startAnimation(fadeOut);
                     }
+                    if (container2.getVisibility() == View.VISIBLE) {
+                        container2.setVisibility(View.GONE);
+                    }
                 }
             });
         }
@@ -292,6 +304,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);
+                }
+                if(container2.getVisibility() == View.VISIBLE) {
+                    container2.setVisibility(View.GONE);
                 }
             }
         });
@@ -403,7 +418,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 if(textLayout.getLocked() != null ) {
                     if(!textLayout.getLocked()) {
 
-
+                container2.setVisibility(View.GONE);
+                container.setVisibility(View.VISIBLE);
                 FrameLayout layer = textLayout.getFrameLayout();
                 if (layer != null) {
                     Button resizeButton = textLayout.getResizeButton();
@@ -430,8 +446,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             HomeFragment.Image_control_button.setVisibility(View.GONE);
                         }
                     }
-                    if(HomeFragment.recyclerView != null){
-                    HomeFragment.recyclerView.setVisibility(View.VISIBLE);}
+                    if(recyclerView != null){
+                    recyclerView.setVisibility(View.VISIBLE);}
                     // Set the background resource to indicate selection
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
@@ -561,9 +577,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
+                container2.setVisibility(View.GONE);
+                container.setVisibility(View.VISIBLE);
                 TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
                 break;
             case Photo:
+                container2.setVisibility(View.GONE);
+                container.setVisibility(View.VISIBLE);
+
                 ImagePickerManager.openGallery(MainActivity.this);
                 break;
             case FILTER:
@@ -577,6 +598,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 openEmojiFragment();
                 break;
             case Background:
+                container2.setVisibility(View.GONE);
                 FragmentTransaction fragmentTransaction0 = this.getSupportFragmentManager().beginTransaction();
                 BackGroundFragment backGroundFragment = new BackGroundFragment();
                 fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
@@ -584,9 +606,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction0.commit();
                 break;
             case Frames:
+                container2.setVisibility(View.VISIBLE);
                 FragmentTransaction fragmentTransaction1 = this.getSupportFragmentManager().beginTransaction();
                 FrameFragment frameFragment = new FrameFragment();
-                fragmentTransaction1.replace(R.id.fragment_container, frameFragment);
+                fragmentTransaction1.replace(R.id.fragment_container3, frameFragment);
                 fragmentTransaction1.addToBackStack(null);
                 fragmentTransaction1.commit();
                 break;
@@ -676,7 +699,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     @SuppressLint("ClickableViewAccessibility")
     ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
-        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI);
+        ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI,isframe );
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
         frameLayout.setTag(imageLayout);
@@ -701,6 +724,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageView2 = new ImageView(this);
         if (imageUri != null) {
             // Load the main image
+            imageLayout.isFrame = false;
             Glide.with(this)
                     .load(imageUri)
                     .into(imageView2);
@@ -741,6 +765,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             if (container.getVisibility() == View.VISIBLE) {
                 container.setVisibility(View.GONE);
                 container.startAnimation(fadeOut);
+            }
+            if(container2.getVisibility() == View.VISIBLE){
+                container2.setVisibility(View.GONE);
+                container2.startAnimation(fadeOut);
             }
             if (selectedLayer1 == imageLayout) {
                 unselectLayers(selectedLayer1);
@@ -783,8 +811,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     container.setVisibility(View.GONE);
 //                    container.startAnimation(fadeOut);
                 }
+                if(container2.getVisibility() == View.VISIBLE){
+                    container2.setVisibility(View.GONE);
+                }
             }
         });
+
+
+
         imageLayout.getFrameLayout().setOnTouchListener(new View.OnTouchListener() {
             private float lastX, lastY;
             @Override
@@ -796,6 +830,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         unselectLayers(selectedLayer1);
                         unselectLayer(selectedLayer);
                         selectLayers(imageLayout);
+
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         if (!imageLayout.getLocked()) {
@@ -882,13 +917,27 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.VISIBLE);
                     saveButton.setVisibility(View.VISIBLE);
                 }
+                if(!imageLayout.isFrame){
                 if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
                     container.setVisibility(View.VISIBLE);
+                    container2.setVisibility(View.GONE);
+
 //                    container.startAnimation(fadeIn);
+                }}
+                else {
+                  if(container2.getVisibility()== View.GONE || container2.getVisibility() == View.INVISIBLE){
+                      container2.setVisibility(View.VISIBLE);
+                      container.setVisibility(View.GONE);
+                      FrameFragment frameFragment = new FrameFragment();
+                      if(frameFragment.seekBar != null) {
+
+                          frameFragment.seekBar.setProgress((int) selectedLayer1.getImageView().getAlpha());
+                      }
+                  }
                 }
-                if (HomeFragment.recyclerView != null) {
-                    if (HomeFragment.recyclerView.getVisibility() == View.VISIBLE) {
-                        HomeFragment.recyclerView.setVisibility(View.GONE);
+                if (recyclerView != null) {
+                    if (recyclerView.getVisibility() == View.VISIBLE) {
+                        recyclerView.setVisibility(View.GONE);
                     }
                 }
                 if (HomeFragment.Image_control_button != null && HomeFragment.Image_control_opacity != null) {
@@ -916,7 +965,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.INVISIBLE);
                     saveButton.setVisibility(View.INVISIBLE);
                 }
-
+                container2.setVisibility(View.GONE);
                 callSetDefaultState();
                 // Set the background resource to indicate selection
                 layer.setBackground(null);

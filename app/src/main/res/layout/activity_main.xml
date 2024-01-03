@@ -139,6 +139,13 @@
         android:layout_marginTop="10dp"
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         tools:ignore="MissingConstraints" />
+    <FrameLayout
+        android:id="@+id/fragment_container3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        tools:ignore="MissingConstraints"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -57,7 +57,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     static Button Image_control_button,Image_control_opacity;
     Paint textPaint;
     private Paint strokePaint;
-    private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
+   final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
     private final TypeTextAdapter typeTextAdapter = new TypeTextAdapter(this);
     boolean openedFromImagePickerManager = false;
     public HomeFragment(){

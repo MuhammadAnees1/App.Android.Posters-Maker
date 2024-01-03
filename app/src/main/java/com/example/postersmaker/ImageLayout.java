@@ -13,7 +13,8 @@ public class ImageLayout {
     private Button rotateButton;
     private Button resizeButton;
     private Button saveButton;
-    private Boolean isLocked = false;
+     boolean isLocked;
+     boolean isFrame = false;
     private Uri imageUri;
     ImageView imageView;
     int id;

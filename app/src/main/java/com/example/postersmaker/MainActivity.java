@@ -49,13 +49,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
     int idT, idI ;
+    public static Uri imageUri1;
     int Tid = 0;
     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     public static List<ImageLayout> imageLayoutList2 = new ArrayList<>();
 
-    List<CombinedItem> combinedItemList = new ArrayList<>();
+    static List<CombinedItem> combinedItemList = new ArrayList<>();
 
     RelativeLayout borderLayout;
     static TranslateAnimation fadeIn;
@@ -310,17 +311,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             return true;
 
                         case MotionEvent.ACTION_MOVE:
-                            if (!textLayout.getLocked()) {
-                                float newX = event.getRawX();
-                                float newY = event.getRawY();
-                                float dX = newX - lastX;
-                                float dY = newY - lastY;
-                                // Update the position of the frameLayout based on the drag movement
-                                textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
-                                textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
-                                lastX = newX;
-                                lastY = newY;
-                                break;
+                            if (textLayout.getLocked() != null) {
+                                if (!textLayout.getLocked()) {
+                                    float newX = event.getRawX();
+                                    float newY = event.getRawY();
+                                    float dX = newX - lastX;
+                                    float dY = newY - lastY;
+                                    // Update the position of the frameLayout based on the drag movement
+                                    textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
+                                    textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
+                                    lastX = newX;
+                                    lastY = newY;
+                                    break;
+                                }
                             }
                     }
                     return true;
@@ -338,20 +341,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                             return true;
                         case MotionEvent.ACTION_MOVE:
-                            if (!textLayout.getLocked()) {
-                                float newX = event.getRawX();
-                                float newY = event.getRawY();
-                                float dX = newX - lastX;
-                                float dY = newY - lastY;
+                            if(textLayout.getLocked() != null) {
+                                if (!textLayout.getLocked()) {
+                                    float newX = event.getRawX();
+                                    float newY = event.getRawY();
+                                    float dX = newX - lastX;
+                                    float dY = newY - lastY;
 
-                                textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
-                                textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
+                                    textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
+                                    textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
 
-                                lastX = newX;
-                                lastY = newY;
-                                break;
-                            }
-                    }
+                                    lastX = newX;
+                                    lastY = newY;
+                                    break;
+                                }
+                            }}
                     return true;
                 }
             });
@@ -394,8 +398,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             unselectLayers(selectedLayer1);}
 
 
-        if (!textLayout.getLocked()) {
+
             if (textLayout != null) {
+                if(textLayout.getLocked() != null ) {
+                    if(!textLayout.getLocked()) {
+
+
                 FrameLayout layer = textLayout.getFrameLayout();
                 if (layer != null) {
                     Button resizeButton = textLayout.getResizeButton();
@@ -428,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
                 selectedLayer = textLayout;
-            }
+            }}
         }
     }
     public static void unselectLayer(TextLayout textLayout) {
@@ -610,36 +618,48 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     public void onEditButtonClick(int index) {
         // Find the TextLayout in textLayoutList based on the text
-        TextLayout selectedTextLayout = findTextLayoutByText(index);
-
-        // Call the selectLayer method in your MainActivity
-        if (selectedTextLayout != null) {
-            selectLayer(selectedTextLayout);
+        CombinedItem selectedLayout = findLayoutByIndex(index);
+        if(selectedLayout.getImageLayout() != null) {
+            selectLayers(selectedLayout.getImageLayout());
+        }
+        else if(selectedLayout.getTextlayout2() != null) {
+            selectLayer(selectedLayout.getTextlayout2());
         }
     }
     public void onLockButtonClick(int index) {
-        TextLayout selectedTextLayout = findTextLayoutByText(index);
-        if (selectedTextLayout != null) {
-            if (selectedTextLayout.getLocked()) {
-                selectedTextLayout.setLocked(false);
 
-            } else {
-                selectedTextLayout.setLocked(true);
-                if (selectedLayer == selectedTextLayout) {
-                    unselectLayer(selectedTextLayout);
-                }
+        CombinedItem selectedLayout = findLayoutByIndex(index);
+        if(selectedLayout.getImageLayout() != null) {
+            if(selectedLayout.getImageLayout().getLocked()) {
+                selectedLayout.getImageLayout().setLocked(false);
             }
-            adapter.selectedTextLayout = selectedTextLayout;
+            else {
+                selectedLayout.getImageLayout().setLocked(true);
+                if(selectedLayer1 != null){
+                unselectLayers(selectedLayer1);}
+            }
         }
+        else if(selectedLayout.getTextlayout2() != null) {
+            if(selectedLayout.getTextlayout2().getLocked()) {
+                selectedLayout.getTextlayout2().setLocked(false);
+            }
+            else {
+                selectedLayout.getTextlayout2().setLocked(true);
+                if(selectedLayer != null) {
+                unselectLayer(selectedLayer);}
+            }
+        }
+        adapter.selectedItem = selectedLayout;
     }
-    public TextLayout findTextLayoutByText(int index) {
+    public CombinedItem findLayoutByIndex(int index) {
 
-        for (TextLayout textLayout : textLayoutList2) {
+        for (CombinedItem layout : combinedItemList) {
 
-            if (index == textLayoutList2.indexOf(textLayout)) {
-                return textLayout;
+            if (index == combinedItemList.indexOf(layout)) {
+                return layout;
             }
         }
+
 
         return null;
     }
@@ -686,11 +706,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .into(imageView2);
         } else if (frameFileName != null) {
             // Load the frame image
-
+            imageLayout.isFrame = true;
 
             Glide.with(this)
                     .load("file:///android_asset/Basic/" + frameFileName)
                     .into(imageView2);
+            imageUri1 = Uri.parse(("file:///android_asset/Basic/" + frameFileName));
         }
         imageLayout.setImageView(imageView2);
         imageView2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -845,6 +866,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             unselectLayer(selectedLayer);}
         selectedLayer1 = imageLayout;
+        if(!imageLayout.getLocked()){
         if (imageLayout != null ) {
             FrameLayout layer = imageLayout.getFrameLayout();
             if (layer != null) {
@@ -864,13 +886,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     container.setVisibility(View.VISIBLE);
 //                    container.startAnimation(fadeIn);
                 }
-                if(HomeFragment.recyclerView.getVisibility() == View.VISIBLE){
-                    HomeFragment.recyclerView.setVisibility(View.GONE);
+                if (HomeFragment.recyclerView != null) {
+                    if (HomeFragment.recyclerView.getVisibility() == View.VISIBLE) {
+                        HomeFragment.recyclerView.setVisibility(View.GONE);
+                    }
                 }
-                HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
-                HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
+                if (HomeFragment.Image_control_button != null && HomeFragment.Image_control_opacity != null) {
+                    HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
+                    HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
+                }
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
+            }
             }
         }
     }

@@ -1,7 +1,9 @@
 package com.example.postersmaker;
 
 
+import static com.example.postersmaker.MainActivity.imageUri1;
 import static com.example.postersmaker.MainActivity.imageView;
+import static com.example.postersmaker.MainActivity.selectedLayer;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.annotation.SuppressLint;
@@ -33,7 +35,8 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     List<String> textList;
 //    final ItemTouchHelper itemTouchHelper;
     String text;
-    TextLayout selectedTextLayout;
+
+    CombinedItem selectedItem;
     int index;
     public Layers_Adapter(Context context, List<String> textList, RecyclerView recyclerView) {
         this.context = context;
@@ -61,6 +64,27 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         ImageLayout imageLayout = combinedItem.getImageLayout();
         Uri imageUri = imageLayout != null ? imageLayout.getImageUri() : null;
 
+        CombinedItem iflocked = null;
+
+
+        for (int i = 0; i < MainActivity.combinedItemList.size(); i++) {
+            for (CombinedItem selectedItem2 : MainActivity.combinedItemList) {
+                if (index == MainActivity.combinedItemList.indexOf(selectedItem2)) {
+                    iflocked = combinedItem;
+                }
+                if(iflocked != null){
+                    if(iflocked.getImageLayout() != null){
+                        if(iflocked.getImageLayout().getLocked()) {
+                            holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                        }
+                    }
+                    if (iflocked.getTextlayout2() != null) {
+                    if(iflocked.getTextlayout2().getLocked()) {
+                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                    }}
+                }
+            }
+        }
 
         // Now, based on the type of the item, set the appropriate data in the ViewHolder
         if (textLayout2 != null) {
@@ -70,7 +94,15 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             holder.txtTool.setVisibility(View.VISIBLE);
             holder.imageView3.setVisibility(View.GONE);
         } else if (imageLayout != null) {
-            holder.imageView3.setImageURI(imageUri);
+            if(imageUri!= null) {
+                holder.imageView3.setImageURI(imageLayout.getImageUri());
+            }
+            else{
+                Glide.with(context)
+                        .load(imageUri1)
+                        .into(holder.imageView3);
+            }
+            holder.imageView3.setImageURI(imageLayout.getImageUri());
             holder.imageView3.setVisibility(View.VISIBLE);
             holder.txtTool.setVisibility(View.GONE);
         }
@@ -100,14 +132,26 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
             if (context instanceof MainActivity) {
 
                 ((MainActivity) context).onLockButtonClick(index);
-                if(selectedTextLayout != null){
-                    if (!selectedTextLayout.getLocked()) {
-                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_open_24);
-                    } else {
-                        holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+
+                if(selectedItem != null){
+                    if (selectedItem.getImageLayout()!= null) {
+                        if (!selectedItem.getImageLayout().getLocked()) {
+                            holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_open_24);
+                        } else {
+                            holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                        }
                     }
-                }
-            }
+
+                    else if (selectedItem.getTextlayout2() != null) {
+                            if (!selectedItem.getTextlayout2().getLocked()) {
+                                holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_open_24);
+                            } else {
+                                holder.lockLayerButton.setBackgroundResource(R.drawable.baseline_lock_24);
+                            }
+                        }
+
+
+                    }}
         });
     }
 

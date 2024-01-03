@@ -31,7 +31,7 @@ public class TextLayout {
     DottedStrokeTextView textView2;
     private Button saveButton;
     private TextView textView;
-    private Boolean isLocked ;
+    Boolean isLocked ;
     Paint textPaint;
     int id;
 

@@ -44,7 +44,10 @@ public class FrameImageBackGroundAdapter extends RecyclerView.Adapter<FrameImage
             @Override
             public void onClick(View v) {
                 // Pass the background image filename to the listener
+                if(MainActivity.selectedLayer1 != null) {
+                    MainActivity.unselectLayers(MainActivity.selectedLayer1);}
                 listener.onFrameImageClick(FrameFileName);
+
             }
         });
     }

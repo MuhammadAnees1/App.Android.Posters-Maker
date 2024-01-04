@@ -189,6 +189,9 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
                     if (!MainActivity.combinedItemList.isEmpty() && fromPosition <MainActivity.combinedItemList.size() && toPosition <MainActivity.combinedItemList.size()) {
                         Collections.swap(MainActivity. combinedItemList, fromPosition, toPosition);
                     }
+                    if (textLayoutList2 != null && fromPosition < textLayoutList2.size() && toPosition < textLayoutList2.size()){
+                        Collections.swap(textLayoutList2, fromPosition, toPosition);
+                    }
                     // Swap the views inside the ViewGroup
                     TextHandlerClass.swapViewsInLayout(fromPosition, toPosition);
                 }

@@ -228,20 +228,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             // Find the index of the TextLayout in textLayoutList2
             int index = textLayoutList2.indexOf(textLayout);
+            textLayoutList2.remove(textLayout);
 
-
-            for ( int i=0 ; i<CombinedItem.ids.size() ; i++) {
-                int td = CombinedItem.ids.get(i);
-                if(td == textLayout.getId()){
-                    combinedItemList.remove(CombinedItem.ids.indexOf(td));
-                    CombinedItem.ids.remove((Integer) td);
+            for (CombinedItem c : combinedItemList) {
+                if (c.getTextlayout2() != null && c.getTextlayout2() == textLayout) {
+                    combinedItemList.remove(c);
                     break;
-                }}
+                }
+            }
+
 
             if (index != -1 && index < TextHandlerClass.textList.size()) {
                 // Remove the TextLayout from your data structure
                 TextHandlerClass.textList.remove(index);
-                textLayoutList2.remove(index);
             }
 
             // Update your adapter or UI as needed
@@ -748,15 +747,21 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         imageLayout.getDeleteButton().setOnClickListener(v -> {
 
-
-            for ( int i=0 ; i<CombinedItem.ids.size() ; i++) {
-                int td = CombinedItem.ids.get(i);
-                if(td == imageLayout.getId()){
-                    combinedItemList.remove(CombinedItem.ids.indexOf(td));
-                    CombinedItem.ids.remove((Integer) td);
+            for (CombinedItem c : combinedItemList) {
+                if (c.getImageLayout() != null && c.getImageLayout() == imageLayout) {
+                    combinedItemList.remove(c);
                     break;
                 }
             }
+
+//            for ( int i=0 ; i<CombinedItem.ids.size() ; i++) {
+//                int td = CombinedItem.ids.get(i);
+//                if(td == imageLayout.getId()){
+//                    combinedItemList.remove(CombinedItem.ids.indexOf(td));
+//                    CombinedItem.ids.remove((Integer) td);
+//                    break;
+//                }
+//            }
             imageLayoutList.remove(imageLayout);
             imageLayoutList2.remove(imageLayout);
             parentLayout.removeView(imageLayout.getFrameLayout());

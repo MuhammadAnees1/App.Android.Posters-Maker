@@ -1,6 +1,8 @@
 package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static com.example.postersmaker.MainActivity.combinedItemList;
+import static com.example.postersmaker.MainActivity.homeFragment;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
@@ -12,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
@@ -22,17 +25,30 @@ import java.util.List;
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
-//    static List<Pair<ImageLayout, String> > combinedList = new ArrayList<>();
 
     public static void swapViewsInLayout(int fromIndex, int toIndex) {
-        if (fromIndex >= 0 && fromIndex < textLayoutList.size() &&
-                toIndex >= 0 && toIndex < textLayoutList.size()) {
+        if (fromIndex >= 0 && fromIndex < MainActivity.combinedItemList.size() &&
+                toIndex >= 0 && toIndex < MainActivity.combinedItemList.size()) {
             int a= 0;
             int b= 0;
-            TextLayout fromtextLayout = findTextLayoutByIndex(fromIndex);
-            TextLayout totextLayout = findTextLayoutByIndex(toIndex);
-            FrameLayout fromFrameLayout = fromtextLayout.getFrameLayout();
-            FrameLayout toFrameLayout = totextLayout.getFrameLayout();
+            CombinedItem fromLayout = MainActivity.findLayoutByIndex(fromIndex);
+            CombinedItem toLayout = MainActivity.findLayoutByIndex(toIndex);
+            FrameLayout fromFrameLayout = null;
+            assert fromLayout != null;
+            if (fromLayout.getImageLayout() != null) {
+                fromFrameLayout = fromLayout.getImageLayout().getFrameLayout();
+            }
+            else if (fromLayout.getTextlayout2() != null) {
+                fromFrameLayout = fromLayout.getTextlayout2().getFrameLayout();
+            }
+            FrameLayout toFrameLayout = null;
+            assert toLayout != null;
+            if (toLayout.getImageLayout() != null) {
+                toFrameLayout = toLayout.getImageLayout().getFrameLayout();
+            }
+            else if (toLayout.getTextlayout2() != null) {
+                toFrameLayout = toLayout.getTextlayout2().getFrameLayout();
+            }
 
             if (fromFrameLayout != null && toFrameLayout != null) {
                 ViewGroup fromParent = (ViewGroup) fromFrameLayout.getParent();
@@ -48,31 +64,24 @@ public class TextHandlerClass {
                             break;
                         }
                     }
-                    for (int i = 0; i < fromParent.getChildCount(); i++) {
+                    for (int i = 0; i < toParent.getChildCount(); i++) {
                         if(toParent.getChildAt(i) == toFrameLayout){
                             toParent.removeView(toParent.getChildAt(i));
                             b = i;
                             break;}
                     }
-//                    Toast.makeText(fromParent.getContext(), a+""+b, Toast.LENGTH_SHORT).show();
-                    // Add the views to the new parents with layout parameters
 
                     toParent.addView(fromFrameLayout, b );
 
                     fromParent.addView(toFrameLayout, a);
                 }
+                Toast.makeText(homeFragment.getActivity(), "to" + (combinedItemList.indexOf(toLayout)+1) + a  + "from" + (combinedItemList.indexOf(fromLayout)+1) + b, Toast.LENGTH_SHORT).show();
+
             }
         }
 
     }
-    public static TextLayout findTextLayoutByIndex(int index) {
-        for (TextLayout textLayout : textLayoutList2) {
-            if (index == textLayoutList2.indexOf(textLayout)) {
-                return textLayout;
-            }
-        }
-        return null;
-    }
+
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");

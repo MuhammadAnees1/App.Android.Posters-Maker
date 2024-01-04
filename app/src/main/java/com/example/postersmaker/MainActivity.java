@@ -7,6 +7,7 @@ import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     int idT, idI ;
     public static Uri imageUri1;
     int Tid = 0;
-    Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
+     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     public static List<ImageLayout> imageLayoutList2 = new ArrayList<>();
@@ -209,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
+        borderLayout.setBackgroundColor(Color.BLUE);
 
 
         deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
@@ -674,7 +676,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
         adapter.selectedItem = selectedLayout;
     }
-    public CombinedItem findLayoutByIndex(int index) {
+    public static CombinedItem findLayoutByIndex(int index) {
 
         for (CombinedItem layout : combinedItemList) {
 

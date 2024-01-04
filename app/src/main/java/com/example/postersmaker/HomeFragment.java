@@ -53,10 +53,11 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     private StrokeType currentStrokeType = StrokeType.LINE;
     static RecyclerView recyclerView;
     RecyclerView TypeTextLayout;
-    Button UpButton, downButton, leftButton, rightButton ,editButton,Image_control_button,Image_control_opacity,flipButton ;
+    Button UpButton, downButton, leftButton, rightButton ,editButton,flipButton ;
+    static Button Image_control_button,Image_control_opacity;
     Paint textPaint;
     private Paint strokePaint;
-    private final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
+    final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
     private final TypeTextAdapter typeTextAdapter = new TypeTextAdapter(this);
     boolean openedFromImagePickerManager = false;
     public HomeFragment(){
@@ -95,10 +96,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             setDefaultState();
             Image_control_button.setVisibility(View.VISIBLE);
             Image_control_opacity.setVisibility(View.VISIBLE);
-            }
+            flipButton.setVisibility(View.VISIBLE);
+        }
+
         else {
             if(recyclerView.getVisibility() != View.VISIBLE) {
                 recyclerView.setVisibility(View.VISIBLE);
+                flipButton.setVisibility(View.GONE);
             }
         }
 
@@ -124,21 +128,21 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         Image_control_opacity.setOnClickListener(v -> {
             setDefaultState();
-                seekBar.setVisibility(View.VISIBLE);
+            seekBar.setVisibility(View.VISIBLE);
 
         });
         flipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 selectedLayer1 = MainActivity.selectedLayer1;
-                    // Get the current scaleX value of the ImageView
-                    float currentScaleX = selectedLayer1.getImageView().getScaleX();
-                    // Flip the image horizontally by changing the scaleX value
-                    selectedLayer1.getImageView().setScaleX(-currentScaleX);
-                    // You can also use the following line to flip the image vertically
-                    // imageView.setScaleY(-imageView.getScaleY());
-                    // Show a toast message to indicate that the image has been flipped
-                    Toast.makeText(activity, "Image flipped", Toast.LENGTH_SHORT).show();
+                // Get the current scaleX value of the ImageView
+                float currentScaleX = selectedLayer1.getImageView().getScaleX();
+                // Flip the image horizontally by changing the scaleX value
+                selectedLayer1.getImageView().setScaleX(-currentScaleX);
+                // You can also use the following line to flip the image vertically
+                // imageView.setScaleY(-imageView.getScaleY());
+                // Show a toast message to indicate that the image has been flipped
+                Toast.makeText(activity, "Image flipped", Toast.LENGTH_SHORT).show();
             }
 
         });

@@ -68,6 +68,7 @@ public class ImagePickerManager {
 
             // Create a new ImageLayout based on the provided imageUri
             ImageLayout imageLayout = mainActivity.createImageLayout(imageUri, null,x, y);
+            imageLayout.setImageUri(imageUri);
             FrameLayout frameLayout = imageLayout.getFrameLayout();
 
             if (frameLayout != null) {
@@ -100,16 +101,7 @@ public class ImagePickerManager {
                 imageLayoutList.add(imageLayout);
                 Log.d(TAG, "imageLayoutList size: " + imageLayoutList.size());
 
-                // Set click listener for delete button
-                imageLayout.getDeleteButton().setOnClickListener(v -> {
-                    viewGroup.removeView(frameLayout);
-                    imageLayoutList.remove(imageLayout);
-                    viewGroup.invalidate();  // Force UI update
-                    Log.d(TAG, "imageLayoutList size: " + imageLayoutList.size());
-                    parentLayout.removeView(imageLayout.getFrameLayout());
-                    // Clear the reference to the deleted layer
-                    MainActivity.selectedLayer1 = null;
-                });
+
             } else {
                 Log.e(TAG, "addImageToContainer: FrameLayout is null");
             }

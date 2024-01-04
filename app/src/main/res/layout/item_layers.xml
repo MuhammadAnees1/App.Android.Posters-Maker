@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/tool_bg"
+    android:background="@drawable/draft_bg"
     android:padding="5dp"
     android:orientation="horizontal">
 
@@ -24,6 +24,7 @@
         android:layout_marginEnd="8dp"
         android:textColor="@color/white"
         android:text="ABCD abcd"
+        android:visibility="gone"
         />
     <ImageView
         android:id="@+id/layerNameImageView"
@@ -31,8 +32,7 @@
         android:layout_height="25dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:textColor="@color/white"
-        android:text="ABCD abcd"
+        android:visibility="gone"
         />
 
     <androidx.appcompat.widget.AppCompatButton

@@ -1,6 +1,8 @@
 package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static com.example.postersmaker.MainActivity.combinedItemList;
+import static com.example.postersmaker.MainActivity.homeFragment;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
@@ -12,67 +14,80 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
-//    static List<Pair<ImageLayout, String> > combinedList = new ArrayList<>();
 
     public static void swapViewsInLayout(int fromIndex, int toIndex) {
-        if (fromIndex >= 0 && fromIndex < textLayoutList.size() &&
-                toIndex >= 0 && toIndex < textLayoutList.size()) {
-            int a= 0;
-            int b= 0;
-            TextLayout fromtextLayout = findTextLayoutByIndex(fromIndex);
-            TextLayout totextLayout = findTextLayoutByIndex(toIndex);
-            FrameLayout fromFrameLayout = fromtextLayout.getFrameLayout();
-            FrameLayout toFrameLayout = totextLayout.getFrameLayout();
+        if (isValidIndex(fromIndex) && isValidIndex(toIndex)) {
+            CombinedItem fromLayout = MainActivity.findLayoutByIndex(fromIndex);
+            CombinedItem toLayout = MainActivity.findLayoutByIndex(toIndex);
 
-            if (fromFrameLayout != null && toFrameLayout != null) {
-                ViewGroup fromParent = (ViewGroup) fromFrameLayout.getParent();
-                ViewGroup toParent = (ViewGroup) toFrameLayout.getParent();
+            if (fromLayout != null && toLayout != null) {
+                FrameLayout fromFrameLayout = getFrameLayoutFromLayout(fromLayout);
+                FrameLayout toFrameLayout = getFrameLayoutFromLayout(toLayout);
 
-                if (fromParent != null && toParent != null) {
-                    // Remove the views from their current parents
-                    for (int i = 0; i < fromParent.getChildCount(); i++) {
-                        if(fromParent.getChildAt(i) == fromFrameLayout){
-                            fromParent.removeView(fromParent.getChildAt(i));
-                            a = i;
+                if (fromFrameLayout != null && toFrameLayout != null) {
+                    // Swap the items in the data structure
+                    Collections.swap(combinedItemList, fromIndex, toIndex);
+                MainActivity mainActivity = new MainActivity();
+                    // Notify the adapter about the change
+                   mainActivity.adapter.notifyItemMoved(fromIndex, toIndex);
 
-                            break;
-                        }
-                    }
-                    for (int i = 0; i < fromParent.getChildCount(); i++) {
-                        if(toParent.getChildAt(i) == toFrameLayout){
-                            toParent.removeView(toParent.getChildAt(i));
-                            b = i;
-                            break;}
-                    }
-//                    Toast.makeText(fromParent.getContext(), a+""+b, Toast.LENGTH_SHORT).show();
-                    // Add the views to the new parents with layout parameters
-
-                    toParent.addView(fromFrameLayout, b );
-
-                    fromParent.addView(toFrameLayout, a);
+                    // Swap the FrameLayouts in the layout
+                    swapFrameLayouts(fromFrameLayout, toFrameLayout);
                 }
             }
         }
-
     }
-    public static TextLayout findTextLayoutByIndex(int index) {
-        for (TextLayout textLayout : textLayoutList2) {
-            if (index == textLayoutList2.indexOf(textLayout)) {
-                return textLayout;
-            }
+
+    private static void swapFrameLayouts(FrameLayout fromFrameLayout, FrameLayout toFrameLayout) {
+        ViewGroup fromParent = (ViewGroup) fromFrameLayout.getParent();
+        ViewGroup toParent = (ViewGroup) toFrameLayout.getParent();
+
+        if (fromParent != null && toParent != null) {
+            // Get the indices of the FrameLayouts
+            int fromIndex = fromParent.indexOfChild(fromFrameLayout);
+            int toIndex = toParent.indexOfChild(toFrameLayout);
+
+            // Swap the layout parameters to update positions
+            fromFrameLayout.setLayoutParams(toFrameLayout.getLayoutParams());
+            toFrameLayout.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            // Swap the FrameLayouts in the parent
+            fromParent.removeView(fromFrameLayout);
+            toParent.addView(fromFrameLayout, toIndex);
+
+            toParent.removeView(toFrameLayout);
+            fromParent.addView(toFrameLayout, fromIndex);
+        }
+    }
+
+    private static boolean isValidIndex(int index) {
+        return index >= 0 && index < MainActivity.combinedItemList.size();
+    }
+
+    private static FrameLayout getFrameLayoutFromLayout(CombinedItem layout) {
+        if (layout.getImageLayout() != null) {
+            return layout.getImageLayout().getFrameLayout();
+        } else if (layout.getTextlayout2() != null) {
+            return layout.getTextlayout2().getFrameLayout();
         }
         return null;
     }
+
+
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Enter Text");
@@ -114,8 +129,8 @@ public class TextHandlerClass {
         MainActivity mainActivity = (MainActivity) context;
 
         // Unselect the old layer if there is one
-        if (mainActivity.selectedLayer != null) {
-            mainActivity.unselectLayer(mainActivity.selectedLayer);
+        if (MainActivity.selectedLayer != null) {
+            MainActivity.unselectLayer(MainActivity.selectedLayer);
         }
 
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);

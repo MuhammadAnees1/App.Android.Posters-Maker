@@ -13,17 +13,25 @@ public class ImageLayout {
     private Button rotateButton;
     private Button resizeButton;
     private Button saveButton;
-    private Boolean isLocked = false;
-    private final Uri imageUri;
+    Boolean isLocked;
+    boolean isFrame = false;
+    private Uri imageUri;
     ImageView imageView;
+    int id;
 
     public Uri getImageUri() {
         return imageUri;
     }
 
-    public void setImageUri(Uri imageUri) {
+    public int getId() {
+        return id;
     }
-    public ImageLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton , Boolean isLocked, Uri imageUri, ImageView imageView) {
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public ImageLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton , Boolean isLocked, Uri imageUri, ImageView imageView, int id, boolean isFrame) {
         this.frameLayout = frameLayout;
         this.borderLayout = borderLayout;
         this.deleteButton = deleteButton;
@@ -33,7 +41,13 @@ public class ImageLayout {
         this.isLocked = isLocked;
         this.imageView = imageView;
         this.imageUri = imageUri;
+        this.id = id;
+        this.isFrame = isFrame;
     }
+    public void setImageUri(Uri imageUri) {
+        this.imageUri = imageUri;
+    }
+
     public ImageView getImageView() {
         return imageView;
     }

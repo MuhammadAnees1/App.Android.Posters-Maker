@@ -170,6 +170,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
         // Get the FrameLayout containing the image
         FrameLayout frameLayout = imageLayout.getFrameLayout();
         ImageView imageView1 = imageLayout.getImageView();
+
         float currentRotation = imageLayout.getFrameLayout().getRotation();
         double angleInRadians = Math.toRadians(currentRotation);
         float cosTheta = (float) Math.cos(angleInRadians);
@@ -177,7 +178,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
 
         // Calculate the relative movement in the rotated coordinates
         float dx = (newX - lastX) * cosTheta + (newY - lastY) * sinTheta;
-        float  dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
+        float dy = -(newX - lastX) * sinTheta + (newY - lastY) * cosTheta;
 
         // Get the current width and height of the FrameLayout
         int currentWidth = frameLayout.getWidth();
@@ -186,38 +187,34 @@ public class ResizeTouchListener implements View.OnTouchListener {
         int currentWidth1 = imageView1.getWidth();
         int currentHeight1 = imageView1.getHeight();
 
-        int minWidth = pxTodp(300);
-        int minHeight = pxTodp(300);
         // Calculate the new dimensions based on the movement
-        int newWidth = Math.max((int) (currentWidth + dx), pxTodp(20));
-        int newHeight = Math.max((int) (currentHeight + dy), pxTodp(20));
-        int newWidth1 = Math.max((int) (currentWidth1 + dx), pxTodp(20));
-        int newHeight1 = Math.max((int) (currentHeight1 + dy), pxTodp(20));
+        int newWidth = (int) (currentWidth + dx);
+        int newHeight = (int) (currentHeight + dy);
+        int newWidth1 = (int) (currentWidth1 + dx);
+        int newHeight1 = (int) (currentHeight1 + dy);
 
-// Set the new dimensions within the limits
-        RelativeLayout.LayoutParams layoutParamss = (RelativeLayout.LayoutParams) imageView1.getLayoutParams();
-        layoutParamss.width = Math.max(minWidth, Math.min(newWidth1, newHeight1));
-        layoutParamss.height = Math.max(minHeight, Math.min(newWidth1, newHeight1));
+        // Set the new dimensions
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView1.getLayoutParams();
+        layoutParams.width = Math.max(pxTodp(20), newWidth1);
+        layoutParams.height = Math.max(pxTodp(20), newHeight1);
 
-// Set the new dimensions within the limits
-        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) frameLayout.getLayoutParams();
-        layoutParams.width = Math.max(minWidth, Math.min(newWidth, newHeight));
-        layoutParams.height = Math.max(minHeight, Math.min(newWidth, newHeight));
+        // Set the new dimensions
+        FrameLayout.LayoutParams frameLayoutParams = (FrameLayout.LayoutParams) frameLayout.getLayoutParams();
+        frameLayoutParams.width = Math.max(pxTodp(20), newWidth);
+        frameLayoutParams.height = Math.max(pxTodp(20), newHeight);
 
         if (isResizable) {
             // Additional logic for resizable layouts
             // Adjust width and height separately (you can customize this logic)
-            layoutParams.width = Math.max(minWidth, Math.min(layoutParams.width, layoutParams.height));
-            layoutParams.height = Math.max(minHeight, Math.min(layoutParams.width, layoutParams.height));
-
-            layoutParamss.width = Math.max(minWidth, Math.min(layoutParamss.width, layoutParamss.height));
-            layoutParamss.height = Math.max(minHeight, Math.min(layoutParamss.width, layoutParamss.height));
+            frameLayoutParams.width = Math.max(pxTodp(20), frameLayoutParams.width);
+            frameLayoutParams.height = Math.max(pxTodp(20), frameLayoutParams.height);
+            layoutParams.width = Math.max(pxTodp(20), layoutParams.width);
+            layoutParams.height = Math.max(pxTodp(20), layoutParams.height);
         }
 
-// Update the FrameLayout with the new dimensions
-        imageView1.setLayoutParams(layoutParamss);
-        frameLayout.setLayoutParams(layoutParams);
-
+        // Update the FrameLayout with the new dimensions
+        imageView1.setLayoutParams(layoutParams);
+        frameLayout.setLayoutParams(frameLayoutParams);
     }
 
     // Helper function to convert pixels to dp

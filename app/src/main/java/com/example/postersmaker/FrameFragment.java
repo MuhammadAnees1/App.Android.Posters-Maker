@@ -17,9 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 public class FrameFragment extends Fragment implements FrameImageBackGroundAdapter.FrameImageClickListener {
-    private FrameImageBackGroundAdapter mainImageBackGroundAdapter;
+    public FrameImageBackGroundAdapter mainImageBackGroundAdapter;
     RecyclerView recyclerView;
     SeekBar seekBar;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -39,14 +40,16 @@ public class FrameFragment extends Fragment implements FrameImageBackGroundAdapt
 
         mainImageBackGroundAdapter = new FrameImageBackGroundAdapter(getActivity(), getBackgroundList(getContext()), this);
         recyclerView.setAdapter(mainImageBackGroundAdapter);
-        seekBar.setProgress(100);
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 float opacity = progress / 100f;
-                if (MainActivity.imageView2 != null) {
-                    MainActivity.imageView2.setAlpha(opacity);
+                if(MainActivity.selectedLayer1 != null) {
+                    MainActivity.selectedLayer1.getImageView().setAlpha(opacity);
                 }
+
+
             }
 
             @Override
@@ -93,7 +96,8 @@ public class FrameFragment extends Fragment implements FrameImageBackGroundAdapt
         MainActivity mainActivity = (MainActivity) getActivity();
         // Update the background image in the MainActivity
         if (mainActivity != null) {
-            mainActivity.createImageLayout(null,FrameFileName,300,300);
+            mainActivity.createImageLayout(null,FrameFileName,200,200);
+            mainActivity.container2.setVisibility(View.VISIBLE);
 
         }
     }

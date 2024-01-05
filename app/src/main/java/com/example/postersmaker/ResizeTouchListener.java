@@ -52,9 +52,9 @@ public class ResizeTouchListener implements View.OnTouchListener {
                 } else if (imageLayout != null) {
                     selectLayers(imageLayout);
                     callSetDefaultState();
-                    if (lastX == 0f && lastY == 0f) {
-                        lastX = imageLayout.getFrameLayout().getX();
-                        lastY = imageLayout.getFrameLayout().getY();
+                    if (lastX == imageLayout.getFrameLayout().getX() && lastY == imageLayout.getFrameLayout().getY()) {
+                        lastX = 500;
+                        lastY = 500;
                     }
                     else {
                         lastX = event.getRawX();

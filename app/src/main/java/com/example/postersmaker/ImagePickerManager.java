@@ -1,5 +1,7 @@
 package com.example.postersmaker;
 
+import static com.example.postersmaker.MainActivity.callSetDefaultState;
+import static com.example.postersmaker.MainActivity.container;
 import static com.example.postersmaker.MainActivity.parentLayout;
 import android.app.Activity;
 import android.content.Context;
@@ -25,7 +27,7 @@ public class ImagePickerManager {
                 .galleryOnly()
                 .crop()
                 .compress(2048)
-                .maxResultSize(1080, 1080)
+                .maxResultSize(500, 500)
                 .start(IMAGE_PICK_REQUEST);
     }
     public static void handleActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
@@ -34,12 +36,14 @@ public class ImagePickerManager {
             Log.d(TAG, "handleActivityResult: Image URI - " + imageUri);
             // Proceed with your logic
             if (imageUri != null) {
-                addImageToContainer(activity, activity.findViewById(android.R.id.content), imageUri, 100, 100);
+                addImageToContainer(activity, activity.findViewById(android.R.id.content), imageUri, 40, 40);
             }
+
+
+
         }
         if (activity instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) activity;
-            MainActivity.container.setVisibility(View.VISIBLE);
             FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
             HomeFragment homeFragment = new HomeFragment();
             Bundle bundle = new Bundle();
@@ -70,11 +74,15 @@ public class ImagePickerManager {
             ImageLayout imageLayout = mainActivity.createImageLayout(imageUri, null,x, y);
             imageLayout.setImageUri(imageUri);
             FrameLayout frameLayout = imageLayout.getFrameLayout();
+            if (imageUri == null) {
+                mainActivity.defaultContainer();
+            }
 
             if (frameLayout != null) {
                 // Set the position of the frameLayout based on x and y
                 frameLayout.setX(x);
                 frameLayout.setY(y);
+                container.setVisibility(View.VISIBLE);
 
                 // Check if the frameLayout already has a parent
                 if (frameLayout.getParent() == null) {

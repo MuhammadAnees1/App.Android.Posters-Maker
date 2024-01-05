@@ -2,6 +2,7 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.postersmaker.MainActivity.combinedItemList;
+import static com.example.postersmaker.MainActivity.container;
 import static com.example.postersmaker.MainActivity.homeFragment;
 import static com.example.postersmaker.MainActivity.imageLayoutList2;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
@@ -194,6 +195,7 @@ public class TextHandlerClass {
 
                 textView.setText(newText); // Update the existing TextView with the new text
                 textView.requestLayout();
+                container.setVisibility(View.VISIBLE);
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
 

@@ -31,7 +31,7 @@ public class Image_pick extends AppCompatActivity {
        ImagePicker.with(this)
                .crop()
                .compress(1024)
-               .maxResultSize(1080, 1080)
+               .maxResultSize(500, 500)
                .start(PICK_IMAGE_REQUEST);
     }
     private void openNextActivity(Uri imageUri) {

@@ -7,6 +7,8 @@ import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -27,8 +29,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -37,8 +37,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.jgabrielfreitas.core.BlurImageView;
 
 import java.io.IOException;
@@ -51,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
     int idT, idI ;
-    public static Uri imageUri1;
+   public static Uri imageUri1;
     int Tid = 0;
      Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
@@ -78,10 +76,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     View previewImageView1;
     static FrameLayout container,container2,frameLayout,parentLayout;
 
-    public static void OpacityBackground(int progress) {
+    public  void OpacityBackground(int progress) {
         imageView.setVisibility(View.VISIBLE);
         float opacity = progress / 100f;
-        imageView.setAlpha(opacity);
+
+            imageView.setAlpha(opacity);
+
+
     }
 
     @Override
@@ -498,17 +499,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
     public void updateBackgroundImage(String backgroundFileName) {
-        imageView.setVisibility(View.INVISIBLE);
         try {
             InputStream inputStream = getAssets().open("Cover/" + backgroundFileName);
-            Drawable drawable = Drawable.createFromStream(inputStream, null);
-            // Set the drawable as the background of the FrameLayout
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                parentLayout.setBackground(drawable);
-            } else {
-                parentLayout.setBackgroundDrawable(drawable);
-            }
-            parentLayout.setVisibility(View.VISIBLE);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            // Set the bitmap as the image of the ImageView
+            imageView.setImageBitmap(bitmap);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -516,26 +513,28 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public void updateBackgroundGallaryImage(String imagePath) {
         Glide.with(this)
                 .load(imagePath)
-                .into(new CustomTarget<Drawable>() {
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        // Set the loaded image as the background of the FrameLayout
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            parentLayout.setBackground(resource);
-                        } else {
-                            // For older versions of Android
-                            parentLayout.setBackgroundDrawable(resource);
-                        }
+                .into(imageView);
 
-                        // Ensure visibility
-                        parentLayout.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                        // Handle any cleanup or additional operations when the image loading is cleared
-                    }
-                });
+//                .into(new CustomTarget<Drawable>() {
+//                    @Override
+//                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+//                        // Set the loaded image as the background of the FrameLayout
+//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+//                            parentLayout.setBackground(resource);
+//                        } else {
+//                            // For older versions of Android
+//                            parentLayout.setBackgroundDrawable(resource);
+//                        }
+//
+//                        // Ensure visibility
+//                        parentLayout.setVisibility(View.VISIBLE);
+//                    }
+//
+//                    @Override
+//                    public void onLoadCleared(@Nullable Drawable placeholder) {
+//                        // Handle any cleanup or additional operations when the image loading is cleared
+//                    }
+//                });
     }
 
     public void applyEffectOnBackgroundImage(String backgroundFileName) {
@@ -578,35 +577,37 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public void onToolSelected(ToolTypeForCustomAdaptor toolType) {
         switch (toolType) {
             case TEXT:
-                container2.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
+                defaultContainer();
                 TextHandlerClass.showTextDialog(this, textLayoutList, (ViewGroup) findViewById(android.R.id.content));
                 break;
             case Photo:
-                container2.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
-
+                defaultContainer();
                 ImagePickerManager.openGallery(MainActivity.this);
                 break;
             case FILTER:
+                defaultContainer();
                 FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
                 EffectFragment effectFragment = new EffectFragment();
                 fragmentTransaction.replace(R.id.fragment_container, effectFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
+
                 break;
             case EMOJI:
+                defaultContainer();
                 openEmojiFragment();
                 break;
             case Background:
-                container2.setVisibility(View.GONE);
+                defaultContainer();
                 FragmentTransaction fragmentTransaction0 = this.getSupportFragmentManager().beginTransaction();
                 BackGroundFragment backGroundFragment = new BackGroundFragment();
                 fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
                 fragmentTransaction0.addToBackStack(null);
                 fragmentTransaction0.commit();
+
                 break;
             case Frames:
+                defaultContainer();
                 container2.setVisibility(View.VISIBLE);
                 FragmentTransaction fragmentTransaction1 = this.getSupportFragmentManager().beginTransaction();
                 FrameFragment frameFragment = new FrameFragment();
@@ -614,9 +615,23 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction1.addToBackStack(null);
                 fragmentTransaction1.commit();
                 break;
+            default:
+                defaultContainer();
+
+                break;
         }
     }
+ void defaultContainer(){
 
+    if(selectedLayer != null) {
+        unselectLayer(selectedLayer);
+    }
+    else if(selectedLayer1 != null) {
+        unselectLayers(selectedLayer1);
+    }
+    container.setVisibility(View.GONE);
+    container2.setVisibility(View.GONE);
+}
     private void openEmojiFragment() {
         EmojiFragment emojiFragment = new EmojiFragment();
         emojiFragment.setEmojiListener(new EmojiFragment.EmojiListener() {

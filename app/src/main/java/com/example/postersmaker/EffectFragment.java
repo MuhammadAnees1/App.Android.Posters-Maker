@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class EffectFragment extends Fragment implements BackGroundEffectsAdapter.BackgroundEffectClickListener {
 RecyclerView recyclerView;
@@ -40,7 +41,7 @@ RecyclerView recyclerView;
 
         LinearLayoutManager recyclerViewLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
-        backGroundEffectsAdapter = new BackGroundEffectsAdapter(getActivity(), getEffectList(getContext()), this);
+        backGroundEffectsAdapter = new BackGroundEffectsAdapter(getActivity(), getEffectList(requireContext()), this);
         recyclerView.setAdapter(backGroundEffectsAdapter);
 
         OpacitySeekBar.setProgress(100);
@@ -48,7 +49,9 @@ RecyclerView recyclerView;
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                MainActivity.OpacityBackground(progress);
+                MainActivity mainActivity = (MainActivity) getActivity();
+                assert mainActivity != null;
+                mainActivity.OpacityBackground(progress);
             }
 
             @Override

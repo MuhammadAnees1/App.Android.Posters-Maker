@@ -1,12 +1,16 @@
 package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static androidx.core.app.ActivityCompat.requestPermissions;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 import static com.example.postersmaker.HomeFragment.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -16,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -29,7 +34,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.Manifest;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -42,6 +50,7 @@ import com.jgabrielfreitas.core.BlurImageView;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -71,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     Boolean isLocked;
     boolean isframe ;
     static Bitmap originalBitmap1;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
     static String CurrentImg = null ;
 
     Bitmap imgBitmap;
@@ -127,22 +137,25 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         savImgButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+                if (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) v.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
-                    JSONFileManager.saveJSONFile(combinedItemList, getApplicationContext());
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                        ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                    } else {
+                        // No explanation needed; request the permission
+                        ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                    }
+                } else {
+                    // Permission has already been granted, you can perform the storage operation
+                    performStorageOperation();
                 }
-                if(selectedLayer != null){
-                    unselectLayer(selectedLayer);}
-                if(selectedLayer1 != null){
-                    unselectLayers(selectedLayer1);}
-
-                imgBitmap = getBitmapFromView(parentLayout);
-                ImageSaver.saveAsImage(MainActivity.this, imgBitmap);
 
             }
+
         });
+
         parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1040,4 +1053,41 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         return bitmap;
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission was granted, yay! Do the
+                    // storage-related task you need to do.
+                    performStorageOperation();
+                } else {
+                    // Permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // Other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
+    private void performStorageOperation() {
+        try {
+
+            JSONFileManager.saveJSONFile(combinedItemList, getApplicationContext());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        if(selectedLayer != null){
+            unselectLayer(selectedLayer);}
+        if(selectedLayer1 != null){
+            unselectLayers(selectedLayer1);}
+
+        imgBitmap = getBitmapFromView(parentLayout);
+        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
+
 }

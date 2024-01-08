@@ -39,6 +39,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.jgabrielfreitas.core.BlurImageView;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     List<String> textList = new ArrayList<>();
     int idT, idI ;
    public static Uri imageUri1;
+    ImageView savImgButton;
     int Tid = 0;
      Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
@@ -66,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static ImageLayout selectedLayer1;
     Boolean isLocked;
     boolean isframe ;
+    static Bitmap originalBitmap1;
+    static String CurrentImg = null ;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
@@ -97,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
+        savImgButton = findViewById(R.id.imgSave);
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -115,6 +121,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
+        savImgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+
+                    JSONFileManager.saveJSONFile(combinedItemList, getApplicationContext());
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
         parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -498,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             action.redo();
         }
     }
-    public void updateBackgroundImage(String backgroundFileName) {
+    public  void updateBackgroundImage(String backgroundFileName) {
         try {
             InputStream inputStream = getAssets().open("Cover/" + backgroundFileName);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
@@ -604,7 +621,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
                 fragmentTransaction0.addToBackStack(null);
                 fragmentTransaction0.commit();
-
+                if(CurrentImg != null){
+                updateBackgroundImage(CurrentImg);
+                imageView.setImageBitmap(originalBitmap1);}
                 break;
             case Frames:
                 defaultContainer();

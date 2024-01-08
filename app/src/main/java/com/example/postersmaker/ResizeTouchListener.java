@@ -52,9 +52,9 @@ public class ResizeTouchListener implements View.OnTouchListener {
                 } else if (imageLayout != null) {
                     selectLayers(imageLayout);
                     callSetDefaultState();
-                    if (lastX == 0f && lastY == 0f) {
-                        lastX = imageLayout.getFrameLayout().getX();
-                        lastY = imageLayout.getFrameLayout().getY();
+                    if (lastX == imageLayout.getFrameLayout().getX() && lastY == imageLayout.getFrameLayout().getY()) {
+                        lastX = 500;
+                        lastY = 500;
                     }
                     else {
                         lastX = event.getRawX();
@@ -182,7 +182,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
 
         // Get the current width and height of the FrameLayout
         int currentWidth = frameLayout.getWidth();
-        int currentHeight = frameLayout.getHeight();
+        int currentHeight =frameLayout.getHeight();
 
         int currentWidth1 = imageView1.getWidth();
         int currentHeight1 = imageView1.getHeight();
@@ -195,21 +195,21 @@ public class ResizeTouchListener implements View.OnTouchListener {
 
         // Set the new dimensions
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) imageView1.getLayoutParams();
-        layoutParams.width = Math.max(pxTodp(20), newWidth1);
-        layoutParams.height = Math.max(pxTodp(20), newHeight1);
+        layoutParams.width = Math.max(pxTodp(200), newWidth1);
+        layoutParams.height = Math.max(pxTodp(200), newHeight1);
 
         // Set the new dimensions
         FrameLayout.LayoutParams frameLayoutParams = (FrameLayout.LayoutParams) frameLayout.getLayoutParams();
-        frameLayoutParams.width = Math.max(pxTodp(20), newWidth);
-        frameLayoutParams.height = Math.max(pxTodp(20), newHeight);
+        frameLayoutParams.width = Math.max(pxTodp(200), newWidth);
+        frameLayoutParams.height = Math.max(pxTodp(200), newHeight);
 
         if (isResizable) {
             // Additional logic for resizable layouts
             // Adjust width and height separately (you can customize this logic)
-            frameLayoutParams.width = Math.max(pxTodp(20), frameLayoutParams.width);
-            frameLayoutParams.height = Math.max(pxTodp(20), frameLayoutParams.height);
-            layoutParams.width = Math.max(pxTodp(20), layoutParams.width);
-            layoutParams.height = Math.max(pxTodp(20), layoutParams.height);
+            layoutParams.width = Math.max(pxTodp(400), newWidth1);
+            layoutParams.height = Math.max(pxTodp(400), newHeight1);
+            frameLayoutParams.width = Math.max(pxTodp(400), newWidth);
+            frameLayoutParams.height = Math.max(pxTodp(400), newHeight);
         }
 
         // Update the FrameLayout with the new dimensions

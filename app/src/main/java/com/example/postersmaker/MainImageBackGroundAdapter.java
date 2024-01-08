@@ -44,6 +44,7 @@ public class MainImageBackGroundAdapter extends RecyclerView.Adapter<MainImageBa
             public void onClick(View v) {
                 // Pass the background image filename to the listener
                 listener.onBackgroundImageClick(backgroundFileName);
+
             }
         });
     }

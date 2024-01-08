@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
 public class FrameFragment extends Fragment implements FrameImageBackGroundAdapter.FrameImageClickListener {
     public FrameImageBackGroundAdapter mainImageBackGroundAdapter;
     RecyclerView recyclerView;
@@ -38,7 +40,7 @@ public class FrameFragment extends Fragment implements FrameImageBackGroundAdapt
         LinearLayoutManager recyclerViewLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
-        mainImageBackGroundAdapter = new FrameImageBackGroundAdapter(getActivity(), getBackgroundList(getContext()), this);
+        mainImageBackGroundAdapter = new FrameImageBackGroundAdapter(getActivity(), getBackgroundList(requireContext()), this);
         recyclerView.setAdapter(mainImageBackGroundAdapter);
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -97,7 +99,7 @@ public class FrameFragment extends Fragment implements FrameImageBackGroundAdapt
         // Update the background image in the MainActivity
         if (mainActivity != null) {
             mainActivity.createImageLayout(null,FrameFileName,200,200);
-            mainActivity.container2.setVisibility(View.VISIBLE);
+            MainActivity.container2.setVisibility(View.VISIBLE);
 
         }
     }

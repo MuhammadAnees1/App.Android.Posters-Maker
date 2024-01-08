@@ -13,6 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.renderscript.Allocation;
@@ -26,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -41,15 +44,22 @@ import com.github.dhaval2404.imagepicker.ImagePicker;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
 public class BackGroundFragment extends Fragment implements MainImageBackGroundAdapter.BackgroundImageClickListener {
     MainImageBackGroundAdapter mainImageBackGroundAdapter;
     RecyclerView recyclerView;
     private static final int IMAGE_PICK_REQUEST = 101;
+    String CurrentImg = null ;
+    private BlurProcessor blurProcessor;
+
     SeekBar blurSeekBar, OpacityBackgroundSeekbar;
     ImageView PickBackGroundButton, PickBackGroundColor;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,7 +70,7 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
         PickBackGroundColor = view.findViewById(R.id.PickBackGroundColor);
         blurSeekBar = view.findViewById(R.id.blurSeekBar);
         OpacityBackgroundSeekbar = view.findViewById(R.id.OpacityBackground);
-
+        blurProcessor = new BlurProcessor(requireActivity());
         if (MainActivity.container.getVisibility() == View.GONE || MainActivity.container.getVisibility() == View.INVISIBLE) {
             MainActivity.container.setVisibility(View.VISIBLE);
 //            MainActivity.container.startAnimation(MainActivity.fadeIn);
@@ -78,11 +88,18 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
         OpacityBackgroundSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                MainActivity.OpacityBackground(progress);
+                // Reverse the progress by subtracting the current progress from the maximum progress
+
+                MainActivity mainActivity = (MainActivity) getActivity();
+                assert mainActivity != null;
+                mainActivity.OpacityBackground(progress);
+
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
@@ -91,7 +108,7 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
         PickBackGroundButton.setOnClickListener(v -> {
             // Launch ImagePicker to choose an image from the gallery
             ImagePicker.Companion
-                    .with(getActivity())
+                    .with(requireActivity())
                     .crop()
                     .compress(2048)
                     .maxResultSize(1080, 1080)
@@ -100,6 +117,7 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
 
         return view;
     }
+
     private List<String> getBackgroundList(Context context) {
         List<String> backGroundList = new ArrayList<>();
         AssetManager assetManager = context.getAssets();
@@ -115,13 +133,13 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
                     Log.d("BackgroundFragment", "Loaded background file: " + fileName);
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             Log.e("BackgroundFragment", "Error loading background images: " + e.getMessage());
         }
         return backGroundList;
     }
+
     public void handleActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IMAGE_PICK_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             Log.d(TAG, "onActivityResult: data" + IMAGE_PICK_REQUEST);
@@ -133,44 +151,73 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
             }
         }
     }
+
     @Override
     public void onBackgroundImageClick(String backgroundFileName) {
         // Get the reference to the previewImageView
         MainActivity mainActivity = (MainActivity) getActivity();
+        CurrentImg = backgroundFileName ;
         // Update the background image in the MainActivity
         if (mainActivity != null) {
             mainActivity.updateBackgroundImage(backgroundFileName);
+
+
         }
     }
+
+
     private void showColorPickerDialog() {
         ColorPickerDialog.Builder colorPickerDialog = new ColorPickerDialog
-                .Builder(getActivity())
+                .Builder(requireActivity())
                 .setTitle("Pick Color")
                 .setColorShape(ColorShape.SQAURE)
                 .setColorListener((color, colorHex) -> {
                     // Update the color on the parent layout
-                    MainActivity.parentLayout.setBackgroundColor(color);
+
+                    imageView.setBackgroundColor(color);
                     Log.d(TAG, "onColorSelected: color" + color);
-                    imageView.setVisibility(View.GONE);
                 });
         colorPickerDialog.show();
     }
+
     private SeekBar.OnSeekBarChangeListener onSeekBarChanged() {
-            return new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    // Check if progress is increasing (0 to 100)
-                    imageView.setBlur (progress);
+        return new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (imageView != null && imageView.getDrawable() != null) {
+                    applyBlur(progress);
                 }
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                    // Optionally, you can perform actions when the user starts moving the seek bar
-                }
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    // Optionally, you can perform actions when the user stops moving the seek bar
-                }
-            };
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Optionally, you can perform actions when the user starts moving the seek bar
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Optionally, you can perform actions when the user stops moving the seek bar
+            }
+        };
+    }
+
+    private void applyBlur(float blurRadius) {
+        // Check if imageView has a drawable and the drawable is a BitmapDrawable
+        if (imageView.getDrawable() instanceof BitmapDrawable) {
+            MainActivity mainActivity = (MainActivity) getActivity();
+            if(CurrentImg != null) {
+                assert mainActivity != null;
+                mainActivity.updateBackgroundImage(CurrentImg);
+            }
+            // Get the bitmap from the drawable
+            Bitmap originalBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+
+            // Apply blur using BlurProcessor
+            Bitmap blurredBitmap = blurProcessor.blur(originalBitmap, blurRadius);
+
+            // Set the blurred image to the ImageView
+            imageView.setImageBitmap(blurredBitmap);
+        }
+
     }
 }
-

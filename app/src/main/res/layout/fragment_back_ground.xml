@@ -34,6 +34,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_below="@id/blurBackgroundView"
+        android:min="1"
+        android:max="22"
         android:layout_marginTop="10dp"/>
 
     <TextView

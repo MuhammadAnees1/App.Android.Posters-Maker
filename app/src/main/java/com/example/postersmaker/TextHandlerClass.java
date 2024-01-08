@@ -2,7 +2,9 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.postersmaker.MainActivity.combinedItemList;
+import static com.example.postersmaker.MainActivity.container;
 import static com.example.postersmaker.MainActivity.homeFragment;
+import static com.example.postersmaker.MainActivity.imageLayoutList2;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
@@ -19,6 +21,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +32,21 @@ import java.util.List;
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
+    public static JSONObject convertTextLayoutToJSON(TextLayout textLayout, int order) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("id", textLayout.getId());
+            jsonObject.put("order", order);
+            jsonObject.put("Text", textLayout.getTextView().getText());
+            jsonObject.put("positionX", textLayout.getFrameLayout().getX());
+            jsonObject.put("positionY", textLayout.getFrameLayout().getY());
+            jsonObject.put("width", textLayout.getFrameLayout().getWidth());
+            jsonObject.put("height", textLayout.getFrameLayout().getHeight());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
+    }
 
     public static void swapViewsInLayout(int fromIndex, int toIndex) {
         if (isValidIndex(fromIndex) && isValidIndex(toIndex)) {
@@ -39,9 +60,9 @@ public class TextHandlerClass {
                 if (fromFrameLayout != null && toFrameLayout != null) {
                     // Swap the items in the data structure
                     Collections.swap(combinedItemList, fromIndex, toIndex);
-                MainActivity mainActivity = new MainActivity();
+                    MainActivity mainActivity = new MainActivity();
                     // Notify the adapter about the change
-                   mainActivity.adapter.notifyItemMoved(fromIndex, toIndex);
+                    mainActivity.adapter.notifyItemMoved(fromIndex, toIndex);
 
                     // Swap the FrameLayouts in the layout
                     swapFrameLayouts(fromFrameLayout, toFrameLayout);
@@ -104,7 +125,7 @@ public class TextHandlerClass {
                 TextHandlerClass.textLayoutList = textLayoutList;
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
-                    mainActivity.container.setVisibility(View.VISIBLE);
+                    MainActivity.container.setVisibility(View.VISIBLE);
                     mainActivity.adapter.updateData(new ArrayList<>());
                     mainActivity.adapter.textList.addAll(TextHandlerClass.getTextList());
                     mainActivity.adapter.notifyDataSetChanged();
@@ -193,6 +214,7 @@ public class TextHandlerClass {
 
                 textView.setText(newText); // Update the existing TextView with the new text
                 textView.requestLayout();
+                container.setVisibility(View.VISIBLE);
                 if (context instanceof MainActivity) {
                     MainActivity mainActivity = (MainActivity) context;
 

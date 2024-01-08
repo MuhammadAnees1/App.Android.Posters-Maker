@@ -11,19 +11,20 @@
     <FrameLayout
         android:id="@+id/parentLayout"
         android:layout_width="400dp"
-        android:layout_height="400dp"
+        android:layout_height="500dp"
         app:layout_constraintBottom_toTopOf="@+id/imgUndo"
         app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/LayerButton">
 
         <com.jgabrielfreitas.core.BlurImageView
             android:id="@+id/previewImageView"
             android:layout_width="400dp"
-            android:layout_height="400dp"
+            android:layout_height="500dp"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
-            android:src="@drawable/andd"
+            android:background="@drawable/white_bg"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints" />

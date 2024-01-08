@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     boolean isframe ;
     static Bitmap originalBitmap1;
     static String CurrentImg = null ;
+
+    Bitmap imgBitmap;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
@@ -110,12 +113,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         adapter = new Layers_Adapter(MainActivity.this, textList, LayerRecycleView);
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
+        parentLayout = findViewById(R.id.parentLayout);
 
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
-        parentLayout = findViewById(R.id.parentLayout);
 
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
@@ -130,6 +133,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
+                if(selectedLayer != null){
+                    unselectLayer(selectedLayer);}
+                if(selectedLayer1 != null){
+                    unselectLayers(selectedLayer1);}
+
+                imgBitmap = getBitmapFromView(parentLayout);
+                ImageSaver.saveAsImage(MainActivity.this, imgBitmap);
+
             }
         });
         parentLayout.setOnClickListener(new View.OnClickListener() {
@@ -228,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
-        borderLayout.setBackgroundColor(Color.BLUE);
 
 
         deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
@@ -608,7 +618,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction.replace(R.id.fragment_container, effectFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
-
                 break;
             case EMOJI:
                 defaultContainer();
@@ -1012,5 +1021,23 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 layer.setBackground(null);
             }
         }
+    }
+    public Bitmap getBitmapFromView(FrameLayout view) {
+        // Check if the view has been laid out
+        if (view.getWidth() == 0 || view.getHeight() == 0) {
+            // The view hasn't been laid out yet, return null
+            return null;
+        }
+
+        // Create a Bitmap with the same dimensions as the view
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+
+        // Create a Canvas using the Bitmap
+        Canvas canvas = new Canvas(bitmap);
+
+        // Draw the view's visible content onto the Canvas
+        view.draw(canvas);
+
+        return bitmap;
     }
 }

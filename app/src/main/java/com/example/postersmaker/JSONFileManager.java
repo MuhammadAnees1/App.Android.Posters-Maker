@@ -22,6 +22,8 @@ public class JSONFileManager {
         JSONArray jsonArray = new JSONArray();
             JSONObject background = new JSONObject();
             background.put("background", MainActivity.imageView);
+            background.put("Current Background Drawable" , MainActivity.CurrentImg);
+            background.put("Blurr", MainActivity.originalBitmap1);
         for (int i = 0; i < combinedItemList.size(); i++) {
             JSONObject jsonObject = new JSONObject();
 

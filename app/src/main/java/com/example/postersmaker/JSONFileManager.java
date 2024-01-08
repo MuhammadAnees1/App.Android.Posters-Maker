@@ -1,6 +1,9 @@
 package com.example.postersmaker;
 
+import static com.example.postersmaker.MainActivity.imageView;
+
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -21,9 +24,17 @@ public class JSONFileManager {
 
         JSONArray jsonArray = new JSONArray();
             JSONObject background = new JSONObject();
-            background.put("background", MainActivity.imageView);
+            if(MainActivity.imageView.getDrawable() != null)
+            {
+            background.put("background", ((BitmapDrawable) imageView.getDrawable()).getBitmap().toString());
             background.put("Current Background Drawable" , MainActivity.CurrentImg);
-            background.put("Blurr", MainActivity.originalBitmap1);
+                background.put("Blurr", MainActivity.originalBitmap1);
+            }
+            else
+        {
+            background.put("background", "null");
+        }
+            jsonArray.put(background);
         for (int i = 0; i < combinedItemList.size(); i++) {
             JSONObject jsonObject = new JSONObject();
 

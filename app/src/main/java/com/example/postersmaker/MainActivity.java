@@ -672,6 +672,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     container.setVisibility(View.GONE);
     container2.setVisibility(View.GONE);
+
 }
     private void openEmojiFragment() {
         EmojiFragment emojiFragment = new EmojiFragment();

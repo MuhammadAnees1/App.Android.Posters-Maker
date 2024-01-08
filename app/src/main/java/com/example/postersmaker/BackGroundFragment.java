@@ -177,9 +177,8 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
                 .setTitle("Pick Color")
                 .setColorShape(ColorShape.SQAURE)
                 .setColorListener((color, colorHex) -> {
-                    // Update the color on the parent layout
-
-                    imageView.setBackgroundColor(color);
+             Drawable drawable = new ColorDrawable(color);
+                    imageView.setImageDrawable(drawable);
                     Log.d(TAG, "onColorSelected: color" + color);
                 });
         colorPickerDialog.show();

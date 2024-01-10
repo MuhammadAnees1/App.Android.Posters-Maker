@@ -33,9 +33,17 @@ public class TextLayout {
     private TextView textView;
     Boolean isLocked ;
     Paint textPaint;
-    int id;
+    int id ;
+    int fontResource = 0;
 
 
+    public int getFontResource() {
+        return fontResource;
+    }
+
+    public void setFontResource(int fontResource) {
+        this.fontResource = fontResource;
+    }
 
     public TextLayout(FrameLayout frameLayout, RelativeLayout borderLayout, Button deleteButton, Button rotateButton, Button resizeButton, Button saveButton, TextView textView , Boolean isLocked, int id) {
         this.frameLayout = frameLayout;

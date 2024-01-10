@@ -45,9 +45,10 @@ public class FontFragment extends Fragment implements FontAdapter.FontClickListe
     public void onFontClick(Integer fontResourceId) {
 
         Typeface typeface = ResourcesCompat.getFont(requireContext(), fontResourceId);
-        MainActivity activity = (MainActivity) requireActivity();
-        if ( activity.selectedLayer != null) {
-            activity.selectedLayer.getTextView().setTypeface(typeface);
+        Toast.makeText(getContext(), ""+ fontResourceId, Toast.LENGTH_SHORT).show();
+        if ( MainActivity.selectedLayer != null) {
+            MainActivity.selectedLayer.getTextView().setTypeface(typeface);
+            MainActivity.selectedLayer.setFontResource(fontResourceId);
         }
     }
 

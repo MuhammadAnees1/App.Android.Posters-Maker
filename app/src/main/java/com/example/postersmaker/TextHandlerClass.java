@@ -136,6 +136,7 @@ public class TextHandlerClass {
         }
 
         TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
+        textLayoutList2.add(textLayout);
         FrameLayout frameLayout = textLayout.getFrameLayout();
 
         // Check if the frameLayout already has a parent

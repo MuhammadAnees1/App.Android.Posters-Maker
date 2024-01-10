@@ -1,14 +1,13 @@
 package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static androidx.core.app.ActivityCompat.requestPermissions;
-import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 import static com.example.postersmaker.HomeFragment.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,11 +15,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -50,7 +46,6 @@ import com.jgabrielfreitas.core.BlurImageView;
 
 import org.json.JSONException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -61,10 +56,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
     int idT, idI ;
+    JSONReader jsonReader;
    public static Uri imageUri1;
     ImageView savImgButton;
     int Tid = 0;
-     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
+     Layers_Adapter adapter = new Layers_Adapter(this, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
     public static List<TextLayout> textLayoutList2 = new ArrayList<>();
     public static List<ImageLayout> imageLayoutList2 = new ArrayList<>();
@@ -120,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         frameLayout = new FrameLayout(this);
-        adapter = new Layers_Adapter(MainActivity.this, textList, LayerRecycleView);
+        adapter = new Layers_Adapter(MainActivity.this, LayerRecycleView);
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
         parentLayout = findViewById(R.id.parentLayout);
@@ -129,6 +125,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
+
+
+        JSONReader.readJSONFile(this);
+
+
 
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
@@ -214,7 +215,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
-        textLayoutList2.add(textLayout);
 
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 //        });
         textView = new TextView(this);
         textView.setText(text);
+        textView.setTextColor(Color.BLACK);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         borderLayout.setMinimumHeight(textView.getHeight() + 20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -1054,6 +1055,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         return bitmap;
     }
+    static float convertPixelsToSP(float px, Context context) {
+        float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        return px / scaledDensity;
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -1083,12 +1088,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        if(selectedLayer != null){
-            unselectLayer(selectedLayer);}
-        if(selectedLayer1 != null){
-            unselectLayers(selectedLayer1);}
+        if (selectedLayer != null) {
+            unselectLayer(selectedLayer);
+        }
+        if (selectedLayer1 != null) {
+            unselectLayers(selectedLayer1);
+        }
 
         imgBitmap = getBitmapFromView(parentLayout);
-        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
-
+//        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
+    }
 }

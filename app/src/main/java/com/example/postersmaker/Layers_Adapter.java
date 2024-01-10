@@ -34,11 +34,10 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
     static List<CombinedItem> combinedItemList;
     List<String> textList;
     final ItemTouchHelper itemTouchHelper;
-    String text;
 
     CombinedItem selectedItem;
     int index;
-    public Layers_Adapter(Context context, List<String> textList, RecyclerView recyclerView) {
+    public Layers_Adapter(Context context, RecyclerView recyclerView) {
         this.context = context;
         combinedItemList = (combinedItemList != null) ? combinedItemList : new ArrayList<>();
 

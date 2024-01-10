@@ -1,9 +1,13 @@
 package com.example.postersmaker;
 
+import static com.example.postersmaker.MainActivity.convertPixelsToSP;
 import static com.example.postersmaker.MainActivity.imageView;
+import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -42,17 +46,44 @@ public class JSONFileManager {
             if (combinedItem.getTextlayout2() != null) {
                 jsonObject.put("ComponentName", "text");
                 jsonObject.put("Order", i);
+                jsonObject.put("Text ID",TextHandlerClass.textLayoutList.indexOf(combinedItem.getTextlayout2().getFrameLayout()));
                 jsonObject.put("text",combinedItem.getTextlayout2().getTextView().getText());
                 jsonObject.put("PositionX",combinedItem.getTextlayout2().getFrameLayout().getX());
+
+                jsonObject.put("TextSize", combinedItem.getTextlayout2().getTextView().getTextSize());
+
+                jsonObject.put("ParentFrameLayout", combinedItem.getTextlayout2().getId());
+
+                jsonObject.put("ViewGroup", combinedItem.getTextlayout2().getFrameLayout().getParent());
                 jsonObject.put("PositionY",combinedItem.getTextlayout2().getFrameLayout().getY());
-                jsonObject.put("Font",combinedItem.getTextlayout2().getTextView().getTypeface());
-                jsonObject.put("Color",combinedItem.getTextlayout2().getTextView().getTextColors());
-                jsonObject.put("Width",combinedItem.getTextlayout2().getTextView().getWidth());
-                jsonObject.put("Height",combinedItem.getTextlayout2().getTextView().getHeight());
+
+                if(combinedItem.getTextlayout2().getFontResource() != 0){
+                    jsonObject.put("Font", combinedItem.getTextlayout2().getFontResource());
+                }
+                else {
+                    jsonObject.put("Font", 0);
+                }
+
+
+                int textColor = combinedItem.getTextlayout2().getTextView().getCurrentTextColor();
+                String hexColor = String.format("#%06X", (0xFFFFFF & textColor));
+                jsonObject.put("Color", hexColor);
+                jsonObject.put("Width",combinedItem.getTextlayout2().getBorderLayout().getWidth());
+                jsonObject.put("Height",combinedItem.getTextlayout2().getBorderLayout().getHeight());
                 jsonObject.put("TextAlignment",combinedItem.getTextlayout2().getTextView().getTextAlignment());
-                jsonObject.put("TextSize",combinedItem.getTextlayout2().getTextView().getTextSize());
                 jsonObject.put("Alpha",combinedItem.getTextlayout2().getTextView().getAlpha());
-                jsonObject.put("Shadow",combinedItem.getTextlayout2().getTextView().getShadowRadius());
+
+                if(combinedItem.getTextlayout2().getTextView().getShadowRadius() != 0) {
+                    jsonObject.put("Shadow Radius", combinedItem.getTextlayout2().getTextView().getShadowRadius());
+                    jsonObject.put("Shadow dx", combinedItem.getTextlayout2().getTextView().getShadowDx());
+                    jsonObject.put("Shadow dy", combinedItem.getTextlayout2().getTextView().getShadowDy());
+                }
+                else {
+                    jsonObject.put("Shadow Radius", 0);
+                    jsonObject.put("Shadow dx", 0);
+                    jsonObject.put("Shadow dy", 0);
+                }
+
                 jsonObject.put("Rotation",combinedItem.getTextlayout2().getFrameLayout().getRotation());
                 jsonObject.put("spacing",combinedItem.getTextlayout2().getTextView().getLetterSpacing());
                 jsonObject.put("Lock",combinedItem.getTextlayout2().getLocked());

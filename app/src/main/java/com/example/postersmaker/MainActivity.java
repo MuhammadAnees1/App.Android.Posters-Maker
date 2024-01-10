@@ -513,6 +513,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     saveButton.setVisibility(View.INVISIBLE);
                 }
                 callSetDefaultState();
+
                 // Set the background resource to indicate selection
                 layer.setBackground(null);
             }
@@ -1094,7 +1095,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if (selectedLayer1 != null) {
             unselectLayers(selectedLayer1);
         }
-
+        defaultContainer();
         imgBitmap = getBitmapFromView(parentLayout);
 //        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
     }

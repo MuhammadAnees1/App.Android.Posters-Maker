@@ -57,13 +57,12 @@ public class JSONFileManager {
                 jsonObject.put("ViewGroup", combinedItem.getTextlayout2().getFrameLayout().getParent());
                 jsonObject.put("PositionY",combinedItem.getTextlayout2().getFrameLayout().getY());
 
-                if(combinedItem.getTextlayout2().getFontResource() != 0){
+                if(combinedItem.getTextlayout2().getFontResource() != 0) {
                     jsonObject.put("Font", combinedItem.getTextlayout2().getFontResource());
                 }
                 else {
                     jsonObject.put("Font", 0);
                 }
-
 
                 int textColor = combinedItem.getTextlayout2().getTextView().getCurrentTextColor();
                 String hexColor = String.format("#%06X", (0xFFFFFF & textColor));

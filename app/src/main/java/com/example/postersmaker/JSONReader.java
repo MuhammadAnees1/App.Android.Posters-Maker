@@ -124,6 +124,7 @@ public class JSONReader {
                             Typeface typeface = ResourcesCompat.getFont(context, font);
                             textView1.setTypeface(typeface);
                             textLayout.setFontResource(font);
+
                         }
                         if(shadow != 0) {
                             textView1.setShadowLayer(shadow, shadowDx, shadowDy, Color.BLACK);

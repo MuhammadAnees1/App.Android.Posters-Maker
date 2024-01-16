@@ -1,17 +1,65 @@
 [
   {
-    "name": "Simon",
-    "country": "USA",
-    "age": 23
+    "ComponentName":"imageView",
+    "Order":0,
+    "image":"https://i.imgur.com/p0oF7eD.png",
+    "PositionX":3.96484375,
+    "PositionY":1168.90625,
+    "Width":707,
+    "Height":435,
+    "Opacity":1,
+    "Lock":false,
+    "Rotation":0
   },
   {
-    "name": "Jack",
-    "country": "UK",
-    "age": 26
+  "ComponentName":"textView",
+    "Order":1,
+    "text":"Anes",
+    "PositionX":645.9619140625,
+    "PositionY":-22.96875,
+    "Color":"#FF861F",
+    "Width":404,
+    "Height":194,
+    "TextAlignment":1,
+    "TextSize":145.1875,
+    "Opacity":1,
+    "Shadow":0,
+    "Rotation":0,
+    "spacing":0,
+    "Lock":false
   },
   {
-    "name": "John",
-    "country": "France",
-    "age": 28
+    "ComponentName":"textView",
+    "Order":2,
+    "text":"Shah",
+    "PositionX":845.9619140625,
+    "PositionY":22.96875,
+    "Color":"#FF861F",
+    "Width":404,
+    "Height":194,
+    "TextAlignment":1,
+    "TextSize":145.1875,
+    "Opacity":9,
+    "Shadow":0,
+    "Rotation":0,
+    "spacing":0,
+    "Lock":true
+  },
+  {
+    "ComponentName":"textView",
+    "Order":3,
+    "text":"😳",
+    "PositionX":1105.9765625,
+    "PositionY":1497.03125,
+    "Color":"#FF861F",
+    "Width":87,
+    "Height":93,
+    "TextAlignment":1,
+    "TextSize":70,
+    "Opacity":1,
+    "Shadow":0,
+    "Rotation":0,
+    "spacing":0,
+    "Lock":false
   }
 ]

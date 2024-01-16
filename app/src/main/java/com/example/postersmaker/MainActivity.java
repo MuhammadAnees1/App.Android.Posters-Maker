@@ -1,20 +1,26 @@
 package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static androidx.core.app.ActivityCompat.requestPermissions;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
 
 import static com.example.postersmaker.HomeFragment.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -28,7 +34,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.Manifest;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -37,8 +46,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.loadJsonDataFromFile;
 import com.jgabrielfreitas.core.BlurImageView;
 
+import org.json.JSONException;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     List<String> textList = new ArrayList<>();
     int idT, idI ;
     public static Uri imageUri1;
+    ImageView savImgButton;
     int Tid = 0;
     Layers_Adapter adapter = new Layers_Adapter(this, textList, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
@@ -66,12 +80,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     public static ImageLayout selectedLayer1;
     Boolean isLocked;
     boolean isframe ;
+    static Bitmap originalBitmap1;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
+    static String CurrentImg = null ;
+
+    Bitmap imgBitmap;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
     private int currentActionIndex = -1;
     static BlurImageView imageView;
-    public static ImageView  imageView2;
+    public static ImageView  imageView2 ,imageView4;
     public ImageView imgUndo,imgRedo;
     View previewImageView1;
     static FrameLayout container,container2,frameLayout,parentLayout;
@@ -97,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
+        savImgButton = findViewById(R.id.imgSave);
+        imageView4 = findViewById(R.id.imgClose);
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -104,17 +125,50 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         adapter = new Layers_Adapter(MainActivity.this, textList, LayerRecycleView);
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
+        parentLayout = findViewById(R.id.parentLayout);
 
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
-        parentLayout = findViewById(R.id.parentLayout);
 
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
+
+        imageView4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an instance of loadJsonDataFromFile and call the method
+                loadJsonDataFromFile jsonLoader = new loadJsonDataFromFile(MainActivity.this);
+                jsonLoader.loadJsonData();
+                Toast.makeText(MainActivity.this, "Clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        savImgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    // Permission is not granted
+                    // Should we show an explanation?
+                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) v.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                        ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                    } else {
+                        // No explanation needed; request the permission
+                        ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
+                    }
+                } else {
+                    // Permission has already been granted, you can perform the storage operation
+                    performStorageOperation();
+                }
+
+            }
+
+        });
+
         parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     }
     @SuppressLint("ClickableViewAccessibility")
-    TextLayout createTextLayout(String text, float x, float y) {
+    public TextLayout createTextLayout(String text, float x, float y) {
         frameLayout = new FrameLayout(this);
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -211,7 +265,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
-        borderLayout.setBackgroundColor(Color.BLUE);
 
 
         deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
@@ -498,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             action.redo();
         }
     }
-    public void updateBackgroundImage(String backgroundFileName) {
+    public  void updateBackgroundImage(String backgroundFileName) {
         try {
             InputStream inputStream = getAssets().open("Cover/" + backgroundFileName);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
@@ -591,7 +644,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction.replace(R.id.fragment_container, effectFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
-
                 break;
             case EMOJI:
                 defaultContainer();
@@ -604,7 +656,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
                 fragmentTransaction0.addToBackStack(null);
                 fragmentTransaction0.commit();
-
+                if(CurrentImg != null){
+                    updateBackgroundImage(CurrentImg);
+                    imageView.setImageBitmap(originalBitmap1);}
                 break;
             case Frames:
                 defaultContainer();
@@ -714,7 +768,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
     @SuppressLint("ClickableViewAccessibility")
-    ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
+    public ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
         ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI,isframe );
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
@@ -993,5 +1047,55 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 layer.setBackground(null);
             }
         }
+    }
+    public Bitmap getBitmapFromView(FrameLayout view) {
+        // Check if the view has been laid out
+        if (view.getWidth() == 0 || view.getHeight() == 0) {
+            // The view hasn't been laid out yet, return null
+            return null;
+        }
+
+        // Create a Bitmap with the same dimensions as the view
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+
+        // Create a Canvas using the Bitmap
+        Canvas canvas = new Canvas(bitmap);
+
+        // Draw the view's visible content onto the Canvas
+        view.draw(canvas);
+
+        return bitmap;
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission was granted, yay! Do the
+                    // storage-related task you need to do.
+                    performStorageOperation();
+                } else {
+                    Toast.makeText(this, "Permission required to save image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    private void performStorageOperation() {
+        try {
+
+            JSONFileManager.saveJSONFile(combinedItemList, getApplicationContext());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        if(selectedLayer != null){
+            unselectLayer(selectedLayer);}
+        if(selectedLayer1 != null){
+            unselectLayers(selectedLayer1);}
+
+        imgBitmap = getBitmapFromView(parentLayout);
+        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);
     }
 }

@@ -3,7 +3,10 @@ package com.example.postersmaker;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import static com.example.postersmaker.HomeFragment.getYourColorList;
+import static com.example.postersmaker.MainActivity.CurrentImg;
+import static com.example.postersmaker.MainActivity.imageUri1;
 import static com.example.postersmaker.MainActivity.imageView;
+import static com.example.postersmaker.MainActivity.originalBitmap1;
 
 import android.app.Activity;
 import android.content.Context;
@@ -52,9 +55,11 @@ import java.util.Objects;
 
 public class BackGroundFragment extends Fragment implements MainImageBackGroundAdapter.BackgroundImageClickListener {
     MainImageBackGroundAdapter mainImageBackGroundAdapter;
+
     RecyclerView recyclerView;
     private static final int IMAGE_PICK_REQUEST = 101;
-    String CurrentImg = null ;
+
+    static float lastProgress = 0;
     private BlurProcessor blurProcessor;
 
     SeekBar blurSeekBar, OpacityBackgroundSeekbar;
@@ -83,6 +88,7 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
         PickBackGroundColor.setOnClickListener(v -> showColorPickerDialog());
 
         blurSeekBar.setOnSeekBarChangeListener(onSeekBarChanged());
+        blurSeekBar.setProgress((int) lastProgress);
 
         OpacityBackgroundSeekbar.setProgress(100);
         OpacityBackgroundSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -156,14 +162,13 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
     public void onBackgroundImageClick(String backgroundFileName) {
         // Get the reference to the previewImageView
         MainActivity mainActivity = (MainActivity) getActivity();
-        CurrentImg = backgroundFileName ;
+        MainActivity.CurrentImg = backgroundFileName ;
         // Update the background image in the MainActivity
         if (mainActivity != null) {
             mainActivity.updateBackgroundImage(backgroundFileName);
-
-
         }
     }
+
 
 
     private void showColorPickerDialog() {
@@ -172,9 +177,8 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
                 .setTitle("Pick Color")
                 .setColorShape(ColorShape.SQAURE)
                 .setColorListener((color, colorHex) -> {
-                    // Update the color on the parent layout
-
-                    imageView.setBackgroundColor(color);
+                    Drawable drawable = new ColorDrawable(color);
+                    imageView.setImageDrawable(drawable);
                     Log.d(TAG, "onColorSelected: color" + color);
                 });
         colorPickerDialog.show();
@@ -188,36 +192,31 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
                     applyBlur(progress);
                 }
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Optionally, you can perform actions when the user starts moving the seek bar
-            }
 
+            }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // Optionally, you can perform actions when the user stops moving the seek bar
             }
         };
     }
-
     private void applyBlur(float blurRadius) {
-        // Check if imageView has a drawable and the drawable is a BitmapDrawable
         if (imageView.getDrawable() instanceof BitmapDrawable) {
             MainActivity mainActivity = (MainActivity) getActivity();
             if(CurrentImg != null) {
                 assert mainActivity != null;
                 mainActivity.updateBackgroundImage(CurrentImg);
             }
-            // Get the bitmap from the drawable
             Bitmap originalBitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-
-            // Apply blur using BlurProcessor
             Bitmap blurredBitmap = blurProcessor.blur(originalBitmap, blurRadius);
-
-            // Set the blurred image to the ImageView
             imageView.setImageBitmap(blurredBitmap);
+            lastProgress = blurRadius;
+
+            originalBitmap1 = blurredBitmap;
         }
 
     }
+
 }

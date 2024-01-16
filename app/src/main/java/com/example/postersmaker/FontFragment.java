@@ -50,6 +50,4 @@ public class FontFragment extends Fragment implements FontAdapter.FontClickListe
             activity.selectedLayer.getTextView().setTypeface(typeface);
         }
     }
-
-
 }

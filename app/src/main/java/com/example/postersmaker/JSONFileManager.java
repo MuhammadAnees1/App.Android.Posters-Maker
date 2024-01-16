@@ -1,70 +1,83 @@
 package com.example.postersmaker;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import android.content.Context;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.Toast;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JSONFileManager {
-    public static void saveCombinedItemsToFile(List<ImageLayout> imageLayouts, List<TextLayout> textLayouts, String filePath) {
-        try {
+
+    public static void saveJSONFile(List<CombinedItem> combinedItemList, Context context) throws JSONException {
+        JSONArray jsonArray = new JSONArray();
+            JSONObject background = new JSONObject();
+            background.put("background", MainActivity.imageView);
+            background.put("Current Background Drawable" , MainActivity.CurrentImg);
+            background.put("Blurr", MainActivity.originalBitmap1);
+
+        for (int i = 0; i < combinedItemList.size(); i++) {
+
             JSONObject jsonObject = new JSONObject();
-            // Convert image layouts to JSON array
-            JSONArray imageArray = new JSONArray();
-            for (ImageLayout imageLayout : imageLayouts) {
-                imageArray.put(convertImageLayoutToJSON(imageLayout));
+
+            CombinedItem combinedItem = combinedItemList.get(i);
+        if (combinedItem.getTextlayout2() != null) {
+            jsonObject.put("ComponentName", "textView");
+            jsonObject.put("Order", i);
+            jsonObject.put("text",combinedItem.getTextlayout2().getTextView().getText());
+            jsonObject.put("PositionX",combinedItem.getTextlayout2().getFrameLayout().getX());
+            jsonObject.put("PositionY",combinedItem.getTextlayout2().getFrameLayout().getY());
+            jsonObject.put("Font",combinedItem.getTextlayout2().getTextView().getTypeface());
+            jsonObject.put("Color",combinedItem.getTextlayout2().getTextView().getTextColors());
+            jsonObject.put("Width",combinedItem.getTextlayout2().getTextView().getWidth());
+            jsonObject.put("Height",combinedItem.getTextlayout2().getTextView().getHeight());
+            jsonObject.put("TextAlignment",combinedItem.getTextlayout2().getTextView().getTextAlignment());
+            jsonObject.put("TextSize",combinedItem.getTextlayout2().getTextView().getTextSize());
+            jsonObject.put("Opacity",combinedItem.getTextlayout2().getTextView().getAlpha());
+            jsonObject.put("Shadow",combinedItem.getTextlayout2().getTextView().getShadowRadius());
+            jsonObject.put("Rotation",combinedItem.getTextlayout2().getFrameLayout().getRotation());
+            jsonObject.put("spacing",combinedItem.getTextlayout2().getTextView().getLetterSpacing());
+            jsonObject.put("Lock",combinedItem.getTextlayout2().getLocked());
+            jsonObject.put("ID" ,combinedItem.getTextlayout2().getId());
             }
-            jsonObject.put("images", imageArray);
-
-            // Convert text layouts to JSON array
-            JSONArray textArray = new JSONArray();
-            for (TextLayout textLayout : textLayouts) {
-                textArray.put(convertTextLayoutToJSON(textLayout));
+            else if (combinedItem.getImageLayout() != null) {
+                jsonObject.put("ComponentName", "imageView");
+                jsonObject.put("Order", i);
+                jsonObject.put("image",combinedItem.getImageLayout().getImageUri());
+                jsonObject.put("PositionX",combinedItem.getImageLayout().getFrameLayout().getX());
+                jsonObject.put("PositionY",combinedItem.getImageLayout().getFrameLayout().getY());
+                jsonObject.put("Width",combinedItem.getImageLayout().getImageView().getWidth());
+                jsonObject.put("Height",combinedItem.getImageLayout().getImageView().getHeight());
+                jsonObject.put("Opacity",combinedItem.getImageLayout().getImageView().getAlpha());
+                jsonObject.put("Lock",combinedItem.getImageLayout().getLocked());
+                jsonObject.put("Rotation",combinedItem.getImageLayout().getFrameLayout().getRotation());
             }
-            jsonObject.put("texts", textArray);
-            // Save the combined JSON to a file
-            String jsonString = jsonObject.toString();
+            jsonArray.put(jsonObject);
+            }
+        Log.d(TAG, "JSON Data: " + jsonArray.toString());
 
-            saveStringToFile(jsonString, filePath);
+        File appDirectory = new File(context.getExternalFilesDir(null), "Postermaker");
+            if (!appDirectory.exists()) {
+                appDirectory.mkdirs();
+            }
+            File jsonFile = new File(appDirectory, "your_file.json");
+            try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+                fileOutputStream.write(jsonArray.toString().getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
     }
-
-    private static JSONObject convertImageLayoutToJSON(ImageLayout imageLayout) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", imageLayout.getId());
-            jsonObject.put("imageUri", imageLayout.getImageUri().toString());
-            jsonObject.put("x", imageLayout.getFrameLayout().getX());
-            jsonObject.put("y", imageLayout.getFrameLayout().getY());
-            jsonObject.put("width", imageLayout.getImageView().getWidth());
-            jsonObject.put("height", imageLayout.getImageView().getHeight());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
-
-    private static JSONObject convertTextLayoutToJSON(TextLayout textLayout) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", textLayout.getId());
-            jsonObject.put("text", textLayout.getTextView().getText().toString());
-            jsonObject.put("x", textLayout.getFrameLayout().getX());
-            jsonObject.put("y", textLayout.getFrameLayout().getY());
-            jsonObject.put("width", textLayout.getTextView().getWidth());
-            jsonObject.put("height", textLayout.getTextView().getHeight());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
-    private static void saveStringToFile(String data, String filePath) {
-        // Implement your file-saving logic here
-        // For example, you can use FileOutputStream or any other method based on your requirements.
-    }
-
 }

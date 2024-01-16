@@ -32,38 +32,20 @@ import java.util.List;
 public class TextHandlerClass {
     static List<FrameLayout> textLayoutList = new ArrayList<>();
     static List<String> textList = new ArrayList<>();
-    public static JSONObject convertTextLayoutToJSON(TextLayout textLayout, int order) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("id", textLayout.getId());
-            jsonObject.put("order", order);
-            jsonObject.put("Text", textLayout.getTextView().getText());
-            jsonObject.put("positionX", textLayout.getFrameLayout().getX());
-            jsonObject.put("positionY", textLayout.getFrameLayout().getY());
-            jsonObject.put("width", textLayout.getFrameLayout().getWidth());
-            jsonObject.put("height", textLayout.getFrameLayout().getHeight());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject;
-    }
 
     public static void swapViewsInLayout(int fromIndex, int toIndex) {
         if (isValidIndex(fromIndex) && isValidIndex(toIndex)) {
             CombinedItem fromLayout = MainActivity.findLayoutByIndex(fromIndex);
             CombinedItem toLayout = MainActivity.findLayoutByIndex(toIndex);
-
             if (fromLayout != null && toLayout != null) {
                 FrameLayout fromFrameLayout = getFrameLayoutFromLayout(fromLayout);
                 FrameLayout toFrameLayout = getFrameLayoutFromLayout(toLayout);
-
                 if (fromFrameLayout != null && toFrameLayout != null) {
                     // Swap the items in the data structure
                     Collections.swap(combinedItemList, fromIndex, toIndex);
                     MainActivity mainActivity = new MainActivity();
                     // Notify the adapter about the change
                     mainActivity.adapter.notifyItemMoved(fromIndex, toIndex);
-
                     // Swap the FrameLayouts in the layout
                     swapFrameLayouts(fromFrameLayout, toFrameLayout);
                 }
@@ -79,26 +61,21 @@ public class TextHandlerClass {
             // Get the indices of the FrameLayouts
             int fromIndex = fromParent.indexOfChild(fromFrameLayout);
             int toIndex = toParent.indexOfChild(toFrameLayout);
-
             // Swap the layout parameters to update positions
             fromFrameLayout.setLayoutParams(toFrameLayout.getLayoutParams());
             toFrameLayout.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
-
             // Swap the FrameLayouts in the parent
             fromParent.removeView(fromFrameLayout);
             toParent.addView(fromFrameLayout, toIndex);
-
             toParent.removeView(toFrameLayout);
             fromParent.addView(toFrameLayout, fromIndex);
         }
     }
-
     private static boolean isValidIndex(int index) {
         return index >= 0 && index < MainActivity.combinedItemList.size();
     }
-
     private static FrameLayout getFrameLayoutFromLayout(CombinedItem layout) {
         if (layout.getImageLayout() != null) {
             return layout.getImageLayout().getFrameLayout();
@@ -107,7 +84,6 @@ public class TextHandlerClass {
         }
         return null;
     }
-
 
     public static void showTextDialog(Context context, List<FrameLayout> textLayoutList, ViewGroup viewGroup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);

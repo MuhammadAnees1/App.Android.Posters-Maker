@@ -8,19 +8,41 @@
     tools:context=".HomeActivity">
 
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/AppName"
+<com.example.postersmaker.CustomView
+    android:id="@+id/customView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.example.postersmaker.DrawPaint
+        android:id="@+id/drawPaintView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:eraseButton="@+id/erase_button"
+        />
+
+    <Button
+        android:id="@+id/erase_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Posters Maker"
-        android:textColor="#F3Dcdc"
-        android:textSize="48sp"
-        app:fontFamily="@font/galada"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Erase"
         tools:ignore="MissingConstraints" />
+<!--    <androidx.appcompat.widget.AppCompatTextView-->
+<!--        android:id="@+id/AppName"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        android:text="Posters Maker"-->
+<!--        android:textColor="#F3Dcdc"-->
+<!--        android:textSize="48sp"-->
+<!--        app:fontFamily="@font/galada"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        tools:ignore="MissingConstraints" />-->
+
+
 
 
     <androidx.appcompat.widget.AppCompatButton

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.postersmaker.databinding.ActivityHomeBinding;
@@ -15,7 +16,8 @@ import com.example.postersmaker.databinding.ActivityHomeBinding;
 public class HomeActivity extends AppCompatActivity {
 
     ActivityHomeBinding binding;
-
+    private DrawPaint drawPaintView;
+    private Button eraseButton;
     private ActivityResultLauncher<String> galleryLauncher;
     private static final int PICK_IMAGE_REQUEST_CODE = 1;
 
@@ -28,13 +30,14 @@ public class HomeActivity extends AppCompatActivity {
         galleryLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
 
-            if (uri!=null) {
-                // Handle the selected image from the gallery here
-                openNextActivity(uri);
-            }else {
-                Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    if (uri!=null) {
+                        // Handle the selected image from the gallery here
+                        openNextActivity(uri);
+                    }
+                    else {
+                        Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         binding.newButton1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void openNextActivity(Uri imageUri) {
-        Intent intent = new Intent(this, Crop_Image_activity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("imageUri", imageUri.toString());
         startActivity(intent);
     }

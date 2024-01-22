@@ -42,8 +42,17 @@
             tools:ignore="MissingConstraints" />
 
 
+
     </FrameLayout>
 
+    <com.example.postersmaker.DrawPaint
+        android:id="@+id/drawPaintView"
+        android:layout_width="400dp"
+        android:layout_height="500dp"
+        app:eraseButton="@+id/erase_button"
+        app:layout_constraintBottom_toBottomOf="@+id/parentLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/parentLayout" />
         <Button
             android:id="@+id/LayerButton"
             android:layout_width="wrap_content"
@@ -147,6 +156,28 @@
         android:layout_marginTop="10dp"
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         tools:ignore="MissingConstraints"/>
+    <FrameLayout
+        android:id="@+id/fragment_container4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        tools:ignore="MissingConstraints"/>
+    <FrameLayout
+        android:id="@+id/fragment_container5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        tools:ignore="MissingConstraints"/>
+    <FrameLayout
+        android:id="@+id/fragment_container6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        tools:ignore="MissingConstraints" />
+
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

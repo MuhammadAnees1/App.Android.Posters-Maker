@@ -49,11 +49,7 @@ public class JSONFileManager {
                 jsonObject.put("Text ID",TextHandlerClass.textLayoutList.indexOf(combinedItem.getTextlayout2().getFrameLayout()));
                 jsonObject.put("text",combinedItem.getTextlayout2().getTextView().getText());
                 jsonObject.put("PositionX",combinedItem.getTextlayout2().getFrameLayout().getX());
-
                 jsonObject.put("TextSize", combinedItem.getTextlayout2().getTextView().getTextSize());
-
-                jsonObject.put("ParentFrameLayout", combinedItem.getTextlayout2().getId());
-
                 jsonObject.put("ViewGroup", combinedItem.getTextlayout2().getFrameLayout().getParent());
                 jsonObject.put("PositionY",combinedItem.getTextlayout2().getFrameLayout().getY());
 

@@ -8,6 +8,7 @@ import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -95,13 +96,24 @@ public class Layers_Adapter extends RecyclerView.Adapter<Layers_Adapter.ViewHold
         } else if (imageLayout != null) {
             if(imageUri!= null) {
                 holder.imageView3.setImageURI(imageLayout.getImageUri());
+
             }
             else{
                 Glide.with(context)
                         .load(imageUri1)
                         .into(holder.imageView3);
+
             }
-            holder.imageView3.setImageURI(imageLayout.getImageUri());
+            if (imageLayout.getImageUri() != null) {
+                holder.imageView3.setImageURI(imageLayout.getImageUri());
+
+
+            }
+            else if(imageLayout.getImgBitmap() != null) {
+                holder.imageView3.setBackgroundColor(Color.WHITE);
+                holder.imageView3.setImageBitmap(imageLayout.getImgBitmap());
+
+            }
             holder.imageView3.setVisibility(View.VISIBLE);
             holder.txtTool.setVisibility(View.GONE);
         }

@@ -19,6 +19,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mToolList.add(new ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolTypeForCustomAdaptor.EMOJI));
         mToolList.add(new ToolModel("Frames", R.drawable.baseline_filter_frames_24, ToolTypeForCustomAdaptor.Frames));
         mToolList.add(new ToolModel("Background", R.drawable.background, ToolTypeForCustomAdaptor.Background));
+        mToolList.add(new ToolModel("Brush", R.drawable.baseline_brush_24, ToolTypeForCustomAdaptor.BRUSH));
     }
     public interface OnItemSelected {
         void onToolSelected(ToolTypeForCustomAdaptor toolType);

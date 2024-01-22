@@ -8,4 +8,5 @@ public enum ToolTypeForCustomAdaptor {
     Frames,
     FILTER,
     EMOJI,
+    BRUSH,
 }

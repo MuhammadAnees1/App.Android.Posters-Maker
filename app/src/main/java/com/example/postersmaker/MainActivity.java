@@ -5,6 +5,8 @@ import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.postersmaker.HomeFragment.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -57,8 +59,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     List<String> textList = new ArrayList<>();
     int idT, idI ;
     JSONReader jsonReader;
+    static Bitmap drawnBitmap = null;
+ static boolean brushSelected=false;
+
    public static Uri imageUri1;
+    static DrawPaint drawPaintView ;
+    private boolean isBrushMode = true;
+
     ImageView savImgButton;
+
     int Tid = 0;
      Layers_Adapter adapter = new Layers_Adapter(this, LayerRecycleView);
     public final List<FrameLayout> textLayoutList = new ArrayList<>();
@@ -80,15 +89,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     static String CurrentImg = null ;
 
     Bitmap imgBitmap;
+    ImageView savebrush;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
     private int currentActionIndex = -1;
     static BlurImageView imageView;
     public static ImageView  imageView2;
+    Bitmap brushBitmap;
     public ImageView imgUndo,imgRedo;
     View previewImageView1;
-    static FrameLayout container,container2,frameLayout,parentLayout;
+    static FrameLayout container,container2,bgcontainer,brushContainer,frameLayout,parentLayout,frameContainer;
 
     public  void OpacityBackground(int progress) {
         imageView.setVisibility(View.VISIBLE);
@@ -112,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setVisibility(View.GONE);
         LayerButton = findViewById(R.id.LayerButton);
         savImgButton = findViewById(R.id.imgSave);
+        drawPaintView = findViewById(R.id.drawPaintView);
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -120,11 +132,16 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
         parentLayout = findViewById(R.id.parentLayout);
-
+        savebrush = findViewById(R.id.imgShare);
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
         imgRedo = findViewById(R.id.imgRedo);
+        brushContainer = findViewById(R.id.fragment_container4);
+        drawPaintView = findViewById(R.id.drawPaintView);
+        frameContainer=findViewById(R.id.fragment_container5);
+        bgcontainer = findViewById(R.id.fragment_container6);
+
 
 
         JSONReader.readJSONFile(this);
@@ -186,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public void onClick(View v) {
                 redo();
             }
+
         });
         LayerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -301,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
         });
 
+
         rotateButton = ButtonCreator.createRotateButton(this, 0.26f, 0.26f, -33, -29);
         textLayout.setRotateButton(rotateButton);
         textLayout.getRotateButton().setOnTouchListener(new RotateTouchListener(textLayout));
@@ -370,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                         case MotionEvent.ACTION_MOVE:
                             if (textLayout.getLocked() != null) {
-                                if (!textLayout.getLocked()) {
+                                if (!textLayout.getLocked()&& !brushSelected) {
                                     float newX = event.getRawX();
                                     float newY = event.getRawY();
                                     float dX = newX - lastX;
@@ -400,7 +419,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             return true;
                         case MotionEvent.ACTION_MOVE:
                             if(textLayout.getLocked() != null) {
-                                if (!textLayout.getLocked()) {
+                                if (!textLayout.getLocked()&&!brushSelected) {
                                     float newX = event.getRawX();
                                     float newY = event.getRawY();
                                     float dX = newX - lastX;
@@ -455,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             unselectLayers(selectedLayer1);}
 
-
+            if (!brushSelected){
 
             if (textLayout != null) {
                 if(textLayout.getLocked() != null ) {
@@ -495,7 +514,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     layer.setBackgroundResource(R.drawable.border_style);
                 }
                 selectedLayer = textLayout;
-            }}
+            }}}
         }
     }
     public static void unselectLayer(TextLayout textLayout) {
@@ -633,6 +652,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction.replace(R.id.fragment_container, effectFragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
+
                 break;
             case EMOJI:
                 defaultContainer();
@@ -640,9 +660,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
             case Background:
                 defaultContainer();
+                bgcontainer.setVisibility(View.VISIBLE);
                 FragmentTransaction fragmentTransaction0 = this.getSupportFragmentManager().beginTransaction();
                 BackGroundFragment backGroundFragment = new BackGroundFragment();
-                fragmentTransaction0.replace(R.id.fragment_container, backGroundFragment);
+                fragmentTransaction0.replace(R.id.fragment_container6, backGroundFragment);
                 fragmentTransaction0.addToBackStack(null);
                 fragmentTransaction0.commit();
                 if(CurrentImg != null){
@@ -651,19 +672,37 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 break;
             case Frames:
                 defaultContainer();
-                container2.setVisibility(View.VISIBLE);
+                frameContainer.setVisibility(View.VISIBLE);
                 FragmentTransaction fragmentTransaction1 = this.getSupportFragmentManager().beginTransaction();
                 FrameFragment frameFragment = new FrameFragment();
-                fragmentTransaction1.replace(R.id.fragment_container3, frameFragment);
+                fragmentTransaction1.replace(R.id.fragment_container5, frameFragment);
                 fragmentTransaction1.addToBackStack(null);
                 fragmentTransaction1.commit();
+
+
+
                 break;
+                case BRUSH:
+                    defaultContainer();
+                    if(brushContainer.getVisibility() == View.GONE || brushContainer.getVisibility() == View.INVISIBLE){
+
+
+                    brushContainer.setVisibility(View.VISIBLE);
+                    FragmentTransaction brushtransactionn = this.getSupportFragmentManager().beginTransaction();
+                    BrushFragment brushFragment = new BrushFragment();
+                    brushtransactionn.replace(R.id.fragment_container4, brushFragment);
+                    brushtransactionn.addToBackStack(null);
+                    brushtransactionn.commit();
+
+}
+                    break;
             default:
                 defaultContainer();
 
                 break;
         }
     }
+
  void defaultContainer(){
 
     if(selectedLayer != null) {
@@ -672,10 +711,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     else if(selectedLayer1 != null) {
         unselectLayers(selectedLayer1);
     }
+    brushSelected = false;
+     DrawPaint.brushEnable = false;
+     drawPaintView.eraseDrawing();
+     DrawPaint.bitmap1 = null;
+     frameContainer.setVisibility(View.GONE);
     container.setVisibility(View.GONE);
+    bgcontainer.setVisibility(View.GONE);
     container2.setVisibility(View.GONE);
+     brushContainer.setVisibility(View.GONE);
 
-}
+
+
+ }
     private void openEmojiFragment() {
         EmojiFragment emojiFragment = new EmojiFragment();
         emojiFragment.setEmojiListener(new EmojiFragment.EmojiListener() {
@@ -758,7 +806,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
     }
     @SuppressLint("ClickableViewAccessibility")
-    ImageLayout createImageLayout(Uri imageUri, String frameFileName, float x, float y) {
+    ImageLayout createImageLayout(Bitmap brushBitmap, Uri imageUri, String frameFileName, float x, float y) {
         ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI,isframe );
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
@@ -796,6 +844,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .load("file:///android_asset/Basic/" + frameFileName)
                     .into(imageView2);
             imageUri1 = Uri.parse(("file:///android_asset/Basic/" + frameFileName));
+        }
+        else if(brushBitmap != null){
+            imageLayout.isFrame = false;
+            imageView2.setImageBitmap(brushBitmap);
+            imageLayout.setImgBitmap(brushBitmap);
+
         }
         imageLayout.setImageView(imageView2);
         imageView2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -899,7 +953,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                         return true;
                     case MotionEvent.ACTION_MOVE:
-                        if (!imageLayout.getLocked()) {
+                        if (!imageLayout.getLocked() && !brushSelected) {
                             float newX = event.getRawX();
                             float newY = event.getRawY();
                             float dX = newX - lastX;
@@ -941,7 +995,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imageLayout.setId(Tid);
         CombinedItem.ids.add(Tid);
         combinedItemList.add(new CombinedItem(imageLayout));
-
+        selectLayers(imageLayout);
         return imageLayout;
     }
 
@@ -966,6 +1020,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
 
             unselectLayer(selectedLayer);}
+        if(!brushSelected){
         selectedLayer1 = imageLayout;
         if(!imageLayout.getLocked()){
         if (imageLayout != null ) {
@@ -1013,7 +1068,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // Set the background resource to indicate selection
                 layer.setBackgroundResource(R.drawable.border_style);
             }
-            }
+            }}
         }
     }
     public static void unselectLayers(ImageLayout selectedLayer1) {
@@ -1099,4 +1154,5 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imgBitmap = getBitmapFromView(parentLayout);
 //        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
     }
+
 }

@@ -4,8 +4,10 @@ package com.example.postersmaker;
 import static androidx.core.content.ContentProviderCompat.requireContext;
 import static com.example.postersmaker.MainActivity.convertPixelsToSP;
 import static com.example.postersmaker.MainActivity.selectedLayer;
+import static com.example.postersmaker.MainActivity.selectedLayer1;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 import static com.example.postersmaker.MainActivity.unselectLayer;
+import static com.example.postersmaker.MainActivity.unselectLayers;
 import static com.example.postersmaker.TextHandlerClass.textLayoutList;
 
 import android.app.Activity;
@@ -88,7 +90,6 @@ public class JSONReader {
                         String text = jsonObject.getString("text");
                         float positionX = (float) jsonObject.getDouble("PositionX");
                         float positionY = (float) jsonObject.getDouble("PositionY");
-//                        int color = jsonObject.getInt("Color");
                         int width = jsonObject.getInt("Width");
                         int height = jsonObject.getInt("Height");
                         int textAlignment = jsonObject.getInt("TextAlignment");
@@ -172,7 +173,7 @@ public class JSONReader {
                     boolean lock = jsonObject.getBoolean("Lock");
 
                     MainActivity mainActivity = (MainActivity) context;
-                    mainActivity.createImageLayout(Uri.parse(imageUri), null, positionX, positionY);
+                    mainActivity.createImageLayout(null,Uri.parse(imageUri), null, positionX, positionY);
 
                    ImageLayout imageLayout =  MainActivity.combinedItemList.get(order).getImageLayout();
                    imageLayout.getFrameLayout().setRotation(rotation);
@@ -184,7 +185,9 @@ public class JSONReader {
                    imageLayout.getFrameLayout().setRotation(rotation);
                    imageLayout.getImageView().setAlpha(alpha);
 
-
+                        if(selectedLayer1 == imageLayout){
+                            unselectLayers(imageLayout);
+                        }
                         FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
                         HomeFragment homeFragment = new HomeFragment();
                         fragmentTransaction.replace(R.id.fragment_container, homeFragment);

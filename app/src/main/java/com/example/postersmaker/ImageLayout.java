@@ -1,5 +1,6 @@
 package com.example.postersmaker;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -17,6 +18,16 @@ public class ImageLayout {
      boolean isFrame = false;
     private Uri imageUri;
     ImageView imageView;
+    Bitmap imgBitmap = null;
+
+    public Bitmap getImgBitmap() {
+        return imgBitmap;
+    }
+
+    public void setImgBitmap(Bitmap imgBitmap) {
+        this.imgBitmap = imgBitmap;
+    }
+
     int id;
 
     public Uri getImageUri() {

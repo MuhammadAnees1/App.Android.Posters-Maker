@@ -71,7 +71,7 @@ public class ImagePickerManager {
             }
 
             // Create a new ImageLayout based on the provided imageUri
-            ImageLayout imageLayout = mainActivity.createImageLayout(imageUri, null,x, y);
+            ImageLayout imageLayout = mainActivity.createImageLayout(null,imageUri, null,x, y);
             imageLayout.setImageUri(imageUri);
             FrameLayout frameLayout = imageLayout.getFrameLayout();
             if (imageUri == null) {

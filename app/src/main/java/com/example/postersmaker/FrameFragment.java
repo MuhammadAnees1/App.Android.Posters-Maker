@@ -98,7 +98,7 @@ public class FrameFragment extends Fragment implements FrameImageBackGroundAdapt
         MainActivity mainActivity = (MainActivity) getActivity();
         // Update the background image in the MainActivity
         if (mainActivity != null) {
-            mainActivity.createImageLayout(null,FrameFileName,200,200);
+            mainActivity.createImageLayout(null, null,FrameFileName,200,200);
             MainActivity.container2.setVisibility(View.VISIBLE);
 
         }

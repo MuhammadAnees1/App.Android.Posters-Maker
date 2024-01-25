@@ -50,7 +50,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                     }
-                    Track.list.add(new Track(textLayout.getId(), textLayout.getBorderLayout().getWidth(), textLayout.getBorderLayout().getHeight(),0,0,textLayout.getTextView().getTextSize(), true));
+                    Track.list.add(new Track(textLayout.getId(), textLayout.getBorderLayout().getWidth(), textLayout.getBorderLayout().getHeight(),textLayout.getTextView().getWidth(),0,textLayout.getTextView().getTextSize(), true));
                     lastX1 = lastX;
                     lastY1 = lastY;
 

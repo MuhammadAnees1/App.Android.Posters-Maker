@@ -51,6 +51,7 @@ public class Track {
     float spacing ;
     boolean lock ;
     int textID ;
+
     float shadowDx ;
     float shadowDy ;
     int font;

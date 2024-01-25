@@ -1211,10 +1211,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             layoutParams.width = Track.list.get(Track.list.size() - 1).getWidth();
                             layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
                             combineditem.getTextlayout2().getBorderLayout().setLayoutParams(layoutParams);
-
+                            combineditem.getTextlayout2().getTextView().setWidth(Track.list.get(Track.list.size() - 1).getImgwidth());
                             break;}
                     }
-
                 }
                 Track.list.remove(Track.list.size() - 1);
             }

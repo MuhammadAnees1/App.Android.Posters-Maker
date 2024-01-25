@@ -19,6 +19,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
     private float lastX = 0f, lastY = 0f;
     private TextLayout textLayout;
     private ImageLayout imageLayout;
+    float lastY1, lastX1;
     float newX, newY;
     // Constructor for TextLayout
     public ResizeTouchListener(TextLayout textLayout) {
@@ -49,6 +50,10 @@ public class ResizeTouchListener implements View.OnTouchListener {
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                     }
+                    Track.list.add(new Track(textLayout.getId(), textLayout.getBorderLayout().getWidth(), textLayout.getBorderLayout().getHeight(),0,0,textLayout.getTextView().getTextSize(), true));
+                    lastX1 = lastX;
+                    lastY1 = lastY;
+
                 } else if (imageLayout != null) {
                     selectLayers(imageLayout);
                     callSetDefaultState();
@@ -60,11 +65,13 @@ public class ResizeTouchListener implements View.OnTouchListener {
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                     }
+                    Track.list.add(new Track(imageLayout.getId(), imageLayout.getFrameLayout().getWidth(), imageLayout.getFrameLayout().getHeight(),imageLayout.getImageView().getWidth(),imageLayout.getImageView().getHeight(),0, true));
+
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
-                // Additional logic for handling image resizing, if applicable
+
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -72,7 +79,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
                 newY = event.getRawY();
 
                 if (textLayout != null) {
-                    handleTextResize(textLayout);
+                    handleTextResize(textLayout,newX, newY, lastX, lastY);
                 } else if (imageLayout != null) {
                     handleImageResize(imageLayout, true, newX, newY, lastX, lastY);
                 }
@@ -82,7 +89,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
         }
         return true;
     }
-    private void handleTextResize(TextLayout textLayout   ) {
+    public static void handleTextResize(TextLayout textLayout, float newX, float newY, float lastX, float lastY) {
 
         // Calculate the direction of resizing based on the current rotation angle
         float currentRotation = textLayout.getFrameLayout().getRotation();
@@ -150,8 +157,8 @@ public class ResizeTouchListener implements View.OnTouchListener {
         if (newSize > 250) {
             newSize = 250;
         }
-        if (newSize < pxTodp(19)) {
-            newSize = pxTodp(19);
+        if (newSize < pxTodp(30)) {
+            newSize = pxTodp(30);
         }
         // Adjust text size based on the height and width limits
         float maxWidthBasedSize = Math.min(params.width, params.height);
@@ -218,7 +225,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
     }
 
     // Helper function to convert pixels to dp
-    private int pxTodp(int px) {
+    private static int pxTodp(int px) {
         // Convert pixels to dp
         float density = Resources.getSystem().getDisplayMetrics().density;
         return Math.round(px / density);

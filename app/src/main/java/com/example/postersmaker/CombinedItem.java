@@ -6,6 +6,11 @@ import java.util.List;
 public class CombinedItem {
     private TextLayout textlayout2;
     private ImageLayout imageLayout;
+
+    public void setTextlayout2(TextLayout textlayout2) {
+        this.textlayout2 = textlayout2;
+    }
+
     public static List<Integer> ids = new ArrayList<>();
 
 

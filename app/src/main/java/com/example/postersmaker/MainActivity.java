@@ -48,6 +48,7 @@ import com.jgabrielfreitas.core.BlurImageView;
 
 import org.json.JSONException;
 
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -272,6 +273,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
 
+        idT = Tid + 1;
+        Tid++;
+        textLayout.setId(Tid);
+        CombinedItem.ids.add(Tid);
+        combinedItemList.add(new CombinedItem(textLayout));
 
         deleteButton = ButtonCreator.createDeleteButton(this, 0.26f, 0.26f, -33, -29);
         textLayout.setDeleteButton(deleteButton);
@@ -382,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         case MotionEvent.ACTION_DOWN:
                             lastX = event.getRawX();
                             lastY = event.getRawY();
+                            Track.list.add(new Track(textLayout.getId(),textLayout.getFrameLayout().getX(), textLayout.getFrameLayout().getY(), true));
                             unselectLayer(selectedLayer);
                             unselectLayers(selectedLayer1);
                             selectLayer(textLayout);
@@ -414,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         case MotionEvent.ACTION_DOWN:
                             lastX = event.getRawX();
                             lastY = event.getRawY();
+                            Track.list.add(new Track(textLayout.getId(),textLayout.getFrameLayout().getX(), textLayout.getFrameLayout().getY(),true));
                             selectLayer(textLayout);
 
                             return true;
@@ -458,12 +466,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.getFrameLayout().setX(x);
         textLayout.getFrameLayout().setY(y);
         parentLayout.addView(textLayout.getFrameLayout());
-        idT = Tid + 1;
-        Tid++;
-        textLayout.setId(Tid);
-        CombinedItem.ids.add(Tid);
-        combinedItemList.add(new CombinedItem(textLayout));
-        Toast.makeText(this, ""+Tid, Toast.LENGTH_SHORT).show();
+
 
         return textLayout;
     }
@@ -533,7 +536,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
                 callSetDefaultState();
 
-                // Set the background resource to indicate selection
                 layer.setBackground(null);
             }
         }
@@ -545,13 +547,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         actions.add(action);
         currentActionIndex = actions.size() - 1;
     }
-    private void undo() {
-        if (currentActionIndex >= 0) {
-            CustomAction action = actions.get(currentActionIndex);
-            action.undo();
-            currentActionIndex--;
-        }
-    }
+
     private void redo() {
         if (currentActionIndex < actions.size() - 1) {
             currentActionIndex++;
@@ -947,6 +943,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     case MotionEvent.ACTION_DOWN:
                         lastX = event.getRawX();
                         lastY = event.getRawY();
+                        Track.list.add(new Track(imageLayout.getId(),imageLayout.getFrameLayout().getX(),imageLayout.getFrameLayout().getY(),true));
+
                         unselectLayers(selectedLayer1);
                         unselectLayer(selectedLayer);
                         selectLayers(imageLayout);
@@ -1154,5 +1152,86 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imgBitmap = getBitmapFromView(parentLayout);
 //        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
     }
+    private void undo() {
+        if (Track.list.size() > 0) {
+            if(Track.list.get(Track.list.size() - 1).getPosition()){
+                for (CombinedItem combineditem : combinedItemList) {
+                    if(combineditem.getImageLayout() != null){
+                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                            combineditem.getImageLayout().setX(Track.list.get(Track.list.size() - 1).getPositionX());
+                            combineditem.getImageLayout().setY(Track.list.get(Track.list.size() - 1).getPositionY());
+                            break;}
+                    }
+                    else if (combineditem.getTextlayout2() != null) {
+                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
+                            combineditem.getTextlayout2().setX(Track.list.get(Track.list.size() - 1).getPositionX());
+                            combineditem.getTextlayout2().setY(Track.list.get(Track.list.size() - 1).getPositionY());
+                            break;}
 
+                    }
+
+                }
+                Track.list.remove(Track.list.size() - 1);
+            }
+            else if(Track.list.get(Track.list.size() - 1).isRotate()){
+                for (CombinedItem combineditem : combinedItemList) {
+                    if(combineditem.getImageLayout() != null){
+                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                            combineditem.getImageLayout().getFrameLayout().setRotation(Track.list.get(Track.list.size() - 1).getRotation());
+                            break;}
+                    }
+                    else if (combineditem.getTextlayout2() != null) {
+                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
+                            combineditem.getTextlayout2().getFrameLayout().setRotation(Track.list.get(Track.list.size() - 1).getRotation());
+                            break;}
+                    }
+
+                }
+                Track.list.remove(Track.list.size() - 1);
+
+            }
+            else if (Track.list.get(Track.list.size()-1).isResize()){
+                for (CombinedItem combineditem : combinedItemList) {
+                    if(combineditem.getImageLayout() != null){
+                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) combineditem.getImageLayout().getFrameLayout().getLayoutParams();
+                            layoutParams.width = Track.list.get(Track.list.size() - 1).getWidth();
+                            layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
+                            combineditem.getImageLayout().getFrameLayout().setLayoutParams(layoutParams);
+                            ViewGroup.LayoutParams layoutParams1 = combineditem.getImageLayout().getImageView().getLayoutParams();
+                            layoutParams1.width =  Track.list.get(Track.list.size() - 1).getImgwidth();
+                            layoutParams1.height =  Track.list.get(Track.list.size() - 1).getImgheight();
+                            combineditem.getImageLayout().getImageView().setLayoutParams(layoutParams1);
+                            break;}
+                    }
+                    else if (combineditem.getTextlayout2() != null) {
+                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
+                            combineditem.getTextlayout2().getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX,Track.list.get(Track.list.size() - 1).getTextSize());
+                            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) combineditem.getTextlayout2().getBorderLayout().getLayoutParams();
+                            layoutParams.width = Track.list.get(Track.list.size() - 1).getWidth();
+                            layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
+                            combineditem.getTextlayout2().getBorderLayout().setLayoutParams(layoutParams);
+
+                            break;}
+                    }
+
+                }
+                Track.list.remove(Track.list.size() - 1);
+            }
+            else if (Track.list.get(Track.list.size()-1).istextcolor){
+                for (CombinedItem combineditem : combinedItemList) {
+                    if(combineditem.getTextlayout2() != null){
+                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                            combineditem.getTextlayout2().getTextView().setTextColor(Track.list.get(Track.list.size() - 1).getTextColor());
+                            break;}
+                    }
+                }
+                Track.list.remove(Track.list.size() - 1);
+
+            }
+
+
+        }
+        else {Toast.makeText(this, "size 0", Toast.LENGTH_SHORT).show();}
+    }
 }

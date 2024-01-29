@@ -45,7 +45,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
-    SeekBar seekBar;
+    static SeekBar seekBar;
     Handler handler;
     TextView buttonApplyFont;
     String currentText;
@@ -76,6 +76,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         rightButton = view.findViewById(R.id.RightButton);
         text_buttonsUp = view.findViewById(R.id.Text_buttonsUp);
         seekBar = view.findViewById(R.id.seekBarFor);
+        seekBar.setVisibility(View.GONE);
         recyclerView = view.findViewById(R.id.editTextLayout);
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
         StrokeLayout = view.findViewById(R.id.StrokeLayout);
@@ -366,16 +367,19 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     setDefaultState();
                     seekBar.setVisibility(View.VISIBLE);
                     seekBar.startAnimation(MainActivity.fadeIn);}
+
                 float minShadow = 0.0f; // Set your minimum shadow value
                 float maxShadow = 20.0f; // Set your maximum shadow value
+
+
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         // Constrain the progress within the desired range
-                        float limitedProgress = Math.min(Math.max(progress, 0), 100);
+
 
                         // Map the progress value to the desired shadow range
-                        float shadowValue = minShadow + (maxShadow - minShadow) * (limitedProgress / 100.0f);
+                        float shadowValue = minShadow + (maxShadow - minShadow) * (progress / 100.0f);
 
                         // Apply the shadow to the selectedLayer's TextView
                         MainActivity.selectedLayer.getTextView().setShadowLayer(shadowValue, shadowValue, shadowValue, Color.BLACK);
@@ -383,12 +387,17 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
                     @Override
                     public void onStartTrackingTouch(SeekBar seekBar) {
-                        // Add logic if needed when the user starts tracking touch on the SeekBar
+                        Track.list.add(new Track(MainActivity.selectedLayer.getId(),
+                                MainActivity.selectedLayer.getTextView().getShadowRadius(),
+                                MainActivity.selectedLayer.getTextView().getShadowDx(),
+                                MainActivity.selectedLayer.getTextView().getShadowDy(),
+                                true
+                        ));
+
                     }
 
                     @Override
                     public void onStopTrackingTouch(SeekBar seekBar) {
-                        // Add logic if needed when the user stops tracking touch on the SeekBar
                     }
                 });
                 break;
@@ -403,8 +412,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         float letterSpacing = progress / (float)activity.pxTodp(33);
-                        if (activity.selectedLayer != null) {
-                            activity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
+                        if (MainActivity.selectedLayer != null) {
+                            MainActivity.selectedLayer.getTextView().setLetterSpacing(letterSpacing);
                         }
                     }
                     @Override

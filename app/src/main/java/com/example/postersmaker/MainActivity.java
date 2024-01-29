@@ -1202,6 +1202,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             layoutParams1.width =  Track.list.get(Track.list.size() - 1).getImgwidth();
                             layoutParams1.height =  Track.list.get(Track.list.size() - 1).getImgheight();
                             combineditem.getImageLayout().getImageView().setLayoutParams(layoutParams1);
+                            Track.list.remove(Track.list.size() - 1);
+
                             break;}
                     }
                     else if (combineditem.getTextlayout2() != null) {
@@ -1212,10 +1214,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
                             combineditem.getTextlayout2().getBorderLayout().setLayoutParams(layoutParams);
                             combineditem.getTextlayout2().getTextView().setWidth(Track.list.get(Track.list.size() - 1).getImgwidth());
+                            Track.list.remove(Track.list.size() - 1);
+
                             break;}
                     }
                 }
-                Track.list.remove(Track.list.size() - 1);
             }
             else if (Track.list.get(Track.list.size()-1).istextcolor){
                 for (CombinedItem combineditem : combinedItemList) {
@@ -1228,8 +1231,37 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 Track.list.remove(Track.list.size() - 1);
 
             }
+            else if(Track.list.get(Track.list.size()-1).isShadowOn()){
+                for (CombinedItem combineditem : combinedItemList) {
+                    if(combineditem.getTextlayout2() != null){
+                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                            combineditem.getTextlayout2().getTextView().setShadowLayer(Track.list.get(Track.list.size() - 1).getShadow(), Track.list.get(Track.list.size() - 1).getShadowDx(), Track.list.get(Track.list.size() - 1).getShadowDy(), Color.BLACK);
+                            Track.list.remove(Track.list.size() - 1);
+                            if(HomeFragment.seekBar.getVisibility() == View.VISIBLE){
+                                HomeFragment.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
+
+                            }
+                            break;
+                        }
+
+                    }
+
+            }
 
 
+        }
+        else if(Track.list.get(Track.list.size()-1).isFontR()){
+            for (CombinedItem combinedItem: combinedItemList){
+                if(combinedItem.getTextlayout2()!=null){
+                    if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+                        combinedItem.getTextlayout2().getTextView().setTypeface(Track.list.get(Track.list.size() - 1).getTypeface(), Typeface.NORMAL);
+                        Track.list.remove(Track.list.size() - 1);
+                        break;
+                }
+            }
+            }
+
+        }
         }
         else {Toast.makeText(this, "size 0", Toast.LENGTH_SHORT).show();}
     }

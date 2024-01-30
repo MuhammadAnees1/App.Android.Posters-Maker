@@ -48,6 +48,7 @@ public class FontFragment extends Fragment implements FontAdapter.FontClickListe
         Toast.makeText(getContext(), ""+ fontResourceId, Toast.LENGTH_SHORT).show();
         if ( MainActivity.selectedLayer != null) {
             Track.list.add(new Track(MainActivity.selectedLayer.getId(),true,MainActivity.selectedLayer.getTextView().getTypeface()));
+            Track.list2.clear();
             MainActivity.selectedLayer.getTextView().setTypeface(typeface);
             MainActivity.selectedLayer.setFontResource(fontResourceId);
         }

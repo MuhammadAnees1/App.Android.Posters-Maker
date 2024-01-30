@@ -15,7 +15,7 @@ public class EditTextAdapter extends RecyclerView.Adapter<EditTextAdapter.ViewHo
     public EditTextAdapter(OnItemSelected onItemSelected) {
         mOnItemSelected = onItemSelected;
         mToolList.add(new ToolModels("Controls", R.drawable.settings, ToolTypesForEditAdaptor.Control));
-        mToolList.add(new ToolModels("stroke", R.drawable.stroke, ToolTypesForEditAdaptor.stroke));
+//        mToolList.add(new ToolModels("stroke", R.drawable.stroke, ToolTypesForEditAdaptor.stroke));
         mToolList.add(new ToolModels("Style", R.drawable.baseline_style_24, ToolTypesForEditAdaptor.Style));
         mToolList.add(new ToolModels("Size", R.drawable.text_size, ToolTypesForEditAdaptor.text_size));
         mToolList.add(new ToolModels("Fonts", R.drawable.baseline_text_fields_24, ToolTypesForEditAdaptor.Fonts));

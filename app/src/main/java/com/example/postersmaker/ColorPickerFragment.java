@@ -97,6 +97,7 @@ public class ColorPickerFragment extends Fragment {
                             public void onColorSelected(int color, @NotNull String colorHex) {
                                MainActivity activity = (MainActivity) requireActivity();
                                 Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
+                                Track.list2.clear();
                                 activity.selectedLayer.getTextView().setTextColor(color);
                             }
                         })
@@ -117,6 +118,7 @@ public class ColorPickerFragment extends Fragment {
             int selectedColor = colors.get(position);
             MainActivity activity = (MainActivity) requireActivity();
             Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
+            Track.list2.clear();
 
             activity.selectedLayer.getTextView().setTextColor(selectedColor);
             shadeRecyclerView.setVisibility(View.VISIBLE);

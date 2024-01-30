@@ -3,7 +3,7 @@ package com.example.postersmaker;
 
 public enum ToolTypesForEditAdaptor {
     Control,
-    stroke,
+//    stroke,
     Space,
     Style,
     text_size,

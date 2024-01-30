@@ -135,7 +135,7 @@ public class TextHandlerClass {
             MainActivity.unselectLayer(MainActivity.selectedLayer);
         }
 
-        TextLayout textLayout = mainActivity.createTextLayout(text, x, y);
+        TextLayout textLayout = mainActivity.createTextLayout(text, x, y,false);
         textLayoutList2.add(textLayout);
         FrameLayout frameLayout = textLayout.getFrameLayout();
 
@@ -145,19 +145,7 @@ public class TextHandlerClass {
             viewGroup.addView(frameLayout);
             textLayoutList.add(frameLayout);
 
-            // Add an action for undo and redo
-            mainActivity.addAction(new MainActivity.CustomAction(
-                    () -> {
-                        // Undo logic: remove the frameLayout from the viewGroup
-                        viewGroup.removeView(frameLayout);
-                        textLayoutList.remove(frameLayout);
-                    },
-                    () -> {
-                        // Redo logic: add the frameLayout back to the viewGroup
-                        viewGroup.addView(frameLayout);
-                        textLayoutList.add(frameLayout);
-                    }
-            ));
+
         } else {
             Log.e(TAG, "addTextToImage: FrameLayout already has a parent");
         }
@@ -185,6 +173,9 @@ public class TextHandlerClass {
                 for (int i = 0; i < textLayoutList2.size(); i++) {
                     TextLayout textLayout = textLayoutList2.get(i);
                     if (textLayout.getTextView() == textView) {
+                        Track.list.add(new Track(true,textLayout.getId(),textView.getText().toString(),index));
+                        Track.list2.clear();
+
                         index = i;
                         break;
                     }

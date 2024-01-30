@@ -30,10 +30,13 @@ public class RotateTouchListener implements View.OnTouchListener {
                     MainActivity.selectLayer(textLayout);
                     MainActivity.callSetDefaultState();
                     Track.list.add(new Track(textLayout.getId(), textLayout.getFrameLayout().getRotation(), true));
+                    Track.list2.clear();
+
                     // Store the initial rotation angle
                     startAngle = getAngle((event.getX() / 10), (event.getY() / 10), textLayout.getFrameLayout().getPivotX(), textLayout.getFrameLayout().getPivotY());
                 } else if (imageLayout != null) {
                     Track.list.add(new Track(imageLayout.getId(), imageLayout.getFrameLayout().getRotation(), true));
+                    Track.list2.clear();
 
                     // Handle image layout touch
                     MainActivity.selectLayers(imageLayout);

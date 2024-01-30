@@ -46,6 +46,7 @@ public class JSONFileManager {
             if (combinedItem.getTextlayout2() != null) {
                 jsonObject.put("ComponentName", "text");
                 jsonObject.put("Order", i);
+                jsonObject.put("emoji", combinedItem.getTextlayout2().isemoji);
                 jsonObject.put("Text ID",TextHandlerClass.textLayoutList.indexOf(combinedItem.getTextlayout2().getFrameLayout()));
                 jsonObject.put("text",combinedItem.getTextlayout2().getTextView().getText());
                 jsonObject.put("PositionX",combinedItem.getTextlayout2().getFrameLayout().getX());

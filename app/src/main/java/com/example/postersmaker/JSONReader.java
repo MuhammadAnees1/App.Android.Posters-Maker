@@ -92,6 +92,7 @@ public class JSONReader {
                         float positionY = (float) jsonObject.getDouble("PositionY");
                         int width = jsonObject.getInt("Width");
                         int height = jsonObject.getInt("Height");
+                        boolean emoji = jsonObject.getBoolean("emoji");
                         int textAlignment = jsonObject.getInt("TextAlignment");
                         float textSize = convertPixelsToSP(jsonObject.getInt("TextSize"), context);
                         float alpha = jsonObject.getInt("Alpha");
@@ -104,7 +105,7 @@ public class JSONReader {
                         float shadowDy = (float) jsonObject.getDouble("Shadow dy");
                         int font = jsonObject.getInt("Font");
                         MainActivity mainActivity = ((MainActivity) context);
-                        mainActivity.createTextLayout(text, positionX, positionY);
+                        mainActivity.createTextLayout(text, positionX, positionY, emoji);
 
                         TextLayout textLayout = MainActivity.combinedItemList.get(order).getTextlayout2();
                         textLayout.setLocked(lock);
@@ -117,6 +118,7 @@ public class JSONReader {
                         TextView textView1 = new TextView(context);
                         textView1.setText(text);
                         textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+                        textLayout.setMaxSize(textView1.getTextSize());
                         String hexColor = jsonObject.getString("Color");
                         int textColor = Color.parseColor(hexColor);
                         textView1.setTextColor(textColor);

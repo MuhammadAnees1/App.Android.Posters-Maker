@@ -29,10 +29,25 @@ public class TextLayout {
     private Button rotateButton;
     private Button resizeButton;
     DottedStrokeTextView textView2;
+
+    boolean flip = false;
+
+    public boolean isFlip() {
+        return flip;
+    }
+
+    public void setFlip(boolean flip) {
+        this.flip = flip;
+    }
+
     private Button saveButton;
     private TextView textView;
-    Boolean isLocked ;
+    float maxSize;
+    Boolean isLocked,isemoji=false ;
     Paint textPaint;
+
+
+
     int id ;
     int fontResource = 0;
 
@@ -99,7 +114,13 @@ public class TextLayout {
     public Button getSaveButton() {
         return saveButton;
     }
+    public float getMaxSize() {
+        return maxSize;
+    }
 
+    public void setMaxSize(float maxSize) {
+        this.maxSize = maxSize;
+    }
     public void setSaveButton(Button saveButton) {
         this.saveButton = saveButton;
     }
@@ -122,6 +143,13 @@ public class TextLayout {
     }
     public void setX(float x) {
         frameLayout.setX(x);
+    }
+    public Boolean getIsemoji() {
+        return isemoji;
+    }
+
+    public void setIsemoji(Boolean isemoji) {
+        this.isemoji = isemoji;
     }
     public float getY() {
         return frameLayout.getY();

@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     RelativeLayout borderLayout;
     static TranslateAnimation fadeIn;
     TranslateAnimation fadeOut;
-    private final List<CustomAction> actions = new ArrayList<>();
     public static TextLayout selectedLayer;
     public static ImageLayout selectedLayer1;
     Boolean isLocked;
@@ -196,13 +196,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imgUndo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                undo();
+                undo_redo.undo(getApplicationContext());
             }
         });
         imgRedo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                redo();
+               undo_redo.redo(getApplicationContext());
             }
 
         });
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     }
     @SuppressLint("ClickableViewAccessibility")
-    TextLayout createTextLayout(String text, float x, float y) {
+    TextLayout createTextLayout(String text, float x, float y,boolean emoji) {
         frameLayout = new FrameLayout(this);
         // Create a FrameLayout to hold the TextView and the button
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -234,14 +234,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textLayout.setLocked(false);
         frameLayout.setTag(textLayout);
         selectedLayer = textLayout;
-
+        if(emoji){
+            textLayout.setIsemoji(true);
+        }
         borderLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams borderLayoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         borderLayout.setLayoutParams(borderLayoutParams);
         int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
         borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setGravity(Gravity.CENTER);
-
         textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
@@ -267,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setText(text);
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        textLayout.setMaxSize(textView.getTextSize());
         borderLayout.setMinimumHeight(textView.getHeight() + 20);
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
@@ -351,6 +353,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     selectedLayer = null;
                     callSetDefaultState();
                     if (container.getVisibility() == View.VISIBLE) {
+
                         container.setVisibility(View.GONE);
                         container.startAnimation(fadeOut);
                     }
@@ -484,7 +487,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     if(!textLayout.getLocked()) {
 
                 container2.setVisibility(View.GONE);
-                container.setVisibility(View.VISIBLE);
+                container.setVisibility(View.GONE);
+                        if(!textLayout.isemoji){
+                container.setVisibility(View.VISIBLE);}
+
                 FrameLayout layer = textLayout.getFrameLayout();
                 if (layer != null) {
                     Button resizeButton = textLayout.getResizeButton();
@@ -500,10 +506,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         saveButton.setVisibility(View.VISIBLE);
                     }
                     if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
+                       if (!textLayout.isemoji) {
                         container.setVisibility(View.VISIBLE);
-//                        HomeFragment.recyclerView.setVisibility(View.VISIBLE);
-                        // Animation duration in milliseconds
-                        container.startAnimation(fadeIn);
+                        container.startAnimation(fadeIn);}
                     }
                     if(HomeFragment.Image_control_opacity != null && HomeFragment.Image_control_button != null) {
                         if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE ) {
@@ -539,21 +544,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 layer.setBackground(null);
             }
         }
-    }
-    void addAction(CustomAction action) {
-        if (currentActionIndex < actions.size() - 1) {
-            actions.subList(currentActionIndex + 1, actions.size()).clear();
-        }
-        actions.add(action);
-        currentActionIndex = actions.size() - 1;
-    }
-
-    private void redo() {
-        if (currentActionIndex < actions.size() - 1) {
-            currentActionIndex++;
-            CustomAction action = actions.get(currentActionIndex);
-            action.redo();
-        }
+        MainActivity.selectedLayer = null;
     }
     public  void updateBackgroundImage(String backgroundFileName) {
         try {
@@ -600,23 +591,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 .into(imageView);
     }
 
-    static class CustomAction {
-        private final Runnable undoAction;
-        private final Runnable redoAction;
 
-        public CustomAction(Runnable undoAction, Runnable redoAction) {
-            this.undoAction = undoAction;
-            this.redoAction = redoAction;
-        }
-
-        public void undo() {
-            undoAction.run();
-        }
-
-        public void redo() {
-            redoAction.run();
-        }
-    }
     static double getAngle(double x, double y, float pivotX, float pivotY) {
         double rad = Math.atan2(y - pivotY, x - pivotX) + Math.PI;
         return (rad * 180 / Math.PI + 180) % 360;
@@ -679,6 +654,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                 break;
                 case BRUSH:
+                    if(selectedLayer != null){
+
+                        unselectLayer(selectedLayer);
+                    }
+                    if(selectedLayer1 != null){
+                        unselectLayers(selectedLayer1);
+                    }
                     defaultContainer();
                     if(brushContainer.getVisibility() == View.GONE || brushContainer.getVisibility() == View.INVISIBLE){
 
@@ -726,16 +708,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             @Override
             public void onEmojiClick(String emojiUnicode) {
                 // Handle the clicked emoji, if needed
-                createTextLayout(emojiUnicode, 300, 300);
+                createTextLayout(emojiUnicode, 300, 300,true);
                 textList.add(emojiUnicode);
                 TextHandlerClass.textList.add(emojiUnicode);
-                container.setVisibility(View.VISIBLE);
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
 
-                HomeFragment homeFragment = new HomeFragment();
-                fragmentTransaction.replace(R.id.fragment_container, homeFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
             }
         });
 
@@ -1045,7 +1021,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }}
                 else {
                   if(container2.getVisibility()== View.GONE || container2.getVisibility() == View.INVISIBLE){
-                      container2.setVisibility(View.VISIBLE);
+                      frameContainer.setVisibility(View.VISIBLE);
                       container.setVisibility(View.GONE);
                       FrameFragment frameFragment = new FrameFragment();
                       if(frameFragment.seekBar != null) {
@@ -1084,12 +1060,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     rotateButton.setVisibility(View.INVISIBLE);
                     saveButton.setVisibility(View.INVISIBLE);
                 }
+                frameContainer.setVisibility(View.GONE);
+                container.setVisibility(View.GONE);
+                bgcontainer.setVisibility(View.GONE);
                 container2.setVisibility(View.GONE);
+                brushContainer.setVisibility(View.GONE);
                 callSetDefaultState();
                 // Set the background resource to indicate selection
                 layer.setBackground(null);
             }
         }
+        MainActivity.selectedLayer1 = null;
     }
     public Bitmap getBitmapFromView(FrameLayout view) {
         // Check if the view has been laid out
@@ -1152,117 +1133,5 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         imgBitmap = getBitmapFromView(parentLayout);
 //        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
     }
-    private void undo() {
-        if (Track.list.size() > 0) {
-            if(Track.list.get(Track.list.size() - 1).getPosition()){
-                for (CombinedItem combineditem : combinedItemList) {
-                    if(combineditem.getImageLayout() != null){
-                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            combineditem.getImageLayout().setX(Track.list.get(Track.list.size() - 1).getPositionX());
-                            combineditem.getImageLayout().setY(Track.list.get(Track.list.size() - 1).getPositionY());
-                            break;}
-                    }
-                    else if (combineditem.getTextlayout2() != null) {
-                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
-                            combineditem.getTextlayout2().setX(Track.list.get(Track.list.size() - 1).getPositionX());
-                            combineditem.getTextlayout2().setY(Track.list.get(Track.list.size() - 1).getPositionY());
-                            break;}
 
-                    }
-
-                }
-                Track.list.remove(Track.list.size() - 1);
-            }
-            else if(Track.list.get(Track.list.size() - 1).isRotate()){
-                for (CombinedItem combineditem : combinedItemList) {
-                    if(combineditem.getImageLayout() != null){
-                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            combineditem.getImageLayout().getFrameLayout().setRotation(Track.list.get(Track.list.size() - 1).getRotation());
-                            break;}
-                    }
-                    else if (combineditem.getTextlayout2() != null) {
-                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
-                            combineditem.getTextlayout2().getFrameLayout().setRotation(Track.list.get(Track.list.size() - 1).getRotation());
-                            break;}
-                    }
-
-                }
-                Track.list.remove(Track.list.size() - 1);
-
-            }
-            else if (Track.list.get(Track.list.size()-1).isResize()){
-                for (CombinedItem combineditem : combinedItemList) {
-                    if(combineditem.getImageLayout() != null){
-                        if(combineditem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) combineditem.getImageLayout().getFrameLayout().getLayoutParams();
-                            layoutParams.width = Track.list.get(Track.list.size() - 1).getWidth();
-                            layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
-                            combineditem.getImageLayout().getFrameLayout().setLayoutParams(layoutParams);
-                            ViewGroup.LayoutParams layoutParams1 = combineditem.getImageLayout().getImageView().getLayoutParams();
-                            layoutParams1.width =  Track.list.get(Track.list.size() - 1).getImgwidth();
-                            layoutParams1.height =  Track.list.get(Track.list.size() - 1).getImgheight();
-                            combineditem.getImageLayout().getImageView().setLayoutParams(layoutParams1);
-                            Track.list.remove(Track.list.size() - 1);
-
-                            break;}
-                    }
-                    else if (combineditem.getTextlayout2() != null) {
-                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()) {
-                            combineditem.getTextlayout2().getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX,Track.list.get(Track.list.size() - 1).getTextSize());
-                            FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) combineditem.getTextlayout2().getBorderLayout().getLayoutParams();
-                            layoutParams.width = Track.list.get(Track.list.size() - 1).getWidth();
-                            layoutParams.height = Track.list.get(Track.list.size() - 1).getHeight();
-                            combineditem.getTextlayout2().getBorderLayout().setLayoutParams(layoutParams);
-                            combineditem.getTextlayout2().getTextView().setWidth(Track.list.get(Track.list.size() - 1).getImgwidth());
-                            Track.list.remove(Track.list.size() - 1);
-
-                            break;}
-                    }
-                }
-            }
-            else if (Track.list.get(Track.list.size()-1).istextcolor){
-                for (CombinedItem combineditem : combinedItemList) {
-                    if(combineditem.getTextlayout2() != null){
-                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            combineditem.getTextlayout2().getTextView().setTextColor(Track.list.get(Track.list.size() - 1).getTextColor());
-                            break;}
-                    }
-                }
-                Track.list.remove(Track.list.size() - 1);
-
-            }
-            else if(Track.list.get(Track.list.size()-1).isShadowOn()){
-                for (CombinedItem combineditem : combinedItemList) {
-                    if(combineditem.getTextlayout2() != null){
-                        if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            combineditem.getTextlayout2().getTextView().setShadowLayer(Track.list.get(Track.list.size() - 1).getShadow(), Track.list.get(Track.list.size() - 1).getShadowDx(), Track.list.get(Track.list.size() - 1).getShadowDy(), Color.BLACK);
-                            Track.list.remove(Track.list.size() - 1);
-                            if(HomeFragment.seekBar.getVisibility() == View.VISIBLE){
-                                HomeFragment.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
-
-                            }
-                            break;
-                        }
-
-                    }
-
-            }
-
-
-        }
-        else if(Track.list.get(Track.list.size()-1).isFontR()){
-            for (CombinedItem combinedItem: combinedItemList){
-                if(combinedItem.getTextlayout2()!=null){
-                    if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                        combinedItem.getTextlayout2().getTextView().setTypeface(Track.list.get(Track.list.size() - 1).getTypeface(), Typeface.NORMAL);
-                        Track.list.remove(Track.list.size() - 1);
-                        break;
-                }
-            }
-            }
-
-        }
-        }
-        else {Toast.makeText(this, "size 0", Toast.LENGTH_SHORT).show();}
-    }
 }

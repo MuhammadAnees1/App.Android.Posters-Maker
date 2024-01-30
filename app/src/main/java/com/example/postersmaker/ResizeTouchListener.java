@@ -51,6 +51,8 @@ public class ResizeTouchListener implements View.OnTouchListener {
                         lastY = event.getRawY();
                     }
                     Track.list.add(new Track(textLayout.getId(), textLayout.getBorderLayout().getWidth(), textLayout.getBorderLayout().getHeight(),textLayout.getTextView().getWidth(),0,textLayout.getTextView().getTextSize(), true));
+                    Track.list2.clear();
+
                     lastX1 = lastX;
                     lastY1 = lastY;
 
@@ -66,12 +68,14 @@ public class ResizeTouchListener implements View.OnTouchListener {
                         lastY = event.getRawY();
                     }
                     Track.list.add(new Track(imageLayout.getId(), imageLayout.getFrameLayout().getWidth(), imageLayout.getFrameLayout().getHeight(),imageLayout.getImageView().getWidth(),imageLayout.getImageView().getHeight(),0, true));
+                    Track.list2.clear();
 
                 }
                 break;
 
             case MotionEvent.ACTION_UP:
-
+                if(textLayout != null){
+                    textLayout.setMaxSize(textLayout.getTextView().getTextSize());}
                 break;
 
             case MotionEvent.ACTION_MOVE:

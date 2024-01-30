@@ -2,27 +2,63 @@ package com.example.postersmaker;
 
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Track {
-
    String text ;
 
+    TextView textView;
+    ImageView imageView;
 
-    boolean lock,fontR =false,rotate = false,istextcolor = false, shadowOn = false, resize = false, position = false ;
 
-    float positionX, shadowDx, shadowDy, spacing, rotation, shadow, textSize, alpha, positionY;
 
-    int Tid, textColor, textAlignment, height, imgwidth, imgheight, width ;
+    boolean lock,fontR =false,rotate = false,space = false, edittext = false,imgOpacity = false, flip = false,isunderline = false,underline = false,
+            istextcolor = false, shadowOn = false, resize = false, position = false, issize = false, allign = false;
+
+    float positionX, shadowDx, shadowDy, spacing, rotation, shadow,imgopacity1, textSize, alpha, positionY, flipx;
+
+    int Tid, textColor, textAlignment, height, imgwidth, imgheight, width, index; ;
+
+    public int getIndex() {
+        return index;
+    }
+
     Typeface typeface;
     static List<Track> list = new ArrayList<>();
+    static List<Track> list2 = new ArrayList<>();
 
 
 
     public boolean isFontR() {return fontR;}
+    public boolean isSpace() {return space;}
+    public boolean isEdittext() {
+        return edittext;
+    }
+    public float getImgopacity1() {
+        return imgopacity1;
+    }
+    public boolean isUnderline() {
+        return underline;
+    }
+
+    public boolean isAllign() {
+        return allign;
+    }
+
+    public boolean isImgOpacity() {
+        return imgOpacity;
+    }
+
+    public boolean isIssize() {return issize;}
+
+    public TextView getTextView() {
+        return textView;
+    }
+
     public boolean isShadowOn() {return shadowOn;}
     public int getImgwidth() {
         return imgwidth;
@@ -43,6 +79,19 @@ public class Track {
     public float getPositionY() {
         return positionY;
     }
+
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public boolean isFlip() {
+        return flip;
+    }
+
+    public float getFlipx() {
+        return flipx;
+    }
+
     public int getWidth() {
         return width;
     }
@@ -83,6 +132,11 @@ public class Track {
     public static List<Track> getList() {
         return list;
     }
+
+    public boolean isIsunderline() {
+        return isunderline;
+    }
+
     public boolean getPosition() {return position;}
     public boolean isRotate() {
         return rotate;
@@ -133,6 +187,50 @@ public class Track {
          this.Tid = tid;
          this.fontR = fontR;
          this.typeface = typeface;
+
+     }
+
+
+    public Track(boolean issize, int tid, float textSize){
+         this.Tid = tid;
+         this.textSize = textSize;
+         this.issize = issize;
+
+     }
+     public Track( float spacing, boolean space, int tid ){
+         this.Tid = tid;
+         this.spacing = spacing;
+         this.space = space;
+
+     }
+     public Track( boolean edittext, int tid,String text, int index){
+         this.Tid = tid;
+         this.edittext = edittext;
+         this.text = text;
+         this.index = index;
+     }
+     public Track(  int tid,boolean imgOpacity,float imgopacity1){
+         this.Tid = tid;
+         this.imgOpacity = imgOpacity;
+         this.imgopacity1 = imgopacity1;
+     }
+     public Track(ImageView img, int tid,float flipx, boolean flip){
+         this.Tid = tid;
+         this.imageView = img;
+         this.flipx = flipx;
+         this.flip = flip;
+
+     }
+     public Track(int tid, boolean isunderline, boolean underline){
+        this.Tid = tid;
+        this.isunderline = isunderline;
+        this.underline = underline;
+
+     }
+     public Track(int tid, int textAlignment, boolean allign){
+         this.Tid = tid;
+         this.textAlignment = textAlignment;
+         this.allign = allign;
 
      }
 

@@ -49,7 +49,7 @@ public class ImagePickerManager {
             Bundle bundle = new Bundle();
             bundle.putBoolean("openedFromImagePickerManager", true);
             homeFragment.setArguments(bundle);
-            fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+            fragmentTransaction.replace(R.id.fragment_container3, homeFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
@@ -89,19 +89,7 @@ public class ImagePickerManager {
                     // Add the frameLayout to the viewGroup
                     viewGroup.addView(frameLayout);
 
-                    // Add an action for undo and redo
-                    mainActivity.addAction(new MainActivity.CustomAction(
-                            () -> {
-                                // Undo logic: remove the frameLayout from the viewGroup
-                                viewGroup.removeView(frameLayout);
-                                imageLayoutList.remove(imageLayout);
-                            },
-                            () -> {
-                                // Redo logic: add the frameLayout back to the viewGroup
-                                viewGroup.addView(frameLayout);
-                                imageLayoutList.add(imageLayout);
-                            }
-                    ));
+
                 } else {
                     Log.e(TAG, "addImageToContainer: FrameLayout already has a parent");
                 }

@@ -127,7 +127,29 @@ public class JSONReader {
                             Typeface typeface = ResourcesCompat.getFont(context, font);
                             textView1.setTypeface(typeface);
                             textLayout.setFontResource(font);
+                        }
+                        else{
+                        String typeface1 = jsonObject.getString("typeface");
+                        if(typeface1 != "null") {
+                            if(typeface1.equals("bold")) {
+                                textView1.setTypeface(null,Typeface.BOLD);
+                            }
+                          else if(typeface1.equals("italic")) {
+                                textView1.setTypeface(null,Typeface.ITALIC);
+                            }
+                            else if(typeface1.equals("bold italic")) {
+                                textView1.setTypeface(null,Typeface.BOLD_ITALIC);
+                            }
+                            else  {
+                                textView1.setTypeface(null,Typeface.NORMAL);
+                            }
 
+                        }}
+                        if(alpha != 0) {
+                            textView1.setAlpha(alpha);
+                        }
+                        if(spacing != 0) {
+                            textView1.setLetterSpacing(spacing);
                         }
                         if(shadow != 0) {
                             textView1.setShadowLayer(shadow, shadowDx, shadowDy, Color.BLACK);

@@ -1,7 +1,10 @@
 package com.example.postersmaker;
 
 import static com.example.postersmaker.MainActivity.callSetDefaultState;
+import static com.example.postersmaker.MainActivity.container;
+import static com.example.postersmaker.MainActivity.container2;
 import static com.example.postersmaker.MainActivity.getAngle;
+import static com.example.postersmaker.MainActivity.homeFragment;
 import static com.example.postersmaker.MainActivity.imageView;
 import static com.example.postersmaker.MainActivity.selectLayer;
 import static com.example.postersmaker.MainActivity.selectLayers;
@@ -20,6 +23,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
     private TextLayout textLayout;
     private ImageLayout imageLayout;
     float lastY1, lastX1;
+    private float initialDistance = 0f;
     float newX, newY;
     // Constructor for TextLayout
     public ResizeTouchListener(TextLayout textLayout) {
@@ -32,7 +36,6 @@ public class ResizeTouchListener implements View.OnTouchListener {
     // Constructor for ImageLayout
     public ResizeTouchListener(ImageLayout imageLayout) {
         this.imageLayout = imageLayout;
-        // Initialize lastX and lastY here
         lastX = imageLayout.getFrameLayout().getX();
         lastY = imageLayout.getFrameLayout().getY();
     }
@@ -43,7 +46,7 @@ public class ResizeTouchListener implements View.OnTouchListener {
             case MotionEvent.ACTION_DOWN:
                 if (textLayout != null) {
                     MainActivity.selectLayer(textLayout);
-                    if (lastX == 0f && lastY == 0f) {
+                    if (lastX == textLayout.getFrameLayout().getX() && lastY == textLayout.getFrameLayout().getY()) {
                         lastX = textLayout.getFrameLayout().getX();
                         lastY = textLayout.getFrameLayout().getY();
                     } else {
@@ -57,8 +60,8 @@ public class ResizeTouchListener implements View.OnTouchListener {
                     lastY1 = lastY;
 
                 } else if (imageLayout != null) {
-                    selectLayers(imageLayout);
-                    callSetDefaultState();
+
+                    MainActivity.selectLayers(imageLayout);
                     if (lastX == imageLayout.getFrameLayout().getX() && lastY == imageLayout.getFrameLayout().getY()) {
                         lastX = 500;
                         lastY = 500;
@@ -73,10 +76,6 @@ public class ResizeTouchListener implements View.OnTouchListener {
                 }
                 break;
 
-            case MotionEvent.ACTION_UP:
-                if(textLayout != null){
-                    textLayout.setMaxSize(textLayout.getTextView().getTextSize());}
-                break;
 
             case MotionEvent.ACTION_MOVE:
                 newX = event.getRawX();
@@ -89,10 +88,25 @@ public class ResizeTouchListener implements View.OnTouchListener {
                 }
                 lastX = newX;
                 lastY = newY;
+
                 break;
+            case MotionEvent.ACTION_UP:
+                if(textLayout != null){
+                    textLayout.setMaxSize(textLayout.getTextView().getTextSize());
+                }
+
+
+
+                break;
+
+
         }
         return true;
     }
+
+
+
+
     public static void handleTextResize(TextLayout textLayout, float newX, float newY, float lastX, float lastY) {
 
         // Calculate the direction of resizing based on the current rotation angle

@@ -63,7 +63,7 @@
             android:text="Layers"
             android:textColor="#FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imgShare" />
+            app:layout_constraintTop_toBottomOf="@+id/reset" />
 
     <ImageView
         android:id="@+id/imgUndo"
@@ -132,12 +132,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imgShare"
+        android:id="@+id/reset"
         android:layout_width="@dimen/top_tool_icon_width"
         android:layout_height="wrap_content"
         android:background="@color/semi_black_transparent"
         android:padding="8dp"
-        android:src="@drawable/baseline_share_24"
+        android:src="@drawable/baseline_backup_24"
         app:layout_constraintEnd_toStartOf="@+id/imgSave"
         app:layout_constraintStart_toEndOf="@+id/imgClose"
         tools:ignore="MissingConstraints" />

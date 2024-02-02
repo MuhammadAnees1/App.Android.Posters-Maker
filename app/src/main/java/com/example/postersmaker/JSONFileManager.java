@@ -46,7 +46,9 @@ public class JSONFileManager {
             if (combinedItem.getTextlayout2() != null) {
                 jsonObject.put("ComponentName", "text");
                 jsonObject.put("Order", i);
+                jsonObject.put("ID", combinedItem.getTextlayout2().getId());
                 jsonObject.put("emoji", combinedItem.getTextlayout2().isemoji);
+
                 jsonObject.put("Text ID",TextHandlerClass.textLayoutList.indexOf(combinedItem.getTextlayout2().getFrameLayout()));
                 jsonObject.put("text",combinedItem.getTextlayout2().getTextView().getText());
                 jsonObject.put("PositionX",combinedItem.getTextlayout2().getFrameLayout().getX());
@@ -60,6 +62,21 @@ public class JSONFileManager {
                 else {
                     jsonObject.put("Font", 0);
                 }
+                Typeface typeface = combinedItem.getTextlayout2().getTextView().getTypeface();
+                if(typeface != null) {
+
+                if ( typeface.getStyle() == Typeface.BOLD) {
+                    jsonObject.put("typeface", "bold");
+                }
+                else if(typeface.getStyle() == Typeface.ITALIC) {
+                    jsonObject.put("typeface", "italic");
+                }
+                else if (typeface.getStyle() == Typeface.BOLD_ITALIC) {
+                    jsonObject.put("typeface", "bold italic");
+                }
+                else {
+                    jsonObject.put("typeface", "normal");
+                }}
 
                 int textColor = combinedItem.getTextlayout2().getTextView().getCurrentTextColor();
                 String hexColor = String.format("#%06X", (0xFFFFFF & textColor));
@@ -68,6 +85,7 @@ public class JSONFileManager {
                 jsonObject.put("Height",combinedItem.getTextlayout2().getBorderLayout().getHeight());
                 jsonObject.put("TextAlignment",combinedItem.getTextlayout2().getTextView().getTextAlignment());
                 jsonObject.put("Alpha",combinedItem.getTextlayout2().getTextView().getAlpha());
+
 
                 if(combinedItem.getTextlayout2().getTextView().getShadowRadius() != 0) {
                     jsonObject.put("Shadow Radius", combinedItem.getTextlayout2().getTextView().getShadowRadius());

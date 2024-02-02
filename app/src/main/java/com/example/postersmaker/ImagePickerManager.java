@@ -2,7 +2,11 @@ package com.example.postersmaker;
 
 import static com.example.postersmaker.MainActivity.callSetDefaultState;
 import static com.example.postersmaker.MainActivity.container;
+import static com.example.postersmaker.MainActivity.imageView;
 import static com.example.postersmaker.MainActivity.parentLayout;
+
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +15,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+
 import androidx.fragment.app.FragmentTransaction;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import java.util.ArrayList;
@@ -86,8 +93,9 @@ public class ImagePickerManager {
 
                 // Check if the frameLayout already has a parent
                 if (frameLayout.getParent() == null) {
-                    // Add the frameLayout to the viewGroup
                     viewGroup.addView(frameLayout);
+                    animateViewEvolveFromCenter(imageLayout.getImageView(), 1000);
+
 
 
                 } else {
@@ -104,5 +112,30 @@ public class ImagePickerManager {
         } else {
             Log.e(TAG, "addImageToContainer: Invalid context");
         }
+    }
+    public static void animateViewEvolveFromCenter(ImageView imageView, long duration) {
+        // Set initial properties
+        imageView.setAlpha(0f);
+        imageView.setScaleX(0f);
+        imageView.setScaleY(0f);
+
+        // Create the ObjectAnimator for translation
+        ObjectAnimator translationX = ObjectAnimator.ofFloat(imageView, "translationX", 0f);
+        ObjectAnimator translationY = ObjectAnimator.ofFloat(imageView, "translationY", 0f);
+
+        // Create the ObjectAnimator for alpha
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(imageView, "alpha", 1f);
+
+        // Create the ObjectAnimator for scale
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f);
+
+        // Combine all animations into an AnimatorSet
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(translationX, translationY, alpha, scaleX, scaleY);
+        animatorSet.setDuration(duration);
+
+        // Start the animation
+        animatorSet.start();
     }
 }

@@ -4,15 +4,21 @@ import static android.app.ProgressDialog.show;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,11 +26,13 @@ import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -33,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
     static TranslateAnimation fadeIn;
@@ -45,7 +54,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
-    static SeekBar seekBar , spaceSeekBar,opacitySeekBar, sizeSeekBar;
+    static SeekBar seekBar , spaceSeekBar,opacitySeekBar, sizeSeekBar , hueSeekBar;
     Handler handler;
     TextView buttonApplyFont;
     String currentText;
@@ -53,8 +62,8 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     private StrokeType currentStrokeType = StrokeType.LINE;
     static RecyclerView recyclerView;
     RecyclerView TypeTextLayout;
-    Button UpButton, downButton, leftButton, rightButton ,editButton,flipButton ;
-    static Button Image_control_button,Image_control_opacity;
+    Button UpButton, downButton, leftButton, rightButton ,editButton,flipButton, copybutton ;
+    static Button Image_control_button,Image_control_opacity, Image_filter;
     Paint textPaint;
     private Paint strokePaint;
    final EditTextAdapter editTextAdapter = new EditTextAdapter(this);
@@ -84,13 +93,16 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         TypeTextLayout = view.findViewById(R.id.TypeTextLayout);
         StrokeLayout = view.findViewById(R.id.StrokeLayout);
         lineStrokeButton = view.findViewById(R.id.LineStroke);
+        copybutton = view.findViewById(R.id.copy_button);
         dashStrokeButton = view.findViewById(R.id.DashStroke);
         dotStrokeButton = view.findViewById(R.id.DotStroke);
         fragmentContainer1 = view.findViewById(R.id.fragment_container1);
         fontContainer = view.findViewById(R.id.font_container);
         Image_control_button= view.findViewById(R.id.Image_control_button);
         Image_control_opacity= view.findViewById(R.id.Image_control_opacity);
+        Image_filter = view.findViewById(R.id.filterSet);
         flipButton = view.findViewById(R.id.FlipButton);
+        hueSeekBar = view.findViewById(R.id.hueSeekBar);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -100,6 +112,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             setDefaultState();
             Image_control_button.setVisibility(View.VISIBLE);
             Image_control_opacity.setVisibility(View.VISIBLE);
+            Image_filter.setVisibility(View.VISIBLE);
             flipButton.setVisibility(View.VISIBLE);
             }
 
@@ -166,6 +179,35 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             }}
 
         });
+        Image_filter.setOnClickListener(v -> {
+            hueSeekBar.setVisibility(View.VISIBLE);
+        });
+        hueSeekBar.setProgress(50);
+
+        hueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float hueValue = calculateHueValue(progress); // Convert progress to a suitable hue value
+                applyHueFilter(getContext(), MainActivity.selectedLayer1.getImageView(), hueValue);
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Handle tracking start if needed
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Handle tracking stop if needed
+            }
+
+            // Convert progress to a suitable hue value (adjust this conversion based on your needs)
+            private float calculateHueValue(int progress) {
+                return (progress - 50) * 2f;
+            }
+        });
         Image_control_button.setOnClickListener(v -> {
             if(text_buttonsUp.getVisibility() != View.VISIBLE){
                 setDefaultState();
@@ -201,6 +243,11 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 // Not needed for this example
             }
         });
+        copybutton.setOnClickListener(v -> {
+          Copybutton.onCopy(activity);
+
+        });
+
 
         editButton.setOnTouchListener((view1, motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -219,16 +266,14 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                     if (MainActivity.selectedLayer != null) {
                         selectedLayer = MainActivity.selectedLayer;
                         Track.list.add(new Track(MainActivity.selectedLayer.getId(),MainActivity.selectedLayer.getFrameLayout().getX(), MainActivity.selectedLayer.getFrameLayout().getY(), true));
-                        Track.list2.clear();
-                        moveFrameLayoutUpContinuously();
                     }
                     else {
                         selectedLayer1 = MainActivity.selectedLayer1;
                         Track.list.add(new Track(MainActivity.selectedLayer1.getId(),MainActivity.selectedLayer1.getFrameLayout().getX(),MainActivity.selectedLayer1.getFrameLayout().getY(),true));
-                        Track.list2.clear();
 
-                        moveFrameLayoutUpContinuously();
                     }
+                    Track.list2.clear();
+                    moveFrameLayoutUpContinuously();
                     break;
                 case MotionEvent.ACTION_UP:
                     // Stop moving the FrameLayout
@@ -329,8 +374,10 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         opacitySeekBar.setVisibility(View.GONE);
         Image_control_button.setVisibility(View.GONE);
         Image_control_opacity.setVisibility(View.GONE);
+        Image_filter.setVisibility(View.GONE);
         TypeTextLayout.setVisibility(View.GONE);
         text_buttonsUp.setVisibility(View.GONE);
+
         StrokeLayout.setVisibility(View.GONE);
     }
     @Override
@@ -457,7 +504,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 if (spaceSeekBar.getVisibility() != View.VISIBLE) {
                     setDefaultState();
                     spaceSeekBar.setVisibility(View.VISIBLE);
-                    spaceSeekBar.startAnimation(activity.fadeIn);
+                    spaceSeekBar.startAnimation(MainActivity.fadeIn);
                 }
                 spaceSeekBar.setMax(activity.pxTodp(33));
                 spaceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -671,6 +718,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         return colors;
     }
+
     @Override
 
     public void onToolSelected(ToolTypesForTypeTextAdaptor toolType) {
@@ -776,8 +824,38 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
                 }
 
                 break;
+
+
+
+
+
+
+
+
         }
 
     }
 
+    public static void applyHueFilter(Context context, ImageView imageView, float hue) {
+        // Get the drawable from the ImageView
+        Drawable drawable = imageView.getDrawable();
+
+        // Apply hue filter
+        if (drawable != null) {
+            // Create a color matrix with the desired hue adjustment
+            ColorMatrix colorMatrix = new ColorMatrix();
+            colorMatrix.setRotate(0, hue); // Red
+            colorMatrix.setRotate(1, hue); // Green
+            colorMatrix.setRotate(2, hue); // Blue
+
+            // Apply the color matrix to a color filter
+            ColorMatrixColorFilter colorFilter = new ColorMatrixColorFilter(colorMatrix);
+
+            // Set the color filter to the drawable
+            drawable.setColorFilter(colorFilter);
+
+            // Update the ImageView
+            imageView.setImageDrawable(drawable);
+        }
+    }
 }

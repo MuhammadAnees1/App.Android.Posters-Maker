@@ -16,8 +16,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +30,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -57,7 +63,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements CustomAdapter.OnItemSelected {
     private final CustomAdapter customAdapter = new CustomAdapter(this);
-    RecyclerView LayerRecycleView;
+    static RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
     int idT, idI ;
     JSONReader jsonReader;
@@ -79,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     static List<CombinedItem> combinedItemList = new ArrayList<>();
 
     RelativeLayout borderLayout;
-    static TranslateAnimation fadeIn;
+    static TranslateAnimation fadeIn ,centerAnimation;
     TranslateAnimation fadeOut;
     public static TextLayout selectedLayer;
     public static ImageLayout selectedLayer1;
@@ -90,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     static String CurrentImg = null ;
 
     Bitmap imgBitmap;
-    ImageView savebrush;
+    ImageView reset;
     TextView textView;
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
@@ -111,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
         parentLayout = findViewById(R.id.parentLayout);
-        savebrush = findViewById(R.id.imgShare);
+        reset = findViewById(R.id.reset);
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
         imgUndo = findViewById(R.id.imgUndo);
@@ -174,23 +181,53 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             }
 
         });
+        parentLayout.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        unselectLayer(selectedLayer);
+                        unselectLayers(selectedLayer1);
+                        selectedLayer = null;
+                        selectedLayer1 = null;
+                        LayerRecycleView.setVisibility(View.GONE);
+                        callSetDefaultState();
+                        if (container.getVisibility() == View.VISIBLE) {
+                            container.setVisibility(View.GONE);
+                        }
+                        if (container2.getVisibility() == View.VISIBLE) {
+                            container2.setVisibility(View.GONE);
+                        }
 
-        parentLayout.setOnClickListener(new View.OnClickListener() {
+                        return true;
+
+
+                }
+                return true;
+            }
+        });
+
+
+        reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                unselectLayer(selectedLayer);
-                unselectLayers(selectedLayer1);
-                selectedLayer = null;
-                selectedLayer1 = null;
-                LayerRecycleView.setVisibility(View.GONE);
-                callSetDefaultState();
-                if (container.getVisibility() == View.VISIBLE) {
-                    container.setVisibility(View.GONE);
-//                    container.startAnimation(fadeOut);
-                }
-                if (container2.getVisibility() == View.VISIBLE) {
-                    container2.setVisibility(View.GONE);
-                }
+              parentLayout.removeAllViews();
+              parentLayout.addView(previewImageView1);
+              combinedItemList.clear();
+              imageLayoutList.clear();
+              textLayoutList.clear();
+              textLayoutList2.clear();
+              imageLayoutList2.clear();
+              textList.clear();
+              TextHandlerClass.textList.clear();
+              Track.list.clear();
+              Track.list2.clear();
+              LayerRecycleView.setVisibility(View.GONE);
+              defaultContainer();
+                JSONReader.readJSONFile(MainActivity.this);
+
+
             }
         });
         imgUndo.setOnClickListener(new View.OnClickListener() {
@@ -221,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         });
 
     }
+
     @SuppressLint("ClickableViewAccessibility")
     TextLayout createTextLayout(String text, float x, float y,boolean emoji) {
         frameLayout = new FrameLayout(this);
@@ -243,11 +281,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         int layoutMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19, getResources().getDisplayMetrics());
         borderLayoutParams.setMargins(layoutMargin, layoutMargin, layoutMargin, layoutMargin);
         borderLayout.setGravity(Gravity.CENTER);
+
         textLayout.setBorderLayout(borderLayout);
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
         fadeOut = new TranslateAnimation(0, 0, 0, 400);
         fadeOut.setDuration(400);
+
 
 //        borderLayout.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
@@ -274,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth() - 40);
         frameLayout.setMinimumHeight(textView.getHeight() + 20);
+        LayerRecycleView.setVisibility(View.GONE);
 
         idT = Tid + 1;
         Tid++;
@@ -389,15 +430,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 public boolean onTouch(View v, MotionEvent event) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-                            lastX = event.getRawX();
-                            lastY = event.getRawY();
-                            Track.list.add(new Track(textLayout.getId(),textLayout.getFrameLayout().getX(), textLayout.getFrameLayout().getY(), true));
                             unselectLayer(selectedLayer);
                             unselectLayers(selectedLayer1);
                             selectLayer(textLayout);
+                            lastX = event.getRawX();
+                            lastY = event.getRawY();
+                            Track.list.add(new Track(textLayout.getId(),textLayout.getFrameLayout().getX(), textLayout.getFrameLayout().getY(), true));
+
                             return true;
 
                         case MotionEvent.ACTION_MOVE:
+                            if(selectedLayer == textLayout ){
                             if (textLayout.getLocked() != null) {
                                 if (!textLayout.getLocked()&& !brushSelected) {
                                     float newX = event.getRawX();
@@ -408,10 +451,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                                     textLayout.getFrameLayout().setX(textLayout.getFrameLayout().getX() + dX);
                                     textLayout.getFrameLayout().setY(textLayout.getFrameLayout().getY() + dY);
                                     lastX = newX;
-                                    lastY = newY;
-                                    break;
+                                    lastY = newY;}
+
                                 }
                             }
+                            break;
                     }
                     return true;
                 }
@@ -422,13 +466,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 public boolean onTouch(View v, MotionEvent event) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
+                            unselectLayer(selectedLayer);
+                            unselectLayers(selectedLayer1);
+                            selectLayer(textLayout);
                             lastX = event.getRawX();
                             lastY = event.getRawY();
                             Track.list.add(new Track(textLayout.getId(),textLayout.getFrameLayout().getX(), textLayout.getFrameLayout().getY(),true));
-                            selectLayer(textLayout);
-
                             return true;
                         case MotionEvent.ACTION_MOVE:
+                            if(selectedLayer == textLayout){
                             if(textLayout.getLocked() != null) {
                                 if (!textLayout.getLocked()&&!brushSelected) {
                                     float newX = event.getRawX();
@@ -441,9 +487,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
                                     lastX = newX;
                                     lastY = newY;
-                                    break;
+                                    }
+
                                 }
-                            }}
+                            }
+                            break;
+                    }
                     return true;
                 }
             });
@@ -471,6 +520,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         parentLayout.addView(textLayout.getFrameLayout());
 
 
+        ScaleAnimation expandAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        expandAnimation.setDuration(400);
+        textLayout.getFrameLayout().setAnimation(expandAnimation);
+        textLayout.getBorderLayout().setAnimation(expandAnimation);
+        textLayout.getTextView().setAnimation(expandAnimation);
+
         return textLayout;
     }
     public static void selectLayer(TextLayout textLayout) {
@@ -480,49 +535,50 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             unselectLayers(selectedLayer1);}
 
-            if (!brushSelected){
+        if (!brushSelected){
 
             if (textLayout != null) {
                 if(textLayout.getLocked() != null ) {
                     if(!textLayout.getLocked()) {
 
-                container2.setVisibility(View.GONE);
-                container.setVisibility(View.GONE);
+                        container2.setVisibility(View.GONE);
+                        container.setVisibility(View.GONE);
                         if(!textLayout.isemoji){
-                container.setVisibility(View.VISIBLE);}
+                            container.setVisibility(View.VISIBLE);}
 
-                FrameLayout layer = textLayout.getFrameLayout();
-                if (layer != null) {
-                    Button resizeButton = textLayout.getResizeButton();
-                    Button deleteButton = textLayout.getDeleteButton();
-                    Button rotateButton = textLayout.getRotateButton();
-                    Button saveButton = textLayout.getSaveButton();
+                        FrameLayout layer = textLayout.getFrameLayout();
+                        if (layer != null) {
+                            Button resizeButton = textLayout.getResizeButton();
+                            Button deleteButton = textLayout.getDeleteButton();
+                            Button rotateButton = textLayout.getRotateButton();
+                            Button saveButton = textLayout.getSaveButton();
 
-                    // Make the associated buttons and features visible
-                    if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
-                        resizeButton.setVisibility(View.VISIBLE);
-                        deleteButton.setVisibility(View.VISIBLE);
-                        rotateButton.setVisibility(View.VISIBLE);
-                        saveButton.setVisibility(View.VISIBLE);
-                    }
-                    if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
-                       if (!textLayout.isemoji) {
-                        container.setVisibility(View.VISIBLE);
-                        container.startAnimation(fadeIn);}
-                    }
-                    if(HomeFragment.Image_control_opacity != null && HomeFragment.Image_control_button != null) {
-                        if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE ) {
-                            HomeFragment.Image_control_opacity.setVisibility(View.GONE);
-                            HomeFragment.Image_control_button.setVisibility(View.GONE);
+                            // Make the associated buttons and features visible
+                            if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                                resizeButton.setVisibility(View.VISIBLE);
+                                deleteButton.setVisibility(View.VISIBLE);
+                                rotateButton.setVisibility(View.VISIBLE);
+                                saveButton.setVisibility(View.VISIBLE);
+                            }
+                            if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
+                                if (!textLayout.isemoji) {
+                                    container.setVisibility(View.VISIBLE);
+                                    container.startAnimation(fadeIn);}
+                            }
+                            if(HomeFragment.Image_control_opacity != null && HomeFragment.Image_control_button != null) {
+                                if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE ) {
+                                    HomeFragment.Image_control_opacity.setVisibility(View.GONE);
+                                    HomeFragment.Image_control_button.setVisibility(View.GONE);
+                                    HomeFragment.Image_filter.setVisibility(View.GONE);
+                                }
+                            }
+                            if(recyclerView != null){
+                                recyclerView.setVisibility(View.VISIBLE);}
+                            // Set the background resource to indicate selection
+                            layer.setBackgroundResource(R.drawable.border_style);
                         }
-                    }
-                    if(recyclerView != null){
-                    recyclerView.setVisibility(View.VISIBLE);}
-                    // Set the background resource to indicate selection
-                    layer.setBackgroundResource(R.drawable.border_style);
-                }
-                selectedLayer = textLayout;
-            }}}
+                        selectedLayer = textLayout;
+                    }}}
         }
     }
     public static void unselectLayer(TextLayout textLayout) {
@@ -917,16 +973,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        unselectLayers(selectedLayer1);
+                        unselectLayer(selectedLayer);
+                        selectLayers(imageLayout);
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                         Track.list.add(new Track(imageLayout.getId(),imageLayout.getFrameLayout().getX(),imageLayout.getFrameLayout().getY(),true));
 
-                        unselectLayers(selectedLayer1);
-                        unselectLayer(selectedLayer);
-                        selectLayers(imageLayout);
+
 
                         return true;
                     case MotionEvent.ACTION_MOVE:
+                        if(selectedLayer1 ==imageLayout){
                         if (!imageLayout.getLocked() && !brushSelected) {
                             float newX = event.getRawX();
                             float newY = event.getRawY();
@@ -936,8 +994,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             imageLayout.getFrameLayout().setY(imageLayout.getFrameLayout().getY() + dY);
                             lastX = newX;
                             lastY = newY;
-                            break;
+                            }
+
                         }
+                        break;
                 }
                 return true;
             }
@@ -962,6 +1022,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
+        LayerRecycleView.setVisibility(View.GONE);
+
 
         parentLayout.addView(imageLayout.getFrameLayout());
         Tid++;
@@ -995,54 +1057,55 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
             unselectLayer(selectedLayer);}
         if(!brushSelected){
-        selectedLayer1 = imageLayout;
-        if(!imageLayout.getLocked()){
-        if (imageLayout != null ) {
-            FrameLayout layer = imageLayout.getFrameLayout();
-            if (layer != null) {
-                Button resizeButton = imageLayout.getResizeButton();
-                Button deleteButton = imageLayout.getDeleteButton();
-                Button rotateButton = imageLayout.getRotateButton();
-                Button saveButton = imageLayout.getSaveButton();
+            selectedLayer1 = imageLayout;
+            if(!imageLayout.getLocked()){
+                if (imageLayout != null ) {
+                    FrameLayout layer = imageLayout.getFrameLayout();
+                    if (layer != null) {
+                        Button resizeButton = imageLayout.getResizeButton();
+                        Button deleteButton = imageLayout.getDeleteButton();
+                        Button rotateButton = imageLayout.getRotateButton();
+                        Button saveButton = imageLayout.getSaveButton();
 
-                // Make the associated buttons and features visible
-                if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
-                    resizeButton.setVisibility(View.VISIBLE);
-                    deleteButton.setVisibility(View.VISIBLE);
-                    rotateButton.setVisibility(View.VISIBLE);
-                    saveButton.setVisibility(View.VISIBLE);
-                }
-                if(!imageLayout.isFrame){
-                if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
-                    container.setVisibility(View.VISIBLE);
-                    container2.setVisibility(View.GONE);
+                        // Make the associated buttons and features visible
+                        if (resizeButton != null && deleteButton != null && rotateButton != null && saveButton != null) {
+                            resizeButton.setVisibility(View.VISIBLE);
+                            deleteButton.setVisibility(View.VISIBLE);
+                            rotateButton.setVisibility(View.VISIBLE);
+                            saveButton.setVisibility(View.VISIBLE);
+                        }
+                        if(!imageLayout.isFrame){
+                            if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
+                                container.setVisibility(View.VISIBLE);
+                                container2.setVisibility(View.GONE);
 
 //                    container.startAnimation(fadeIn);
-                }}
-                else {
-                  if(container2.getVisibility()== View.GONE || container2.getVisibility() == View.INVISIBLE){
-                      frameContainer.setVisibility(View.VISIBLE);
-                      container.setVisibility(View.GONE);
-                      FrameFragment frameFragment = new FrameFragment();
-                      if(frameFragment.seekBar != null) {
+                            }}
+                        else {
+                            if(container2.getVisibility()== View.GONE || container2.getVisibility() == View.INVISIBLE){
+                                frameContainer.setVisibility(View.VISIBLE);
+                                container.setVisibility(View.GONE);
+                                FrameFragment frameFragment = new FrameFragment();
+                                if(frameFragment.seekBar != null) {
 
-                          frameFragment.seekBar.setProgress((int) selectedLayer1.getImageView().getAlpha());
-                      }
-                  }
-                }
-                if (recyclerView != null) {
-                    if (recyclerView.getVisibility() == View.VISIBLE) {
-                        recyclerView.setVisibility(View.GONE);
+                                    frameFragment.seekBar.setProgress((int) selectedLayer1.getImageView().getAlpha());
+                                }
+                            }
+                        }
+                        if (recyclerView != null) {
+                            if (recyclerView.getVisibility() == View.VISIBLE) {
+                                recyclerView.setVisibility(View.GONE);
+                            }
+                        }
+                        if (HomeFragment.Image_control_button != null && HomeFragment.Image_control_opacity != null) {
+                            HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
+                            HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
+                            HomeFragment.Image_filter.setVisibility(View.VISIBLE);
+                        }
+                        // Set the background resource to indicate selection
+                        layer.setBackgroundResource(R.drawable.border_style);
                     }
-                }
-                if (HomeFragment.Image_control_button != null && HomeFragment.Image_control_opacity != null) {
-                    HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
-                    HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
-                }
-                // Set the background resource to indicate selection
-                layer.setBackgroundResource(R.drawable.border_style);
-            }
-            }}
+                }}
         }
     }
     public static void unselectLayers(ImageLayout selectedLayer1) {

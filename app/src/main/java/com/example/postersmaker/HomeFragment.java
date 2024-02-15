@@ -43,24 +43,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds {
+public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSelected, TypeTextAdapter.onToolSelecteds,HueAdapter.OnHueItemClickListener {
     static TranslateAnimation fadeIn;
     TextLayout selectedLayer;
     ImageLayout selectedLayer1;
     MainActivity activity;
+    private Drawable[] hueDrawables;
+    private int currentHueIndex = 0;
+    private HueAdapter hueAdapter;
+    private List<HueItem> hueItemList;
     FrameLayout frameLayout,fragmentContainer1, fontContainer;
     List<Integer> colors = getYourColorList();
     float lastSetTextSize = 1f;
     float initialTextSize;
     ColorPickerFragment colorPickerFragment;
     TextView lineStrokeButton, dashStrokeButton, dotStrokeButton;
-    static SeekBar seekBar , spaceSeekBar,opacitySeekBar, sizeSeekBar , hueSeekBar;
+    static SeekBar seekBar , spaceSeekBar,opacitySeekBar, sizeSeekBar;
     Handler handler;
     TextView buttonApplyFont;
     String currentText;
     LinearLayout text_buttonsUp,StrokeLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
-    static RecyclerView recyclerView;
+    static RecyclerView recyclerView, filterRecycleView;
     RecyclerView TypeTextLayout;
     Button UpButton, downButton, leftButton, rightButton ,editButton,flipButton, copybutton ;
     static Button Image_control_button,Image_control_opacity, Image_filter;
@@ -102,7 +106,15 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         Image_control_opacity= view.findViewById(R.id.Image_control_opacity);
         Image_filter = view.findViewById(R.id.filterSet);
         flipButton = view.findViewById(R.id.FlipButton);
-        hueSeekBar = view.findViewById(R.id.hueSeekBar);
+
+
+        filterRecycleView = view.findViewById(R.id.hueRecycler);
+
+        // Initialize hueItemList with different hue values
+        hueItemList = new ArrayList<>();
+
+
+        // Initialize and set up the RecychueItemList.add(new HueItem(-90));lerView
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -180,34 +192,18 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         });
         Image_filter.setOnClickListener(v -> {
-            hueSeekBar.setVisibility(View.VISIBLE);
-        });
-        hueSeekBar.setProgress(50);
 
-        hueSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float hueValue = calculateHueValue(progress); // Convert progress to a suitable hue value
-                applyHueFilter(getContext(), MainActivity.selectedLayer1.getImageView(), hueValue);
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // Handle tracking start if needed
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Handle tracking stop if needed
-            }
-
-            // Convert progress to a suitable hue value (adjust this conversion based on your needs)
-            private float calculateHueValue(int progress) {
-                return (progress - 50) * 2f;
+            if(MainActivity.selectedLayer1 != null){
+                setDefaultState();
+                filterRecycleView.setVisibility(View.VISIBLE);
+                huelistUpdate();
+                hueAdapter = new HueAdapter(hueItemList);
+                filterRecycleView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+                filterRecycleView.setAdapter(hueAdapter);
             }
         });
+
+
         Image_control_button.setOnClickListener(v -> {
             if(text_buttonsUp.getVisibility() != View.VISIBLE){
                 setDefaultState();
@@ -372,6 +368,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         seekBar.setVisibility(View.GONE);
         spaceSeekBar.setVisibility(View.GONE);
         opacitySeekBar.setVisibility(View.GONE);
+        filterRecycleView.setVisibility(View.INVISIBLE);
         Image_control_button.setVisibility(View.GONE);
         Image_control_opacity.setVisibility(View.GONE);
         Image_filter.setVisibility(View.GONE);
@@ -858,4 +855,23 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
             imageView.setImageDrawable(drawable);
         }
     }
+
+    public void onHueItemClick(float hueValue) {
+        applyHueFilter(getContext(), MainActivity.selectedLayer1.getImageView(), hueValue);
+    }
+    public void huelistUpdate(){
+        hueItemList.clear();
+        if(MainActivity.selectedLayer1.getImageView()!= null){
+        hueItemList.add(new HueItem(-150, MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(-120,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(-90,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(-60,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(-30,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(0,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(30,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(60,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(90,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(120,MainActivity.selectedLayer1.getImageView()));
+        hueItemList.add(new HueItem(130,MainActivity.selectedLayer1.getImageView()));
+    }}
 }

@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
 
 
+
         JSONReader.readJSONFile(this);
 
 
@@ -521,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
 
         ScaleAnimation expandAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        expandAnimation.setDuration(400);
+        expandAnimation.setDuration(600);
         textLayout.getFrameLayout().setAnimation(expandAnimation);
         textLayout.getBorderLayout().setAnimation(expandAnimation);
         textLayout.getTextView().setAnimation(expandAnimation);
@@ -693,9 +694,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 fragmentTransaction0.replace(R.id.fragment_container6, backGroundFragment);
                 fragmentTransaction0.addToBackStack(null);
                 fragmentTransaction0.commit();
-                if(CurrentImg != null){
-                updateBackgroundImage(CurrentImg);
-                imageView.setImageBitmap(originalBitmap1);}
                 break;
             case Frames:
                 defaultContainer();
@@ -1002,6 +1000,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return true;
             }
         });
+
         borderLayouts.addView(imageLayout.getImageView());
         imageLayout.getFrameLayout().addView(imageLayout.getBorderLayout());
         imageLayout.getFrameLayout().addView(imageLayout.getResizeButton());
@@ -1024,7 +1023,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
         LayerRecycleView.setVisibility(View.GONE);
 
-
+        ScaleAnimation expandAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        expandAnimation.setDuration(600);
+        imageLayout.getFrameLayout().startAnimation(expandAnimation);
         parentLayout.addView(imageLayout.getFrameLayout());
         Tid++;
         idI = Tid;

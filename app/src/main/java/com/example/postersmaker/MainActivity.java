@@ -36,6 +36,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     TranslateAnimation fadeOut;
     public static TextLayout selectedLayer;
     public static ImageLayout selectedLayer1;
+    LinearLayout Optionssave;
     Boolean isLocked;
     boolean isframe ;
     static Bitmap originalBitmap1;
@@ -101,19 +103,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
     static HomeFragment homeFragment;
     private int currentActionIndex = -1;
-    static BlurImageView imageView;
+    static BlurImageView imageView, filterView;
     public static ImageView  imageView2;
     Bitmap brushBitmap;
     public ImageView imgUndo,imgRedo;
     View previewImageView1;
-    static FrameLayout container,container2,bgcontainer,brushContainer,frameLayout,parentLayout,frameContainer;
+    static FrameLayout container,container2, filtercontainer,bgcontainer,brushContainer,frameLayout,parentLayout,frameContainer;
 
     public  void OpacityBackground(int progress) {
-        imageView.setVisibility(View.VISIBLE);
+        filterView.setVisibility(View.VISIBLE);
         float opacity = progress / 100f;
 
-            imageView.setAlpha(opacity);
-
+            filterView.setAlpha(opacity);
 
     }
 
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         setContentView(R.layout.activity_main);
 
         imageView = (BlurImageView) findViewById(R.id.previewImageView);
+        filterView = (BlurImageView) findViewById(R.id.filterImageView);
         previewImageView1 = findViewById(R.id.previewImageView1);
         container = findViewById(R.id.fragment_container);
         container2 = findViewById(R.id.fragment_container3);
@@ -149,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         drawPaintView = findViewById(R.id.drawPaintView);
         frameContainer=findViewById(R.id.fragment_container5);
         bgcontainer = findViewById(R.id.fragment_container6);
+        filtercontainer = findViewById(R.id.filter_container);
+        Optionssave = findViewById(R.id.Options_save);
 
 
 
@@ -164,6 +168,14 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         savImgButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Optionssave.setVisibility(View.VISIBLE);
+                Save_Fragment save_fragment = new Save_Fragment();
+                FragmentTransaction saveTransaction = getSupportFragmentManager().beginTransaction();
+                saveTransaction.replace(R.id.Options_save, save_fragment);
+                saveTransaction.addToBackStack(null);
+               saveTransaction.commit();
+
+
                 if (ContextCompat.checkSelfPermission(v.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     // Permission is not granted
                     // Should we show an explanation?
@@ -174,10 +186,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         // No explanation needed; request the permission
                         ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
                     }
-                } else {
-                    // Permission has already been granted, you can perform the storage operation
-                    performStorageOperation();
-                }
+                    }
+//                 else {
+//                    performStorageOperation(400);
+//                }
 
             }
 
@@ -194,6 +206,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         selectedLayer1 = null;
                         LayerRecycleView.setVisibility(View.GONE);
                         callSetDefaultState();
+                        defaultContainer();
                         if (container.getVisibility() == View.VISIBLE) {
                             container.setVisibility(View.GONE);
                         }
@@ -414,6 +427,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 selectedLayer1 = null;
                 LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
+                defaultContainer();
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
                     container.startAnimation(fadeOut);
@@ -643,9 +657,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
 
     public void applyEffectOnBackgroundImage(String backgroundFileName) {
+        filterView.setVisibility(View.VISIBLE);
         Glide.with(this)
                 .load("file:///android_asset/effect/" + backgroundFileName)
-                .into(imageView);
+                .into(filterView);
     }
 
 
@@ -673,15 +688,16 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 defaultContainer();
                 ImagePickerManager.openGallery(MainActivity.this);
                 break;
-            case FILTER:
-                defaultContainer();
-                FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
-                EffectFragment effectFragment = new EffectFragment();
-                fragmentTransaction.replace(R.id.fragment_container, effectFragment);
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.commit();
 
-                break;
+//                defaultContainer();
+//                filtercontainer.setVisibility(View.VISIBLE);
+//                FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
+//                EffectFragment effectFragment = new EffectFragment();
+//                fragmentTransaction.replace(R.id.filter_container, effectFragment);
+//                fragmentTransaction.addToBackStack(null);
+//                fragmentTransaction.commit();
+
+
             case EMOJI:
                 defaultContainer();
                 openEmojiFragment();
@@ -746,7 +762,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     brushSelected = false;
      DrawPaint.brushEnable = false;
      drawPaintView.eraseDrawing();
+     Optionssave.setVisibility(View.GONE);
      DrawPaint.bitmap1 = null;
+     filtercontainer.setVisibility(View.GONE);
      frameContainer.setVisibility(View.GONE);
     container.setVisibility(View.GONE);
     bgcontainer.setVisibility(View.GONE);
@@ -857,11 +875,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         imageView2 = new ImageView(this);
         if (imageUri != null) {
-            // Load the main image
             imageLayout.isFrame = false;
             Glide.with(this)
                     .load(imageUri)
                     .into(imageView2);
+
+            imageLayout.setBitmap(BitmapFactory.decodeFile(imageUri.getPath()));
         } else if (frameFileName != null) {
             // Load the frame image
             imageLayout.isFrame = true;
@@ -870,12 +889,13 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .load("file:///android_asset/Basic/" + frameFileName)
                     .into(imageView2);
             imageUri1 = Uri.parse(("file:///android_asset/Basic/" + frameFileName));
+            imageLayout.setBitmap(BitmapFactory.decodeFile(frameFileName));
         }
         else if(brushBitmap != null){
             imageLayout.isFrame = false;
             imageView2.setImageBitmap(brushBitmap);
             imageLayout.setImgBitmap(brushBitmap);
-
+            imageLayout.setBitmap(brushBitmap);
         }
         imageLayout.setImageView(imageView2);
         imageView2.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -951,7 +971,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 unselectLayer(selectedLayer);
                 selectedLayer1 = null;
 
-                LayerRecycleView.setVisibility(View.GONE);
                 callSetDefaultState();
                 if (container.getVisibility() == View.VISIBLE) {
                     container.setVisibility(View.GONE);
@@ -971,9 +990,15 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        defaultContainer();
                         unselectLayers(selectedLayer1);
                         unselectLayer(selectedLayer);
                         selectLayers(imageLayout);
+                        container2.setVisibility(View.VISIBLE);
+
+                        if(imageLayout.getImgBitmap() !=null){
+                            HomeFragment.Image_filter.setVisibility(View.GONE);
+                        }
                         lastX = event.getRawX();
                         lastY = event.getRawY();
                         Track.list.add(new Track(imageLayout.getId(),imageLayout.getFrameLayout().getX(),imageLayout.getFrameLayout().getY(),true));
@@ -1075,6 +1100,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                             rotateButton.setVisibility(View.VISIBLE);
                             saveButton.setVisibility(View.VISIBLE);
                         }
+
                         if(!imageLayout.isFrame){
                             if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
                                 container.setVisibility(View.VISIBLE);
@@ -1136,6 +1162,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         }
         MainActivity.selectedLayer1 = null;
     }
+
     public Bitmap getBitmapFromView(FrameLayout view) {
         // Check if the view has been laid out
         if (view.getWidth() == 0 || view.getHeight() == 0) {
@@ -1166,8 +1193,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission was granted, yay! Do the
-                    // storage-related task you need to do.
-                    performStorageOperation();
+                    performStorageOperation(400);
                 } else {
                     // Permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -1175,12 +1201,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 return;
             }
 
-            // Other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 
-    private void performStorageOperation() {
+     void performStorageOperation(int newWidth) {
         try {
 
             JSONFileManager.saveJSONFile(combinedItemList, getApplicationContext());
@@ -1194,8 +1218,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             unselectLayers(selectedLayer1);
         }
         defaultContainer();
-        imgBitmap = getBitmapFromView(parentLayout);
-//        ImageSaver.saveAsImage(MainActivity.this, imgBitmap);    }
+        Bitmap bitmap = getBitmapFromView(parentLayout);
+        int width = parentLayout.getWidth();
+        int height = parentLayout.getHeight();
+        float ratio = (float) width / height;
+        int newHeight = (int) (newWidth / ratio);
+        ImageSaver.saveAsImage(MainActivity.this, bitmap, newWidth, newHeight);
     }
 
 }

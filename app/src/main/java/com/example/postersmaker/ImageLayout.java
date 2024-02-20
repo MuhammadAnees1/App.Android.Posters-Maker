@@ -18,7 +18,15 @@ public class ImageLayout {
      boolean isFrame = false;
     private Uri imageUri;
     ImageView imageView;
-    Bitmap imgBitmap = null;
+    Bitmap imgBitmap= null, bitmap = null;
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 
     public Bitmap getImgBitmap() {
         return imgBitmap;

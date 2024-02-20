@@ -25,7 +25,7 @@ public class ImageSaver {
 
     private static final int REQUEST_WRITE_STORAGE = 1;
 
-    public static void saveAsImage(Context context, Bitmap bitmap) {
+    public static void saveAsImage(Context context, Bitmap bitmap, int customWidth, int customHeight) {
         // Get the directory for saving images (you can change the folder name)
         File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Postermaker");
         if (!directory.exists()) {
@@ -37,6 +37,9 @@ public class ImageSaver {
                 return;
             }
         }
+        if (customWidth > 0 && customHeight > 0) {
+            bitmap = Bitmap.createScaledBitmap(bitmap, customWidth, customHeight, true);
+        }
         // Create a unique filename based on the current timestamp
         String fileName = "postermaker_image_" + System.currentTimeMillis() + ".png";
 
@@ -46,13 +49,13 @@ public class ImageSaver {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(imageFile);
             if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);}
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+            }
             fileOutputStream.flush();
             fileOutputStream.close();
 
             // Notify the system about the new file so it shows up in the gallery
-            MediaScannerConnection.scanFile(context, new String[]{imageFile.getAbsolutePath()
-            }, null, null);
+            MediaScannerConnection.scanFile(context, new String[]{imageFile.getAbsolutePath()}, null, null);
 
             Toast.makeText(context, "Image saved successfully", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {

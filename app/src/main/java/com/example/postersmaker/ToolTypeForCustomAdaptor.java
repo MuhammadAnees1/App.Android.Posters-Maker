@@ -6,7 +6,6 @@ public enum ToolTypeForCustomAdaptor {
     TEXT,
     Background,
     Frames,
-    FILTER,
     EMOJI,
     BRUSH,
 }

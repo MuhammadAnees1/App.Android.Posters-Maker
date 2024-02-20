@@ -62,7 +62,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
     Handler handler;
     TextView buttonApplyFont;
     String currentText;
-    LinearLayout text_buttonsUp,StrokeLayout;
+    LinearLayout text_buttonsUp,StrokeLayout, hueLayout;
     private StrokeType currentStrokeType = StrokeType.LINE;
     static RecyclerView recyclerView, filterRecycleView;
     RecyclerView TypeTextLayout;
@@ -89,6 +89,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         rightButton = view.findViewById(R.id.RightButton);
         text_buttonsUp = view.findViewById(R.id.Text_buttonsUp);
         seekBar = view.findViewById(R.id.seekBarFor);
+        hueLayout = view.findViewById(R.id.hueLayout);
         spaceSeekBar = view.findViewById(R.id.seekBarForspace);
         opacitySeekBar = view.findViewById(R.id.seekBarForOpacity);
         sizeSeekBar = view.findViewById(R.id.seekBarForSize);
@@ -157,6 +158,9 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 
         Image_control_opacity.setOnClickListener(v -> {
             setDefaultState();
+            Image_control_button.setVisibility(View.VISIBLE);
+            Image_control_opacity.setVisibility(View.VISIBLE);
+            Image_filter.setVisibility(View.VISIBLE);
                 opacitySeekBar.setVisibility(View.VISIBLE);
 
         });
@@ -193,8 +197,13 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         });
         Image_filter.setOnClickListener(v -> {
 
-            if(MainActivity.selectedLayer1 != null){
+            if(MainActivity.selectedLayer1 != null ){
+
                 setDefaultState();
+                Image_control_button.setVisibility(View.VISIBLE);
+                Image_control_opacity.setVisibility(View.VISIBLE);
+                Image_filter.setVisibility(View.VISIBLE);
+                hueLayout.setVisibility(View.VISIBLE);
                 filterRecycleView.setVisibility(View.VISIBLE);
                 huelistUpdate();
                 hueAdapter = new HueAdapter(hueItemList);
@@ -207,6 +216,9 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
         Image_control_button.setOnClickListener(v -> {
             if(text_buttonsUp.getVisibility() != View.VISIBLE){
                 setDefaultState();
+                Image_control_button.setVisibility(View.VISIBLE);
+                Image_control_opacity.setVisibility(View.VISIBLE);
+                Image_filter.setVisibility(View.VISIBLE);
                 text_buttonsUp.setVisibility(View.VISIBLE);
                 editButton.setVisibility(View.GONE);
                 flipButton.setVisibility(View.VISIBLE);
@@ -362,6 +374,7 @@ public class HomeFragment extends Fragment implements EditTextAdapter.OnItemSele
 //    }
     private void setDefaultState() {
         // Set your default UI state here
+        hueLayout.setVisibility(View.GONE);
         fontContainer.setVisibility(View.GONE);
         sizeSeekBar.setVisibility(View.GONE);
         fragmentContainer1.setVisibility(View.GONE);

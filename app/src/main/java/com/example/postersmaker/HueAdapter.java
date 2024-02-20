@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -70,10 +71,9 @@ public class HueAdapter extends RecyclerView.Adapter<HueAdapter.HueViewHolder> {
         }
 
         public void bind(HueItem hueItem) {
-            Bitmap bitmap = getBitmapFromView(hueItem.getImage());
+            Bitmap bitmap = MainActivity.selectedLayer1.getBitmap();
             imageView5.setImageBitmap(bitmap);
             applyHueToImageView(imageView5.getDrawable(), hueItem.getHueValue());
-
         }
     }
 

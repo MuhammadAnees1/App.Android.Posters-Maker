@@ -39,11 +39,9 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-        binding.newButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
+        binding.newButton1.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            startActivity(intent);
         });
     }
     private void openGallery() {

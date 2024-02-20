@@ -15,7 +15,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         mOnItemSelected = onItemSelected;
         mToolList.add(new ToolModel("Photo", R.drawable.gallery_icon, ToolTypeForCustomAdaptor.Photo));
         mToolList.add(new ToolModel("Text", R.drawable.baseline_text_fields_24, ToolTypeForCustomAdaptor.TEXT));
-        mToolList.add(new ToolModel("Filter", R.drawable.ic_photo_filter, ToolTypeForCustomAdaptor.FILTER));
         mToolList.add(new ToolModel("Emoji", R.drawable.ic_insert_emoticon, ToolTypeForCustomAdaptor.EMOJI));
         mToolList.add(new ToolModel("Frames", R.drawable.baseline_filter_frames_24, ToolTypeForCustomAdaptor.Frames));
         mToolList.add(new ToolModel("Background", R.drawable.background, ToolTypeForCustomAdaptor.Background));

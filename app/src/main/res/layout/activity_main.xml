@@ -10,7 +10,7 @@
 
     <FrameLayout
         android:id="@+id/parentLayout"
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="500dp"
         app:layout_constraintBottom_toTopOf="@+id/imgUndo"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,9 +20,20 @@
 
         <com.jgabrielfreitas.core.BlurImageView
         android:id="@+id/previewImageView"
-            android:layout_width="400dp"
+            android:layout_width="match_parent"
             android:layout_height="500dp"
             android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:background="@drawable/white_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+        <com.jgabrielfreitas.core.BlurImageView
+            android:id="@+id/filterImageView"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
             android:scaleType="fitXY"
             android:background="@drawable/white_bg"
             app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +58,7 @@
 
     <com.example.postersmaker.DrawPaint
         android:id="@+id/drawPaintView"
-        android:layout_width="400dp"
+        android:layout_width="match_parent"
         android:layout_height="500dp"
         app:eraseButton="@+id/erase_button"
         app:layout_constraintBottom_toBottomOf="@+id/parentLayout"
@@ -150,6 +161,13 @@
         app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         tools:ignore="MissingConstraints" />
     <FrameLayout
+        android:id="@+id/filter_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+        tools:ignore="MissingConstraints" />
+    <FrameLayout
         android:id="@+id/fragment_container3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -178,6 +196,14 @@
 
 
 
-
+    <LinearLayout
+        android:id="@+id/Options_save"
+        android:layout_width="100dp"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@id/imgSave"
+        app:layout_constraintTop_toBottomOf="@+id/imgSave"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

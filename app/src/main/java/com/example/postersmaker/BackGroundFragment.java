@@ -60,10 +60,11 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
     private static final int IMAGE_PICK_REQUEST = 101;
 
     static float lastProgress = 0;
+    FrameLayout filterContainer;
     private BlurProcessor blurProcessor;
 
      SeekBar blurSeekBar, OpacityBackgroundSeekbar;
-    ImageView PickBackGroundButton, PickBackGroundColor;
+    ImageView PickBackGroundButton, PickBackGroundColor, FilterButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +75,8 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
         PickBackGroundButton = view.findViewById(R.id.PickBackGroundButton);
         PickBackGroundColor = view.findViewById(R.id.PickBackGroundColor);
         blurSeekBar = view.findViewById(R.id.blurSeekBar);
+        FilterButton = view.findViewById(R.id.FilterButton);
+        filterContainer = view.findViewById(R.id.Filter);
         OpacityBackgroundSeekbar = view.findViewById(R.id.OpacityBackground);
         blurProcessor = new BlurProcessor(requireActivity());
         if (MainActivity.container.getVisibility() == View.GONE || MainActivity.container.getVisibility() == View.INVISIBLE) {
@@ -89,7 +92,19 @@ public class BackGroundFragment extends Fragment implements MainImageBackGroundA
 
         blurSeekBar.setOnSeekBarChangeListener(onSeekBarChanged());
         blurSeekBar.setProgress((int) lastProgress);
-
+        FilterButton.setOnClickListener(v -> {
+            if(filterContainer.getVisibility() == View.VISIBLE){
+                filterContainer.setVisibility(View.GONE);
+            }
+            else{
+            filterContainer.setVisibility(View.VISIBLE);
+            EffectFragment effectFragment = new EffectFragment();
+            FragmentTransaction fragmentTransaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.Filter, effectFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+            }
+        });
         OpacityBackgroundSeekbar.setProgress(100);
         OpacityBackgroundSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

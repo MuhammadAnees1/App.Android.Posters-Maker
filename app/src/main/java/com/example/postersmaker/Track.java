@@ -19,9 +19,10 @@ public class Track {
     boolean lock,fontR =false,rotate = false,space = false, edittext = false,imgOpacity = false, flip = false,isunderline = false,underline = false,
             istextcolor = false, shadowOn = false, resize = false, position = false, issize = false, allign = false;
 
-    float positionX, shadowDx, shadowDy, spacing, rotation, shadow,imgopacity1, textSize, alpha, positionY, flipx;
+    float hueValue, positionX, shadowDx, shadowDy, spacing, rotation, shadow,imgopacity1, textSize, alpha, positionY, flipx;
 
-    int Tid, textColor, textAlignment, height, imgwidth, imgheight, width, index; ;
+    int Tid, textColor, textAlignment, height, imgwidth, imgheight, width, index;
+    String item = null;
 
     public int getIndex() {
         return index;
@@ -105,6 +106,15 @@ public class Track {
         return textSize;
     }
     public float getAlpha() {return alpha;}
+
+    public float getHueValue() {
+        return hueValue;
+    }
+
+    public String getItem() {
+        return item;
+    }
+
     public float getShadow() {
         return shadow;
     }
@@ -232,6 +242,11 @@ public class Track {
          this.textAlignment = textAlignment;
          this.allign = allign;
 
+     }
+     public Track(int tid,String item, float hueValue){
+         this.Tid = tid;
+         this.item = item;
+         this.hueValue = hueValue;
      }
 
 

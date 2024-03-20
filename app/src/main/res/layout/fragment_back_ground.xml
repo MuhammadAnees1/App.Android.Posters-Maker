@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/cardview_dark_background">
+    android:background="@color/light_green">
 
     <ImageView
         android:id="@+id/PickBackGroundColor"
@@ -75,6 +75,7 @@
         <ImageView
             android:id="@+id/PickBackGroundButton"
             android:layout_width="40dp"
+            android:background="@color/medium_green"
             android:layout_height="40dp"
             android:layout_centerVertical="true"
             android:layout_marginEnd="5dp"
@@ -83,16 +84,21 @@
             android:id="@id/FilterButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginEnd="5dp"
+            android:background="@color/medium_green"
             android:layout_toRightOf="@+id/PickBackGroundButton"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_photo_filter" />
-        <androidx.recyclerview.widget.RecyclerView
+        <com.cooltechworks.views.shimmer.ShimmerRecyclerView
             android:id="@+id/SetBackGroundLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/FilterButton"
-            android:background="@color/tool_bg"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:background="@color/light_green"
+            app:shimmer_demo_layout_manager_type="linear_horizontal"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shimmer_demo_layout="@layout/background_image"
+            app:shimmer_demo_angle="45"/>
     </RelativeLayout>
 
     <FrameLayout

@@ -5,98 +5,162 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="#DDF0EB"
     tools:context=".MainActivity">
 
     <FrameLayout
-        android:id="@+id/parentLayout"
+        android:id="@+id/parentLayout2"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        app:layout_constraintBottom_toTopOf="@+id/imgUndo"
+        app:layout_constraintBottom_toTopOf="@+id/LayoutControls"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LayerButton">
+        app:layout_constraintTop_toBottomOf="@+id/category_toolbar">
 
-        <com.jgabrielfreitas.core.BlurImageView
-        android:id="@+id/previewImageView"
+        <FrameLayout
+            android:id="@+id/parentLayout"
             android:layout_width="match_parent"
             android:layout_height="500dp"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:background="@drawable/white_bg"
+            android:background="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/imgUndo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="MissingConstraints" />
-        <com.jgabrielfreitas.core.BlurImageView
-            android:id="@+id/filterImageView"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:adjustViewBounds="true"
-            android:visibility="gone"
-            android:scaleType="fitXY"
-            android:background="@drawable/white_bg"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintTop_toBottomOf="@+id/category_toolbar">
 
-        <View
-            android:id="@+id/previewImageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="400dp"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"
-            android:background="#4D000000"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="MissingConstraints" />
+            <com.jgabrielfreitas.core.BlurImageView
+                android:id="@+id/previewImageView"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/white_bg"
+                android:scaleType="fitXY"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <com.jgabrielfreitas.core.BlurImageView
+                android:id="@+id/filterImageView"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/white_bg"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <View
+                android:id="@+id/previewImageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="400dp"
+                android:adjustViewBounds="true"
+                android:background="#4D000000"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="MissingConstraints" />
 
 
+        </FrameLayout>
 
     </FrameLayout>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/category_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/toolbar_background"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" >
 
+        <TextView
+            android:id="@+id/LayerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Layers"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            android:layout_marginEnd="10dp"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/baseline_layers_24" />
+
+        <TextView
+            android:id="@+id/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/rest" />
+        <TextView
+            android:id="@+id/imgUndo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="undo"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            android:layout_marginEnd="10dp"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/vector"
+            />
+        <TextView
+            android:id="@+id/imgRedo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Redo"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            android:layout_marginEnd="10dp"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/redo" />
+        <TextView
+            android:id="@+id/imgSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            android:layout_gravity="end"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/baseline_download_24" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hint"
+            android:padding="10dp"
+            android:textColor="#007156"
+            android:layout_gravity="end"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/search_background"
+            android:textSize="10sp"
+            tools:ignore="MissingConstraints"
+            app:drawableTopCompat="@drawable/baseline_lightbulb_24" />
+
+    </androidx.appcompat.widget.Toolbar>
     <com.example.postersmaker.DrawPaint
         android:id="@+id/drawPaintView"
         android:layout_width="match_parent"
         android:layout_height="500dp"
         app:eraseButton="@+id/erase_button"
-        app:layout_constraintBottom_toBottomOf="@+id/parentLayout"
+        app:layout_constraintBottom_toBottomOf="@+id/parentLayout2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/parentLayout" />
-        <Button
-            android:id="@+id/LayerButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:drawableEnd="@drawable/baseline_layers_24"
-            android:drawablePadding="5dp"
-            android:text="Layers"
-            android:textColor="#FFFFFF"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reset" />
+        app:layout_constraintTop_toTopOf="@+id/parentLayout2" />
 
-    <ImageView
-        android:id="@+id/imgUndo"
-        android:layout_width="@dimen/top_tool_icon_width"
-        android:layout_height="wrap_content"
-        android:background="@color/semi_black_transparent"
-        android:padding="8dp"
-        android:src="@drawable/baseline_undo_24"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
-        app:layout_constraintEnd_toStartOf="@+id/imgRedo"
-        tools:ignore="MissingConstraints" />
-
-    <ImageView
-        android:id="@+id/imgRedo"
-        android:layout_width="@dimen/top_tool_icon_width"
-        android:layout_height="wrap_content"
-        android:background="@color/semi_black_transparent"
-        android:padding="8dp"
-        android:src="@drawable/baseline_redo_24"
-        app:layout_constraintBottom_toTopOf="@+id/fragment_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:ignore="MissingConstraints" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/LayerRecycleView"
@@ -105,27 +169,20 @@
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constrainedWidth="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="-7dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LayerButton"
+        app:layout_constraintTop_toBottomOf="@+id/category_toolbar"
         tools:listitem="@layout/item_layers" />
 
 
 
-    <ImageView
-        android:id="@+id/imgClose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_margin="8dp"
-        android:src="@drawable/baseline_close_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvConstraintTools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/tool_bg"
+        android:background="#34AE91"
         android:orientation="horizontal"
         app:layout_constrainedWidth="true"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -133,77 +190,170 @@
         tools:ignore="MissingConstraints"
         tools:listitem="@layout/row_editing_tools" />
 
-    <ImageView
-        android:id="@+id/imgSave"
-        android:layout_width="wrap_content"
+
+
+
+    <LinearLayout
+        android:id="@+id/containers_Layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:src="@drawable/baseline_save_as_24"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <ImageView
-        android:id="@+id/reset"
-        android:layout_width="@dimen/top_tool_icon_width"
-        android:layout_height="wrap_content"
-        android:background="@color/semi_black_transparent"
-        android:padding="8dp"
-        android:src="@drawable/baseline_backup_24"
-        app:layout_constraintEnd_toStartOf="@+id/imgSave"
-        app:layout_constraintStart_toEndOf="@+id/imgClose"
-        tools:ignore="MissingConstraints" />
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+        <FrameLayout
+            android:id="@+id/filter_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
+
+        <FrameLayout
+            android:id="@+id/fragment_container3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
+
+        <FrameLayout
+            android:id="@+id/fragment_container4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
+
+        <FrameLayout
+            android:id="@+id/fragment_container5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
+
+        <FrameLayout
+            android:id="@+id/fragment_container6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
+            tools:ignore="MissingConstraints" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/LayoutControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints" />
-    <FrameLayout
-        android:id="@+id/filter_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints" />
-    <FrameLayout
-        android:id="@+id/fragment_container3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints"/>
-    <FrameLayout
-        android:id="@+id/fragment_container4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints"/>
-    <FrameLayout
-        android:id="@+id/fragment_container5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints"/>
-    <FrameLayout
-        android:id="@+id/fragment_container6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools"
-        tools:ignore="MissingConstraints" />
+        android:background="#AEEDDE"
+        android:gravity="center"
+        android:visibility="gone"
+        android:paddingHorizontal="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/rvConstraintTools">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/zoomIn"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/brush_bg"
+            android:drawableTop="@drawable/baseline_edit_24"
+            android:padding="5dp"
+            android:text="Zoom \nIn"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
 
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:rotation="45">
 
+            <ImageView
+                android:id="@+id/zoomUpButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/brush_bg"
+                android:src="@drawable/baseline_keyboard_arrow_up_24"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/zoomDownButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="2dp"
+                android:layout_toStartOf="@+id/zoomUpButton"
+                android:background="@drawable/brush_bg"
+                android:drawableTop="@drawable/baseline_keyboard_arrow_down_24"
+                android:src="@drawable/baseline_keyboard_arrow_down_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/zoomLeftButton"
+                app:layout_constraintTop_toBottomOf="@+id/zoomRightButton" />
+
+            <ImageView
+                android:id="@+id/zoomLeftButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="2dp"
+                android:layout_toStartOf="@+id/zoomRightButton"
+                android:layout_weight="1"
+
+                android:background="@drawable/brush_bg"
+                android:src="@drawable/baseline_keyboard_arrow_left_24"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/zoomRightButton" />
+
+            <ImageView
+                android:id="@+id/zoomRightButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="2dp"
+                android:layout_toStartOf="@+id/zoomDownButton"
+
+                android:background="@drawable/brush_bg"
+                android:src="@drawable/baseline_chevron_right_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/zoomUpButton"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/zoomOut"
+            android:layout_width="60dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="15dp"
+            android:background="@drawable/brush_bg"
+            android:drawableTop="@drawable/baseline_content_copy_24"
+            android:padding="5dp"
+            android:text="Zoom Out"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/Options_save"
         android:layout_width="100dp"
         android:visibility="gone"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@id/imgSave"
-        app:layout_constraintTop_toBottomOf="@+id/imgSave"
+        app:layout_constraintEnd_toEndOf="@id/category_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/category_toolbar"
         tools:ignore="MissingConstraints" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

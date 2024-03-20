@@ -5,8 +5,12 @@ import static com.example.postersmaker.MainActivity.imageView;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.Base64;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
@@ -15,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,15 +35,33 @@ public class JSONFileManager {
             JSONObject background = new JSONObject();
             if(MainActivity.imageView.getDrawable() != null)
             {
-            background.put("background", ((BitmapDrawable) imageView.getDrawable()).getBitmap().toString());
-            background.put("Current Background Drawable" , MainActivity.CurrentImg);
-                background.put("Blurr", MainActivity.originalBitmap1);
+                Drawable drawable = imageView.getDrawable();
+
+                if (drawable instanceof BitmapDrawable) {
+                    // If it's a BitmapDrawable, proceed with Bitmap logic
+                    Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream.toByteArray();
+                    String base64Image = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    background.put("background", base64Image);
+                } else if (drawable instanceof ColorDrawable) {
+                    // If it's a ColorDrawable, get the color value
+                    int color = ((ColorDrawable) drawable).getColor();
+
+                    background.put("background", String.format("#%06X", (0xFFFFFF & color)));
+                }
+                String opacity = String.valueOf(imageView.getAlpha());
+                Toast.makeText(context, ""+ opacity, Toast.LENGTH_SHORT).show();
+                background.put("Opacity",opacity);
+
             }
             else
         {
             background.put("background", "null");
         }
-            jsonArray.put(background);
+
+        jsonArray.put(background);
         for (int i = 0; i < combinedItemList.size(); i++) {
             JSONObject jsonObject = new JSONObject();
 

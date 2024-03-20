@@ -4,46 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f6bdb9"
     tools:context=".HomeActivity">
 
-
-    <com.example.postersmaker.CustomView
-        android:id="@+id/customView"
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UselessParent" />
 
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/new_button1"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
-        android:background="@drawable/draft_bg"
-        android:drawableEnd="@drawable/add_new"
-        android:drawableTint="@color/white"
-        android:padding="10dp"
-        android:text="new"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/draft1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/draft1"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:background="@drawable/draft_bg"
-        android:drawableEnd="@drawable/gallery_icon"
-        android:gravity="center_vertical"
-        android:padding="10dp"
-        android:text="App Gallery"
-        android:textColor="@color/white"
+    <ImageView
+        android:id="@+id/removeBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#BE1E1D1D"
+        />
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
+    <com.etebarian.meowbottomnavigation.MeowBottomNavigation
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:mbn_backgroundBottomColor="#34AE91"
+        app:mbn_circleColor="#ffffff"
+        app:mbn_countBackgroundColor="#ff6f00"
+        app:mbn_countTextColor="#FF0000"
+        app:mbn_defaultIconColor="#AEEDDE"
+        app:mbn_rippleColor="#2f424242"
+        app:mbn_selectedIconColor="#34AE91"
+        app:mbn_shadowColor="#1FC30000" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,14 +1,6 @@
 package com.example.postersmaker;
 
-import static com.example.postersmaker.MainActivity.callSetDefaultState;
-import static com.example.postersmaker.MainActivity.container;
-import static com.example.postersmaker.MainActivity.container2;
-import static com.example.postersmaker.MainActivity.getAngle;
-import static com.example.postersmaker.MainActivity.homeFragment;
 import static com.example.postersmaker.MainActivity.imageView;
-import static com.example.postersmaker.MainActivity.selectLayer;
-import static com.example.postersmaker.MainActivity.selectLayers;
-import static com.example.postersmaker.MainActivity.selectedLayer;
 
 import android.content.res.Resources;
 import android.util.TypedValue;

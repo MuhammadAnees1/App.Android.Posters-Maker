@@ -7,46 +7,43 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.File;
 import java.util.List;
 
 public class FontAdapter extends RecyclerView.Adapter<FontAdapter.FontViewHolder> {
 
-    private List<Integer> fontList;
-    private Context context;
+    private List<Font> fontList;
     private FontClickListener listener;
 
-    public FontAdapter(Context context, List<Integer> fontList, FontClickListener listener) {
-        this.context = context;
+    public FontAdapter(Context context, List<Font> fontList, FontClickListener listener) {
         this.fontList = fontList;
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public FontViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FontViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_font, parent, false);
         return new FontViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(FontViewHolder holder, int position) {
-        final Integer fontResourceId = fontList.get(position);
+    public void onBindViewHolder(@NonNull FontViewHolder holder, int position) {
+        final Font font = fontList.get(position);
 
-        // Load the typeface from the resource ID
-        Typeface typeface = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            typeface = context.getResources().getFont(fontResourceId);
-        }
-
-        // Set the typeface to the TextView
+        // Set font name
+        holder.textView.setText(font.getName());
+        Typeface typeface = Typeface.createFromFile(new File(font.getFilePath()));
         holder.textView.setTypeface(typeface);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Pass the font resource ID to the listener
-                listener.onFontClick(fontResourceId);
+                // Pass the font to the listener
+                listener.onFontClick(font);
             }
         });
     }
@@ -66,8 +63,10 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.FontViewHolder
     }
 
     public interface FontClickListener {
-        void onFontClick(Integer fontResourceId);
-
-
+        void onFontClick(Font font);
     }
 }
+
+
+
+

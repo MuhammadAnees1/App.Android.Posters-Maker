@@ -2,34 +2,39 @@ package com.example.postersmaker;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import static com.example.postersmaker.HomeFragment.recyclerView;
+import static com.example.postersmaker.HomeFragment1.recyclerView;
 import static com.example.postersmaker.ImagePickerManager.imageLayoutList;
+import static com.example.postersmaker.MainActivity.ScaleListener.MAX_SCALE_FACTOR;
+import static com.example.postersmaker.MainActivity.ScaleListener.lastScaleFactor;
 
-import static java.security.AccessController.getContext;
-
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
@@ -39,8 +44,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.Manifest;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.annotation.NonNull;
@@ -52,11 +59,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.jgabrielfreitas.core.BlurImageView;
 
 import org.json.JSONException;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -67,15 +81,19 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     static RecyclerView LayerRecycleView;
     List<String> textList = new ArrayList<>();
     int idT, idI ;
+    int parent2width;
+    static ImageView currentimage = null;
+    float x = 0, y = 0;
+    static int widthsize =0,heightsize =0;
     JSONReader jsonReader;
     static Bitmap drawnBitmap = null;
- static boolean brushSelected=false;
+ static boolean brushSelected=false, backimg;
 
    public static Uri imageUri1;
     static DrawPaint drawPaintView ;
+    static Bitmap currenBit;
     private boolean isBrushMode = true;
-
-    ImageView savImgButton;
+    ;
 
     int Tid = 0;
      Layers_Adapter adapter = new Layers_Adapter(this, LayerRecycleView);
@@ -90,31 +108,32 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     TranslateAnimation fadeOut;
     public static TextLayout selectedLayer;
     public static ImageLayout selectedLayer1;
-    LinearLayout Optionssave;
+        LinearLayout Optionssave;
     Boolean isLocked;
     boolean isframe ;
     static Bitmap originalBitmap1;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_STORAGE = 1;
     static String CurrentImg = null ;
-
-    Bitmap imgBitmap;
-    ImageView reset;
-    TextView textView;
-    Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, LayerButton;
-    static HomeFragment homeFragment;
+    TextView textView, LayerButton, reset,imgUndo,imgRedo,savImgButton;
+    Button deleteButton,deleteButton2, rotateButton, resizeButton, saveButton, zoomIn,zoomOut;
+    static HomeFragment1 homeFragment1;
     private int currentActionIndex = -1;
     static BlurImageView imageView, filterView;
-    public static ImageView  imageView2;
+    public static ImageView  imageView2, zoomUp,zoomDown,zoomLeft,zoomRight;
+    private Handler handler = new Handler();
     Bitmap brushBitmap;
-    public ImageView imgUndo,imgRedo;
     View previewImageView1;
-    static FrameLayout container,container2, filtercontainer,bgcontainer,brushContainer,frameLayout,parentLayout,frameContainer;
+    private ScaleGestureDetector scaleGestureDetector;
+    static LinearLayout LayoutControls;
+
+    private float scaleFactor = 1.0f, maxX, maxY;
+    static FrameLayout container,container2, filtercontainer,parentLayout2,bgcontainer,brushContainer,frameLayout,parentLayout,frameContainer;
 
     public  void OpacityBackground(int progress) {
-        filterView.setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.VISIBLE);
         float opacity = progress / 100f;
 
-            filterView.setAlpha(opacity);
+            imageView.setAlpha(opacity);
 
     }
 
@@ -125,8 +144,11 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         setContentView(R.layout.activity_main);
 
         imageView = (BlurImageView) findViewById(R.id.previewImageView);
+
         filterView = (BlurImageView) findViewById(R.id.filterImageView);
         previewImageView1 = findViewById(R.id.previewImageView1);
+        LayoutControls = findViewById(R.id.LayoutControls);
+
         container = findViewById(R.id.fragment_container);
         container2 = findViewById(R.id.fragment_container3);
         LayerRecycleView = findViewById(R.id.LayerRecycleView);
@@ -134,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerButton = findViewById(R.id.LayerButton);
         savImgButton = findViewById(R.id.imgSave);
         drawPaintView = findViewById(R.id.drawPaintView);
+        zoomIn = findViewById(R.id.zoomIn);
+        zoomOut = findViewById(R.id.zoomOut);
+        zoomRight = findViewById(R.id.zoomRightButton);
+        zoomLeft = findViewById(R.id.zoomLeftButton);
+        zoomUp = findViewById(R.id.zoomUpButton);
+        zoomDown = findViewById(R.id.zoomDownButton);
         RecyclerView recyclerView = findViewById(R.id.rvConstraintTools);
         recyclerView.setAdapter(customAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -142,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         LayerRecycleView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true));
 //        adapter.textList.addAll(TextHandlerClass.getTextList());
         parentLayout = findViewById(R.id.parentLayout);
+        parentLayout2 = findViewById(R.id.parentLayout2);
         reset = findViewById(R.id.reset);
         adapter.notifyDataSetChanged();
         LayerRecycleView.setAdapter(adapter);
@@ -153,13 +182,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         bgcontainer = findViewById(R.id.fragment_container6);
         filtercontainer = findViewById(R.id.filter_container);
         Optionssave = findViewById(R.id.Options_save);
+        scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
 
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        parent2width = displayMetrics.widthPixels;
+
+       calculate();
 
 
-        JSONReader.readJSONFile(this);
-
-
+//        JSONReader.readJSONFile(this);
 
         fadeIn = new TranslateAnimation(0, 0, 400, 0);
         fadeIn.setDuration(400);
@@ -187,9 +220,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         ActivityCompat.requestPermissions((Activity) v.getContext(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_STORAGE);
                     }
                     }
-//                 else {
-//                    performStorageOperation(400);
-//                }
 
             }
 
@@ -198,36 +228,79 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        unselectLayer(selectedLayer);
-                        unselectLayers(selectedLayer1);
-                        selectedLayer = null;
-                        selectedLayer1 = null;
-                        LayerRecycleView.setVisibility(View.GONE);
-                        callSetDefaultState();
-                        defaultContainer();
-                        if (container.getVisibility() == View.VISIBLE) {
-                            container.setVisibility(View.GONE);
-                        }
-                        if (container2.getVisibility() == View.VISIBLE) {
-                            container2.setVisibility(View.GONE);
-                        }
-
-                        return true;
 
 
+                if (event.getPointerCount() == 1) {
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            // ... (your existing code)
+                            x = event.getRawX();
+                            y = event.getRawY();
+                            maxX = (parentLayout.getWidth() * lastScaleFactor - parentLayout.getWidth()) / 2;
+                            maxY = (parentLayout.getHeight() * lastScaleFactor - parentLayout.getHeight()) / 2;
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            float x1 = event.getRawX();
+                            float y2 = event.getRawY();
+
+                            float dX = x1 - x;
+                            float dY = y2 - y;
+
+                            // Limit the movement based on the screen boundaries
+                            float newTranslationX = parentLayout.getTranslationX() + dX;
+                            float newTranslationY = parentLayout.getTranslationY() + dY;
+
+                            newTranslationX = Math.max(-maxX, Math.min(newTranslationX, maxX));
+                            newTranslationY = Math.max(-maxY, Math.min(newTranslationY, maxY));
+
+                            parentLayout.setTranslationX(newTranslationX);
+                            parentLayout.setTranslationY(newTranslationY);
+
+                            x = x1;
+                            y = y2;
+                            break;
+                        case MotionEvent.ACTION_UP:
+                            // After scaling ends, check boundaries and adjust the layout position
+                            float maxX = (parentLayout.getWidth() * lastScaleFactor - parentLayout.getWidth()) / 2;
+                            float maxY = (parentLayout.getHeight() * lastScaleFactor - parentLayout.getHeight()) / 2;
+
+                             newTranslationX = parentLayout.getTranslationX();
+                             newTranslationY = parentLayout.getTranslationY();
+
+                            // Limit the translation based on the screen boundaries
+                            newTranslationX = Math.max(-maxX, Math.min(newTranslationX, maxX));
+                            newTranslationY = Math.max(-maxY, Math.min(newTranslationY, maxY));
+
+                            // Animate the layout to the adjusted position
+                            parentLayout.animate()
+                                    .translationX(newTranslationX)
+                                    .translationY(newTranslationY)
+                                    .setDuration(200) // Adjust the duration as needed
+                                    .start();                            break;
+                    }
                 }
+                else{
+                    scaleGestureDetector.onTouchEvent(event);
+                }
+
                 return true;
             }
         });
 
-
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              parentLayout.removeAllViews();
-              parentLayout.addView(previewImageView1);
+                int childCount = parentLayout.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    View childView = parentLayout.getChildAt(i);
+
+                    // Check if the child view is not an instance of ImageView
+                    if (childView != imageView && childView != filterView && childView != previewImageView1) {
+                        parentLayout.removeView(childView);
+                    }
+                }
+                imageView.setImageBitmap(null);
+                filterView.setImageBitmap(null);
               combinedItemList.clear();
               imageLayoutList.clear();
               textLayoutList.clear();
@@ -241,34 +314,94 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
               defaultContainer();
                 JSONReader.readJSONFile(MainActivity.this);
 
-
             }
         });
-        imgUndo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                undo_redo.undo(getApplicationContext());
-            }
-        });
-        imgRedo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               undo_redo.redo(getApplicationContext());
+//        zoomIn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                float newScale = parentLayout.getScaleX() *1.01f;
+//                newScale = Math.max(1.0f, Math.min(newScale, MAX_SCALE_FACTOR));
+//                updateLastScaleFactor(newScale);
+//                parentLayout.setScaleX(newScale);
+//                parentLayout.setScaleY(newScale);
+//            }
+//        });
+//
+//        zoomOut.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                float newScale = parentLayout.getScaleX() / 1.01f;
+//                newScale = Math.max(1.0f, Math.min(newScale, MAX_SCALE_FACTOR));
+//                updateLastScaleFactor(newScale);
+//                parentLayout.setScaleX(newScale);
+//                parentLayout.setScaleY(newScale);;
+//            }
+//        });
+//        zoomRight.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    moveContinuesly("Right");
+//                }
+//                if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    handler.removeCallbacksAndMessages(null);
+//                }
+//                return true;
+//            }
+//        });
+//
+//        zoomLeft.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    moveContinuesly("Left");
+//                }
+//                if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    handler.removeCallbacksAndMessages(null);
+//                }
+//                return true;
+//            }
+//        });
+//
+//        zoomUp.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    moveContinuesly("Up");
+//                }
+//                if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    handler.removeCallbacksAndMessages(null);
+//                }
+//                return true;
+//            }
+//        });
+//
+//        zoomDown.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    moveContinuesly("Down");
+//                }
+//                if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    handler.removeCallbacksAndMessages(null);
+//                }
+//                return true;
+//            }
+//        });
+
+
+        imgUndo.setOnClickListener(v -> undo_redo.undo(getApplicationContext()));
+        imgRedo.setOnClickListener(v -> undo_redo.redo(getApplicationContext()));
+
+        LayerButton.setOnClickListener(v -> {
+
+            if (LayerRecycleView.getVisibility() == View.VISIBLE) {
+                LayerRecycleView.setVisibility(View.GONE);
+            } else {
+                LayerRecycleView.setVisibility(View.VISIBLE);
             }
 
-        });
-        LayerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (LayerRecycleView.getVisibility() == View.VISIBLE) {
-                    LayerRecycleView.setVisibility(View.GONE);
-                } else {
-                    LayerRecycleView.setVisibility(View.VISIBLE);
-                }
-
-               Layers_Adapter.combinedItemList = combinedItemList;
-            }
+           Layers_Adapter.combinedItemList = combinedItemList;
         });
 
     }
@@ -327,9 +460,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setTypeface(null, Typeface.NORMAL);
         textView.setMaxWidth(imageView.getWidth() - 40);
-        frameLayout.setMinimumHeight(textView.getHeight() + 20);
+        frameLayout.setMinimumHeight(textView.getHeight() + 10);
         LayerRecycleView.setVisibility(View.GONE);
-
         idT = Tid + 1;
         Tid++;
         textLayout.setId(Tid);
@@ -418,9 +550,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 }
             });
         }
-        imageView.setOnClickListener(new View.OnClickListener() {
+        filterView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
+            public boolean onTouch(View v, MotionEvent event) {
                 unselectLayer(selectedLayer);
                 unselectLayers(selectedLayer1);
                 selectedLayer = null;
@@ -435,7 +567,37 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 if(container2.getVisibility() == View.VISIBLE) {
                     container2.setVisibility(View.GONE);
                 }
+                scaleGestureDetector.onTouchEvent(event);
+
+                return false;
             }
+
+
+        });
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                unselectLayer(selectedLayer);
+                unselectLayers(selectedLayer1);
+                selectedLayer = null;
+                selectedLayer1 = null;
+                LayerRecycleView.setVisibility(View.GONE);
+                callSetDefaultState();
+                defaultContainer();
+                if (container.getVisibility() == View.VISIBLE) {
+                    container.setVisibility(View.GONE);
+                    container.startAnimation(fadeOut);
+                }
+                if(container2.getVisibility() == View.VISIBLE) {
+                    container2.setVisibility(View.GONE);
+                }
+                scaleGestureDetector.onTouchEvent(event);
+
+
+                return false;
+            }
+
+
         });
         if (selectedLayer != null && textLayout.getFrameLayout() != null) {
             textLayout.setTextView(textView);
@@ -545,6 +707,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     public static void selectLayer(TextLayout textLayout) {
         unselectLayer(selectedLayer);
+        LayoutControls.setVisibility(View.GONE);
+
         if(selectedLayer1 != null) {
 
 
@@ -580,13 +744,10 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                                     container.setVisibility(View.VISIBLE);
                                     container.startAnimation(fadeIn);}
                             }
-                            if(HomeFragment.Image_control_opacity != null && HomeFragment.Image_control_button != null) {
-                                if(HomeFragment.Image_control_opacity.getVisibility() == View.VISIBLE ) {
-                                    HomeFragment.Image_control_opacity.setVisibility(View.GONE);
-                                    HomeFragment.Image_control_button.setVisibility(View.GONE);
-                                    HomeFragment.Image_filter.setVisibility(View.GONE);
-                                }
+                            if(HomeFragment1.imageButtons != null) {
+                                HomeFragment1.imageButtons.setVisibility(View.GONE);
                             }
+
                             if(recyclerView != null){
                                 recyclerView.setVisibility(View.VISIBLE);}
                             // Set the background resource to indicate selection
@@ -619,47 +780,47 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
     }
     public  void updateBackgroundImage(String backgroundFileName) {
         try {
-            InputStream inputStream = getAssets().open("Cover/" + backgroundFileName);
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            // Set the bitmap as the image of the ImageView
-            imageView.setImageBitmap(bitmap);
-
-        } catch (IOException e) {
+            // Assuming backgroundFileName contains the file name of the background image
+            File backgroundFile = new File(backgroundFileName);
+            if (backgroundFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(backgroundFile.getAbsolutePath());
+                imageView.setImageBitmap(bitmap);
+            } else {
+                Toast.makeText(this, "No file", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public void updateBackgroundGallaryImage(String imagePath) {
-        Glide.with(this)
-                .load(imagePath)
-                .into(imageView);
+    public void updateBackgroundGallaryImage(Uri imagePath) {
+        if (imagePath != null) {
+            Glide.with(this)
+                    .load(imagePath)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            // Handle loading failure if needed
+                            return false;
+                        }
 
-//                .into(new CustomTarget<Drawable>() {
-//                    @Override
-//                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-//                        // Set the loaded image as the background of the FrameLayout
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                            parentLayout.setBackground(resource);
-//                        } else {
-//                            // For older versions of Android
-//                            parentLayout.setBackgroundDrawable(resource);
-//                        }
-//
-//                        // Ensure visibility
-//                        parentLayout.setVisibility(View.VISIBLE);
-//                    }
-//
-//                    @Override
-//                    public void onLoadCleared(@Nullable Drawable placeholder) {
-//                        // Handle any cleanup or additional operations when the image loading is cleared
-//                    }
-//                });
+                        @Override
+                        public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                            // Access the Bitmap from the Drawable resource
+                            currenBit = ((BitmapDrawable) resource).getBitmap();
+                            Toast.makeText(MainActivity.this, "taken", Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+                    })
+                    .into(imageView);
+
+
+        }
     }
 
     public void applyEffectOnBackgroundImage(String backgroundFileName) {
         filterView.setVisibility(View.VISIBLE);
         Glide.with(this)
-                .load("file:///android_asset/effect/" + backgroundFileName)
+                .load("file://" + backgroundFileName)
                 .into(filterView);
     }
 
@@ -688,14 +849,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                 defaultContainer();
                 ImagePickerManager.openGallery(MainActivity.this);
                 break;
-
-//                defaultContainer();
-//                filtercontainer.setVisibility(View.VISIBLE);
-//                FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
-//                EffectFragment effectFragment = new EffectFragment();
-//                fragmentTransaction.replace(R.id.filter_container, effectFragment);
-//                fragmentTransaction.addToBackStack(null);
-//                fragmentTransaction.commit();
 
 
             case EMOJI:
@@ -838,26 +991,27 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         return null;
     }
-    public void setHomeFragment(HomeFragment homeFragment) {
-        this.homeFragment = homeFragment;
+    public void setHomeFragment(HomeFragment1 homeFragment1) {
+        this.homeFragment1 = homeFragment1;
     }
     public int pxTodp(int px) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, getResources().getDisplayMetrics());
     }
     public static void callSetDefaultState() {
-        if (homeFragment != null) {
-            homeFragment.setDefaultStateFromExternal();
+        if (homeFragment1 != null) {
+            homeFragment1.setDefaultStateFromExternal();
+            homeFragment1.editTextAdapter.clearSelection();
         }
     }
     @SuppressLint("ClickableViewAccessibility")
-    ImageLayout createImageLayout(Bitmap brushBitmap, Uri imageUri, String frameFileName, float x, float y) {
+    ImageLayout createImageLayout(Bitmap brushBitmap, Uri imageUri, String frameFilePath, float x, float y) {
         ImageLayout imageLayout = new ImageLayout(frameLayout, borderLayout, deleteButton2, rotateButton, resizeButton, saveButton, isLocked, null, imageView2,idI,isframe );
         imageLayout.setFrameLayout(frameLayout);
         imageLayout.setLocked(false);
         frameLayout.setTag(imageLayout);
         selectedLayer1 = imageLayout;
         imageLayoutList2.add(imageLayout);
-
+        handler = new Handler();
         frameLayout = new FrameLayout(this);
         frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         frameLayout.setBackgroundResource(R.drawable.border_style);
@@ -881,15 +1035,18 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                     .into(imageView2);
 
             imageLayout.setBitmap(BitmapFactory.decodeFile(imageUri.getPath()));
-        } else if (frameFileName != null) {
-            // Load the frame image
-            imageLayout.isFrame = true;
-
+        } else if (frameFilePath != null) {
             Glide.with(this)
-                    .load("file:///android_asset/Basic/" + frameFileName)
+                    .load("file://" + frameFilePath)
                     .into(imageView2);
-            imageUri1 = Uri.parse(("file:///android_asset/Basic/" + frameFileName));
-            imageLayout.setBitmap(BitmapFactory.decodeFile(frameFileName));
+
+            // Set other properties or perform additional actions related to the frame
+            imageUri1 = Uri.parse(("file://" + frameFilePath));
+            imageLayout.setBitmap(BitmapFactory.decodeFile(frameFilePath));
+
+            // Make other necessary changes or updates based on the frame image click event
+            // For example:
+            frameContainer.setVisibility(View.VISIBLE);
         }
         else if(brushBitmap != null){
             imageLayout.isFrame = false;
@@ -964,23 +1121,6 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             return false;
         });
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                unselectLayers(selectedLayer1);
-                unselectLayer(selectedLayer);
-                selectedLayer1 = null;
-
-                callSetDefaultState();
-                if (container.getVisibility() == View.VISIBLE) {
-                    container.setVisibility(View.GONE);
-//                    container.startAnimation(fadeOut);
-                }
-                if(container2.getVisibility() == View.VISIBLE){
-                    container2.setVisibility(View.GONE);
-                }
-            }
-        });
 
 
 
@@ -996,8 +1136,8 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         selectLayers(imageLayout);
                         container2.setVisibility(View.VISIBLE);
 
-                        if(imageLayout.getImgBitmap() !=null){
-                            HomeFragment.Image_filter.setVisibility(View.GONE);
+                        if(imageLayout.getImgBitmap() !=null && homeFragment1 !=null){
+                            homeFragment1.Image_filter.setVisibility(View.GONE);
                         }
                         lastX = event.getRawX();
                         lastY = event.getRawY();
@@ -1060,23 +1200,22 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         selectLayers(imageLayout);
         return imageLayout;
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-
-        if (fragment instanceof BackGroundFragment) {
-            BackGroundFragment backgroundFragment = (BackGroundFragment) fragment;
-            backgroundFragment.handleActivityResult(requestCode, resultCode, data);
+        if(backimg){
+            Uri imageUri = data.getData();
+            updateBackgroundGallaryImage(imageUri);
+            backimg =false;
         }
-        // Forward the result to ImagePickerManager for handling
+        else {
         ImagePickerManager.handleActivityResult(this, requestCode, resultCode, data);
-    }
+    }}
 
     public static void selectLayers(ImageLayout imageLayout) {
         unselectLayers(selectedLayer1);
+        LayoutControls.setVisibility(View.GONE);
+
 
         if(selectedLayer1 != null){
 
@@ -1102,12 +1241,17 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                         }
 
                         if(!imageLayout.isFrame){
-                            if (container.getVisibility() == View.GONE || container.getVisibility() == View.INVISIBLE) {
-                                container.setVisibility(View.VISIBLE);
-                                container2.setVisibility(View.GONE);
+                            if (recyclerView != null) {
+                                recyclerView.setVisibility(View.GONE);
+                                }
+                            if(HomeFragment1.imageButtons != null) {
+                            HomeFragment1.imageButtons.setVisibility(View.GONE);
+                            }
 
-//                    container.startAnimation(fadeIn);
-                            }}
+                            container.setVisibility(View.VISIBLE);
+
+
+                        }
                         else {
                             if(container2.getVisibility()== View.GONE || container2.getVisibility() == View.INVISIBLE){
                                 frameContainer.setVisibility(View.VISIBLE);
@@ -1124,10 +1268,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
                                 recyclerView.setVisibility(View.GONE);
                             }
                         }
-                        if (HomeFragment.Image_control_button != null && HomeFragment.Image_control_opacity != null) {
-                            HomeFragment.Image_control_button.setVisibility(View.VISIBLE);
-                            HomeFragment.Image_control_opacity.setVisibility(View.VISIBLE);
-                            HomeFragment.Image_filter.setVisibility(View.VISIBLE);
+                        if (HomeFragment1.imageButtons != null) {
+                            HomeFragment1.imageButtons.setVisibility(View.VISIBLE);
+                            HomeFragment1.Image_filter.setVisibility(View.VISIBLE);
                         }
                         // Set the background resource to indicate selection
                         layer.setBackgroundResource(R.drawable.border_style);
@@ -1168,7 +1311,7 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
         if (view.getWidth() == 0 || view.getHeight() == 0) {
             // The view hasn't been laid out yet, return null
             return null;
-        }
+        }else{
 
         // Create a Bitmap with the same dimensions as the view
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
@@ -1178,8 +1321,9 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
 
         // Draw the view's visible content onto the Canvas
         view.draw(canvas);
+            return bitmap;
+}
 
-        return bitmap;
     }
     static float convertPixelsToSP(float px, Context context) {
         float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
@@ -1218,12 +1362,151 @@ public class MainActivity extends AppCompatActivity implements CustomAdapter.OnI
             unselectLayers(selectedLayer1);
         }
         defaultContainer();
+        if(parentLayout != null) {
         Bitmap bitmap = getBitmapFromView(parentLayout);
+
         int width = parentLayout.getWidth();
         int height = parentLayout.getHeight();
         float ratio = (float) width / height;
         int newHeight = (int) (newWidth / ratio);
         ImageSaver.saveAsImage(MainActivity.this, bitmap, newWidth, newHeight);
     }
+
+    }
+    public void calculate(){
+          if(heightsize>widthsize){
+                parentLayout2.getLayoutParams().width=(parent2width/heightsize)*widthsize;
+                parentLayout.getLayoutParams().width=(parent2width/heightsize)*widthsize;
+                imageView.getLayoutParams().width=(parent2width/heightsize)*widthsize;
+              drawPaintView.getLayoutParams().width=(parent2width/heightsize)*widthsize;
+                filterView.getLayoutParams().width=(parent2width/heightsize)*widthsize;
+          }
+          else{
+                parentLayout2.getLayoutParams().height=(parent2width/widthsize)*heightsize;
+                parentLayout.getLayoutParams().height=(parent2width/widthsize)*heightsize;
+                imageView.getLayoutParams().height=(parent2width/widthsize)*heightsize;
+                drawPaintView.getLayoutParams().height=(parent2width/widthsize)*heightsize;
+            filterView.getLayoutParams().height=(parent2width/widthsize)*heightsize;
+          }
+
+
+}
+    private void  moveContinuesly(String direction){
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               if(direction.equals("Left")){
+                   float newTranslationX = parentLayout.getTranslationX()-1.50f;
+                   updateTranslation(newTranslationX, parentLayout.getTranslationY());
+                   handler.postDelayed(this, 10);
+
+               }else if(direction.equals("Right")){
+                   float newTranslationX = parentLayout.getTranslationX()+1.50f;
+
+                   updateTranslation(newTranslationX, parentLayout.getTranslationY());
+                   handler.postDelayed(this, 10);
+
+               }else if(direction.equals("Up")){
+                   float newTranslationY = parentLayout.getTranslationY()-1.50f;
+                   updateTranslation(parentLayout.getTranslationX(), newTranslationY);
+                   handler.postDelayed(this, 10);
+
+               }else if(direction.equals("Down")){
+                   float newTranslationY = parentLayout.getTranslationY()+1.50f;
+                   updateTranslation(parentLayout.getTranslationX(), newTranslationY);}
+                handler.postDelayed(this, 10);
+
+            }
+        }, 50);
+    }
+    private void updateTranslation(float newTranslationX, float newTranslationY) {
+
+      float maxX = lastScaleFactor/2;
+      Toast.makeText(this, (parentLayout.getX()-maxX)+" "+ parentLayout2.getX() , Toast.LENGTH_SHORT).show();
+      if(parentLayout.getX()-maxX<parentLayout2.getX()){
+          parentLayout.setX(newTranslationX);
+      }
+    }
+
+    static class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+            static final float MAX_SCALE_FACTOR = 1.5f;
+            private float currentScale = 1.0f;
+
+            static float lastScaleFactor = 1.0f;
+            private float focusX, focusY; // Store the focus point
+
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                float scaleFactor = detector.getScaleFactor();
+//                LayoutControls.setVisibility(View.VISIBLE);
+
+                // Add a sensitivity threshold to avoid small unintended scale changes
+                float sensitivityThreshold = 0.01f; // Adjust this value as needed
+
+                // Check if the scale factor change exceeds the sensitivity threshold
+                if (Math.abs(scaleFactor - 1.0f) > sensitivityThreshold) {
+                    currentScale *= scaleFactor;
+
+                    // Get the focus point
+                    focusX = detector.getFocusX();
+                    focusY = detector.getFocusY();
+                    currentScale = Math.max(1f, Math.min(currentScale, MAX_SCALE_FACTOR));
+
+                    animateScale(currentScale, focusX, focusY);
+                }
+
+                return true;
+            }
+
+
+            private void animateScale(float targetScale, float focusX, float focusY) {
+                ValueAnimator animator = ValueAnimator.ofFloat(currentScale, targetScale);
+                animator.addUpdateListener(animation -> {
+                    float animatedValue = (float) animation.getAnimatedValue();
+
+                    // Scale the parentLayout around the focus point
+                    parentLayout.setPivotX(focusX);
+                    parentLayout.setPivotY(focusY);
+                    parentLayout.setScaleX(animatedValue);
+                    parentLayout.setScaleY(animatedValue);
+                    updateLastScaleFactor(animatedValue);
+                });
+                animator.start();
+            }
+
+            @Override
+            public boolean onScaleBegin(ScaleGestureDetector detector) {
+                // Initialize the focus point when scaling begins
+                focusX = detector.getFocusX();
+                focusY = detector.getFocusY();
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(ScaleGestureDetector detector) {
+                // After scaling ends, check boundaries and adjust the layout position
+                float maxX = (parentLayout.getWidth() * lastScaleFactor - parentLayout.getWidth()) / 2;
+                float maxY = (parentLayout.getHeight() * lastScaleFactor - parentLayout.getHeight()) / 2;
+
+                float newTranslationX = parentLayout.getTranslationX();
+                float newTranslationY = parentLayout.getTranslationY();
+
+                // Limit the translation based on the screen boundaries
+                newTranslationX = Math.max(-maxX, Math.min(newTranslationX, maxX));
+                newTranslationY = Math.max(-maxY, Math.min(newTranslationY, maxY));
+
+                // Animate the layout to the adjusted position
+                parentLayout.animate()
+                        .translationX(newTranslationX)
+                        .translationY(newTranslationY)
+                        .setDuration(200) // Adjust the duration as needed
+                        .start();
+            }
+
+
+        public static void updateLastScaleFactor(float scaleFactor) {
+            lastScaleFactor = scaleFactor;
+        }
+        }
 
 }

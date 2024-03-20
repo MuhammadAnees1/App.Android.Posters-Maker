@@ -3,8 +3,6 @@ package com.example.postersmaker;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.postersmaker.MainActivity.combinedItemList;
 import static com.example.postersmaker.MainActivity.container;
-import static com.example.postersmaker.MainActivity.homeFragment;
-import static com.example.postersmaker.MainActivity.imageLayoutList2;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
 
 import android.content.Context;
@@ -16,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentTransaction;
@@ -100,6 +97,7 @@ public class TextHandlerClass {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String text = input.getText().toString();
+                text =  text + " ";
                 addTextToImage(context, textLayoutList, viewGroup, text, 400, 400);
                 // Add the text to the list
                 textList.add(text);
@@ -112,8 +110,8 @@ public class TextHandlerClass {
                     mainActivity.adapter.notifyDataSetChanged();
                     mainActivity.LayerRecycleView.setAdapter(mainActivity.adapter);
                     FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
-                    HomeFragment homeFragment = new HomeFragment();
-                    fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                    HomeFragment1 homeFragment1 = new HomeFragment1();
+                    fragmentTransaction.replace(R.id.fragment_container, homeFragment1);
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 }
@@ -167,6 +165,7 @@ public class TextHandlerClass {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newText = input.getText().toString();
+                newText =  newText + " ";
 
                 int index = -1;
 

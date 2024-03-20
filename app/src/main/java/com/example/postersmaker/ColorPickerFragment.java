@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -96,8 +97,11 @@ public class ColorPickerFragment extends Fragment {
                             @Override
                             public void onColorSelected(int color, @NotNull String colorHex) {
                                MainActivity activity = (MainActivity) requireActivity();
-                                Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
-                                Track.list2.clear();
+
+
+                                   Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
+                                   Track.list2.clear();
+
                                 activity.selectedLayer.getTextView().setTextColor(color);
                             }
                         })
@@ -117,12 +121,19 @@ public class ColorPickerFragment extends Fragment {
             // Handle color item click
             int selectedColor = colors.get(position);
             MainActivity activity = (MainActivity) requireActivity();
+            if(MainActivity.selectedLayer != null){
+            if(!Track.list.isEmpty()){
+                if(Track.list.get(Track.list.size()-1).getTid() == MainActivity.selectedLayer.getId() && Track.list.get(Track.list.size() - 1).isIstextcolor() && Track.list.get(Track.list.size() - 1).getTextColor() == selectedColor){
+                    Track.list.remove(Track.list.size() - 1);
+                }
+            }
             Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
             Track.list2.clear();
 
             activity.selectedLayer.getTextView().setTextColor(selectedColor);
             shadeRecyclerView.setVisibility(View.VISIBLE);
             updateShades(selectedColor);
+            }
         });
         shadeAdapter.setOnShadeItemClickListener(shadeColor -> {
             // Handle shade item click

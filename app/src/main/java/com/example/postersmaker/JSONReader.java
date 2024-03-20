@@ -1,8 +1,11 @@
 package com.example.postersmaker;
 
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
 import static com.example.postersmaker.MainActivity.convertPixelsToSP;
+import static com.example.postersmaker.MainActivity.drawPaintView;
+import static com.example.postersmaker.MainActivity.filterView;
+import static com.example.postersmaker.MainActivity.imageView;
+import static com.example.postersmaker.MainActivity.parentLayout;
 import static com.example.postersmaker.MainActivity.selectedLayer;
 import static com.example.postersmaker.MainActivity.selectedLayer1;
 import static com.example.postersmaker.MainActivity.textLayoutList2;
@@ -10,26 +13,22 @@ import static com.example.postersmaker.MainActivity.unselectLayer;
 import static com.example.postersmaker.MainActivity.unselectLayers;
 import static com.example.postersmaker.TextHandlerClass.textLayoutList;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.fonts.Font;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.text.InputType;
+import android.util.Base64;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -42,8 +41,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JSONReader {
     static FrameLayout thisFrameLayout;
@@ -74,14 +71,32 @@ public class JSONReader {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                 if (jsonObject.has("background")) {
-                    // Handle background information
-                    String background = jsonObject.getString("background");
-                    if (!background.equals("null")) {
-                        String currentBackgroundDrawable = jsonObject.getString("Current Background Drawable");
-                        Bitmap blurr = BitmapFactory.decodeByteArray(jsonObject.getString("Blurr").getBytes(), 0, jsonObject.getString("Blurr").length());
-                        // Process background data as needed
+                    try {
+                        String base64Image = jsonObject.getString("background");
+                        Drawable backgroundDrawable;
+
+                        // Check if the base64Image represents a color or an image
+                        if (base64Image.startsWith("#")) {
+                            // It's a color, create a ColorDrawable
+                            int color = Color.parseColor(base64Image);
+                            backgroundDrawable = new ColorDrawable(color);
+                        } else {
+                            // It's an image, decode the Base64 string to a Bitmap
+                            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                            Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            backgroundDrawable = new BitmapDrawable(context.getResources(), decodedBitmap);
+                        }
+                        imageView.setImageDrawable(backgroundDrawable);
+                        String opacityString = jsonObject.getString("Opacity");
+                        float opacity = Float.parseFloat(opacityString);
+                        Toast.makeText(context, ""+opacity+opacityString, Toast.LENGTH_SHORT).show();
+                        imageView.setAlpha(opacity);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } else {
+                }
+//
+                 else {
                     // Handle other items (text or image)
                     String componentName = jsonObject.getString("ComponentName");
                     int order = jsonObject.getInt("Order");
@@ -104,7 +119,7 @@ public class JSONReader {
                         float shadowDx = (float) jsonObject.getDouble("Shadow dx");
                         float shadowDy = (float) jsonObject.getDouble("Shadow dy");
                         int font = jsonObject.getInt("Font");
-                        MainActivity mainActivity = ((MainActivity) context);
+                        MainActivity mainActivity = (MainActivity) context;
                         mainActivity.createTextLayout(text, positionX, positionY, emoji);
 
                         TextLayout textLayout = MainActivity.combinedItemList.get(order).getTextlayout2();
@@ -174,8 +189,8 @@ public class JSONReader {
                         textLayout.getTextView().invalidate();
 
                         FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
-                        HomeFragment homeFragment = new HomeFragment();
-                        fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                        HomeFragment1 homeFragment1 = new HomeFragment1();
+                        fragmentTransaction.replace(R.id.fragment_container, homeFragment1);
                         fragmentTransaction.addToBackStack(null);
                         fragmentTransaction.commit();
                         mainActivity.defaultContainer();
@@ -213,8 +228,8 @@ public class JSONReader {
                             unselectLayers(imageLayout);
                         }
                         FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
-                        HomeFragment homeFragment = new HomeFragment();
-                        fragmentTransaction.replace(R.id.fragment_container, homeFragment);
+                        HomeFragment1 homeFragment1 = new HomeFragment1();
+                        fragmentTransaction.replace(R.id.fragment_container, homeFragment1);
                         fragmentTransaction.addToBackStack(null);
                         fragmentTransaction.commit();
 
@@ -223,6 +238,7 @@ public class JSONReader {
 
 
                 }
+
 
             }
         } catch (IOException | JSONException e) {

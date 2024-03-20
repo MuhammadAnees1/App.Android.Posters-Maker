@@ -65,6 +65,8 @@ public class HueAdapter extends RecyclerView.Adapter<HueAdapter.HueViewHolder> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     HueItem hueItem = hueItemList.get(position);
+                    int oldHueValue = getCurrentHueValue(MainActivity.selectedLayer1.getImageView().getDrawable());
+                    Track.list.add(new Track(MainActivity.selectedLayer1.getId(),"hue",oldHueValue));
                     applyHueToImageView(MainActivity.selectedLayer1.getImageView().getDrawable(), hueItem.getHueValue());
                 }
             });
@@ -76,8 +78,18 @@ public class HueAdapter extends RecyclerView.Adapter<HueAdapter.HueViewHolder> {
             applyHueToImageView(imageView5.getDrawable(), hueItem.getHueValue());
         }
     }
+    private int getCurrentHueValue(Drawable drawable) {
+        if (drawable != null && drawable.getColorFilter() instanceof ColorMatrixColorFilter) {
+            ColorMatrix matrix = new ColorMatrix();
+            ((ColorMatrixColorFilter) drawable.getColorFilter()).getColorMatrix(matrix);
+            float[] matrixArray = matrix.getArray();
+            return (int) matrixArray[14];
+        }
+        else{
+        return 0;}
+    }
 
-    private void applyHueToImageView(Drawable originalDrawable, float hue) {
+    static void applyHueToImageView(Drawable originalDrawable, float hue) {
         Drawable modifiedDrawable = originalDrawable;
         ColorMatrix colorMatrix = new ColorMatrix();
         colorMatrix.setRotate(0, hue);

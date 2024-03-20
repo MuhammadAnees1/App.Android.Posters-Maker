@@ -14,11 +14,11 @@ import java.util.List;
 
 public class BackGroundEffectsAdapter extends RecyclerView.Adapter<BackGroundEffectsAdapter.BackgroundImageViewHolder> {
 
-    private final List<String> EffectList;
+    private final List<Filter> EffectList;
     private final Context context;
     private final BackgroundEffectClickListener listener;
 
-    public BackGroundEffectsAdapter(Context context, List<String> backgroundList, BackgroundEffectClickListener listener) {
+    public BackGroundEffectsAdapter(Context context, List<Filter> backgroundList, BackgroundEffectClickListener listener) {
         this.context = context;
         this.EffectList = backgroundList;
         this.listener = listener;
@@ -32,19 +32,20 @@ public class BackGroundEffectsAdapter extends RecyclerView.Adapter<BackGroundEff
 
     @Override
     public void onBindViewHolder(BackgroundImageViewHolder holder, int position) {
-        final String backgroundFileName = EffectList.get(position);
+        final Filter backgroundFileName = EffectList.get(position);
+        String path = backgroundFileName.getFilePath();
 
         // Load the background image using an image-loading library like Glide or Picasso
         // For simplicity, let's assume you have an ImageView in your item_background.xml layout with id "backgroundImageView"
         Glide.with(context)
-                .load("file:///android_asset/effect/" + backgroundFileName)
+                .load("file://" + path)
                 .into(holder.backgroundImageView);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Pass the background image filename to the listener
-                listener.onBackgroundEffectClick(backgroundFileName);
+                listener.onBackgroundEffectClick(path);
             }
         });
     }

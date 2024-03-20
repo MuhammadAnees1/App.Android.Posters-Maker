@@ -9,9 +9,10 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/placeholder_image"
+        android:layout_marginHorizontal="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/violet_color_picker"
+        android:background="@color/light_green"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

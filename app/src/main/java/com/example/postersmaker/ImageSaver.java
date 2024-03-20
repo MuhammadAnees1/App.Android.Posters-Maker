@@ -57,7 +57,6 @@ public class ImageSaver {
             // Notify the system about the new file so it shows up in the gallery
             MediaScannerConnection.scanFile(context, new String[]{imageFile.getAbsolutePath()}, null, null);
 
-            Toast.makeText(context, "Image saved successfully", Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

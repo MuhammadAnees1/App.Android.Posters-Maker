@@ -14,11 +14,11 @@ import java.util.List;
 
 public class FrameImageBackGroundAdapter extends RecyclerView.Adapter<FrameImageBackGroundAdapter.FrameImageViewHolder> {
 
-    private final List<String> frameList;
+    private final List<Frame> frameList;
     private final Context context;
     private final FrameImageClickListener listener;
 
-    public FrameImageBackGroundAdapter(Context context, List<String> backgroundList, FrameImageClickListener listener) {
+    public FrameImageBackGroundAdapter(Context context, List<Frame> backgroundList, FrameImageClickListener listener) {
         this.context = context;
         this.frameList = backgroundList;
         this.listener = listener;
@@ -32,12 +32,12 @@ public class FrameImageBackGroundAdapter extends RecyclerView.Adapter<FrameImage
 
     @Override
     public void onBindViewHolder(FrameImageViewHolder holder, int position) {
-        final String FrameFileName = frameList.get(position);
-
+        final Frame FrameFileName = frameList.get(position);
+        String path= FrameFileName.getFilePath();
         // Load the background image using an image-loading library like Glide or Picasso
         // For simplicity, let's assume you have an ImageView in your item_background.xml layout with id "backgroundImageView"
         Glide.with(context)
-                .load("file:///android_asset/Basic/" + FrameFileName)
+                .load("file://" + path)
                 .into(holder.frameImageView);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -52,7 +52,7 @@ public class FrameImageBackGroundAdapter extends RecyclerView.Adapter<FrameImage
                if (MainActivity.selectedLayer != null) {
                     MainActivity.unselectLayer(MainActivity.selectedLayer);
                 }
-                listener.onFrameImageClick(FrameFileName);
+                listener.onFrameImageClick(path);
 
 
             }

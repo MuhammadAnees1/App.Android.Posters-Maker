@@ -52,7 +52,8 @@ public class DrawPaint extends View {
     }
 
     public void eraseDrawing() {
-        paths.clear();
+        if(paths.size() > 0){
+        paths.remove(paths.size() - 1);}
         invalidate();
     }
 

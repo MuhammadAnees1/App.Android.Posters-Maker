@@ -1,9 +1,6 @@
 package com.example.postersmaker;
 
 
-import static com.example.postersmaker.MainActivity.textLayoutList2;
-import static java.security.AccessController.getContext;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-
-import androidx.core.content.res.ResourcesCompat;
 
 public class undo_redo {
 static Context context1;
@@ -104,7 +99,7 @@ static Context context1;
                 for (CombinedItem combineditem : MainActivity.combinedItemList) {
                     if(combineditem.getTextlayout2() != null){
                         if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            Track.list2.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
+                            Track.list2.add(new Track(combineditem.getTextlayout2().getId(), true, combineditem.getTextlayout2().getTextView().getCurrentTextColor()));
                             combineditem.getTextlayout2().getTextView().setTextColor(Track.list.get(Track.list.size() - 1).getTextColor());
                             break;}
                     }
@@ -116,16 +111,16 @@ static Context context1;
                 for (CombinedItem combineditem : MainActivity.combinedItemList) {
                     if(combineditem.getTextlayout2() != null){
                         if(combineditem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            Track.list2.add(new Track(MainActivity.selectedLayer.getId(),
-                                    MainActivity.selectedLayer.getTextView().getShadowRadius(),
-                                    MainActivity.selectedLayer.getTextView().getShadowDx(),
-                                    MainActivity.selectedLayer.getTextView().getShadowDy(),
+                            Track.list2.add(new Track(combineditem.getTextlayout2().getId(),
+                                    combineditem.getTextlayout2().getTextView().getShadowRadius(),
+                                    combineditem.getTextlayout2().getTextView().getShadowDx(),
+                                    combineditem.getTextlayout2().getTextView().getShadowDy(),
                                     true
                             ));
                             combineditem.getTextlayout2().getTextView().setShadowLayer(Track.list.get(Track.list.size() - 1).getShadow(), Track.list.get(Track.list.size() - 1).getShadowDx(), Track.list.get(Track.list.size() - 1).getShadowDy(), Color.BLACK);
                             Track.list.remove(Track.list.size() - 1);
-                            if(HomeFragment.seekBar.getVisibility() == View.VISIBLE){
-                                HomeFragment.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
+                            if(HomeFragment1.seekBar.getVisibility() == View.VISIBLE){
+                                HomeFragment1.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
 
                             }
                             break;
@@ -141,7 +136,7 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            Track.list2.add(new Track(MainActivity.selectedLayer.getId(),true,MainActivity.selectedLayer.getTextView().getTypeface()));
+                            Track.list2.add(new Track(combinedItem.getTextlayout2().getId(),true,combinedItem.getTextlayout2().getTextView().getTypeface()));
                             combinedItem.getTextlayout2().getTextView().setTypeface(Track.list.get(Track.list.size() - 1).getTypeface(), Typeface.NORMAL);
                             Track.list.remove(Track.list.size() - 1);
                             break;
@@ -154,10 +149,10 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            Track.list2.add(new Track(true,MainActivity.selectedLayer.getId(),MainActivity.selectedLayer.getTextView().getTextSize()));
+                            Track.list2.add(new Track(true,combinedItem.getTextlayout2().getId(),combinedItem.getTextlayout2().getTextView().getTextSize()));
 
                             combinedItem.getTextlayout2().getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX,Track.list.get(Track.list.size() - 1).getTextSize());
-                            HomeFragment.sizeSeekBar.setProgress((int) (Track.list.get(Track.list.size() - 1).getTextSize()-10f));
+                            HomeFragment1.sizeSeekBar.setProgress((int) (Track.list.get(Track.list.size() - 1).getTextSize()-10f));
                             Track.list.remove(Track.list.size() - 1);
                             break;
 
@@ -170,10 +165,10 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
-                            Track.list2.add(new Track(MainActivity.selectedLayer.getTextView().getLetterSpacing(),true,MainActivity.selectedLayer.getId()));
+                            Track.list2.add(new Track(combinedItem.getTextlayout2().getTextView().getLetterSpacing(),true,combinedItem.getTextlayout2().getId()));
 
                             combinedItem.getTextlayout2().getTextView().setLetterSpacing(Track.list.get(Track.list.size() - 1).getSpacing());
-                            HomeFragment.spaceSeekBar.setProgress((int) combinedItem.getTextlayout2().getTextView().getLetterSpacing()*pxTodp(33));
+                            HomeFragment1.spaceSeekBar.setProgress((int) combinedItem.getTextlayout2().getTextView().getLetterSpacing()*pxTodp(33));
 
                             Track.list.remove(Track.list.size() - 1);
                             break;
@@ -209,7 +204,7 @@ static Context context1;
                             Track.list2.add(new Track(combinedItem.getImageLayout().getId(),true,combinedItem.getImageLayout().getImageView().getAlpha()));
 
                             combinedItem.getImageLayout().getImageView().setAlpha(Track.list.get(Track.list.size() - 1).getImgopacity1());
-                            HomeFragment.opacitySeekBar.setProgress((int) (Track.list.get(Track.list.size() - 1).getImgopacity1()*100));
+                            HomeFragment1.opacitySeekBar.setProgress((int) (Track.list.get(Track.list.size() - 1).getImgopacity1()*100));
                             Track.list.remove(Track.list.size() - 1);
                             break;
                         }
@@ -242,11 +237,11 @@ static Context context1;
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list.get(Track.list.size() - 1).getTid()){
                             if(Track.list.get(Track.list.size()-1).isIsunderline()){
-                                Track.list2.add(new Track(MainActivity.selectedLayer.getId(),false,true));
+                                Track.list2.add(new Track(combinedItem.getTextlayout2().getId(),false,true));
                                 combinedItem.getTextlayout2().getTextView().setPaintFlags(combinedItem.getTextlayout2().getTextView().getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                             }
                             else {
-                                Track.list2.add(new Track(MainActivity.selectedLayer.getId(),true,true));
+                                Track.list2.add(new Track(combinedItem.getTextlayout2().getId(),true,true));
 
                                 combinedItem.getTextlayout2().getTextView().setPaintFlags(combinedItem.getTextlayout2().getTextView().getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                             }
@@ -276,6 +271,17 @@ static Context context1;
                         }
                         Track.list.remove(Track.list.size() - 1);
                         break;
+                    }
+                }
+            }
+            else if(Track.list.get(Track.list.size()-1).item == "hue"){
+                for(CombinedItem combinedItem: MainActivity.combinedItemList){
+                    if(combinedItem.getImageLayout()!=null){
+                        if(combinedItem.getImageLayout().getId() == Track.list.get(Track.list.size() - 1).getTid()){
+//                            Track.list2.add(new Track(combinedItem.getImageLayout().getId(),combinedItem.getImageLayout().getImageView().getHue(),true));
+                            HueAdapter.applyHueToImageView(combinedItem.getImageLayout().getImageView().getDrawable(), Track.list.get(Track.list.size() - 1).getHueValue());
+                            break;
+                        }
                     }
                 }
             }
@@ -364,7 +370,7 @@ static Context context1;
                 for (CombinedItem combineditem : MainActivity.combinedItemList) {
                     if(combineditem.getTextlayout2() != null){
                         if(combineditem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
-                            Track.list.add(new Track(MainActivity.selectedLayer.getId(), true, MainActivity.selectedLayer.getTextView().getCurrentTextColor()));
+                            Track.list.add(new Track(combineditem.getTextlayout2().getId(), true, combineditem.getTextlayout2().getTextView().getCurrentTextColor()));
                             combineditem.getTextlayout2().getTextView().setTextColor(Track.list2.get(Track.list2.size() - 1).getTextColor());
                             break;}
                     }
@@ -376,16 +382,16 @@ static Context context1;
                 for (CombinedItem combineditem : MainActivity.combinedItemList) {
                     if(combineditem.getTextlayout2() != null){
                         if(combineditem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
-                            Track.list.add(new Track(MainActivity.selectedLayer.getId(),
-                                    MainActivity.selectedLayer.getTextView().getShadowRadius(),
-                                    MainActivity.selectedLayer.getTextView().getShadowDx(),
-                                    MainActivity.selectedLayer.getTextView().getShadowDy(),
+                            Track.list.add(new Track(combineditem.getTextlayout2().getId(),
+                                    combineditem.getTextlayout2().getTextView().getShadowRadius(),
+                                    combineditem.getTextlayout2().getTextView().getShadowDx(),
+                                    combineditem.getTextlayout2().getTextView().getShadowDy(),
                                     true
                             ));
                             combineditem.getTextlayout2().getTextView().setShadowLayer(Track.list2.get(Track.list2.size() - 1).getShadow(), Track.list2.get(Track.list2.size() - 1).getShadowDx(), Track.list2.get(Track.list2.size() - 1).getShadowDy(), Color.BLACK);
                             Track.list2.remove(Track.list2.size() - 1);
-                            if(HomeFragment.seekBar.getVisibility() == View.VISIBLE){
-                                HomeFragment.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
+                            if(HomeFragment1.seekBar.getVisibility() == View.VISIBLE){
+                                HomeFragment1.seekBar.setProgress((int) (combineditem.getTextlayout2().getTextView().getShadowRadius()*5));
 
                             }
                             break;
@@ -401,7 +407,7 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
-                            Track.list.add(new Track(MainActivity.selectedLayer.getId(),true,MainActivity.selectedLayer.getTextView().getTypeface()));
+                            Track.list.add(new Track(combinedItem.getTextlayout2().getId(),true,combinedItem.getTextlayout2().getTextView().getTypeface()));
                             combinedItem.getTextlayout2().getTextView().setTypeface(Track.list2.get(Track.list2.size() - 1).getTypeface(), Typeface.NORMAL);
                             Track.list2.remove(Track.list2.size() - 1);
                             break;
@@ -414,10 +420,10 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
-                            Track.list.add(new Track(true,MainActivity.selectedLayer.getId(),MainActivity.selectedLayer.getTextView().getTextSize()));
+                            Track.list.add(new Track(true,combinedItem.getTextlayout2().getId(),combinedItem.getTextlayout2().getTextView().getTextSize()));
 
                             combinedItem.getTextlayout2().getTextView().setTextSize(TypedValue.COMPLEX_UNIT_PX,Track.list2.get(Track.list2.size() - 1).getTextSize());
-                            HomeFragment.sizeSeekBar.setProgress((int) (Track.list2.get(Track.list2.size() - 1).getTextSize()-10f));
+                            HomeFragment1.sizeSeekBar.setProgress((int) (Track.list2.get(Track.list2.size() - 1).getTextSize()-10f));
                             Track.list2.remove(Track.list2.size() - 1);
                             break;
 
@@ -430,9 +436,9 @@ static Context context1;
                 for (CombinedItem combinedItem: MainActivity.combinedItemList){
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
-                            Track.list.add(new Track(MainActivity.selectedLayer.getTextView().getLetterSpacing(),true,MainActivity.selectedLayer.getId()));
+                            Track.list.add(new Track(combinedItem.getTextlayout2().getTextView().getLetterSpacing(),true,combinedItem.getTextlayout2().getId()));
                             combinedItem.getTextlayout2().getTextView().setLetterSpacing(Track.list2.get(Track.list2.size() - 1).getSpacing());
-                            HomeFragment.spaceSeekBar.setProgress((int) combinedItem.getTextlayout2().getTextView().getLetterSpacing()*pxTodp(33));
+                            HomeFragment1.spaceSeekBar.setProgress((int) combinedItem.getTextlayout2().getTextView().getLetterSpacing()*pxTodp(33));
 
                             Track.list2.remove(Track.list2.size() - 1);
                             break;
@@ -471,7 +477,7 @@ static Context context1;
                         if(combinedItem.getImageLayout().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
                             Track.list.add(new Track(combinedItem.getImageLayout().getId(),true,combinedItem.getImageLayout().getImageView().getAlpha()));
                             combinedItem.getImageLayout().getImageView().setAlpha(Track.list2.get(Track.list2.size() - 1).getImgopacity1());
-                            HomeFragment.opacitySeekBar.setProgress((int) (Track.list2.get(Track.list2.size() - 1).getImgopacity1()*100));
+                            HomeFragment1.opacitySeekBar.setProgress((int) (Track.list2.get(Track.list2.size() - 1).getImgopacity1()*100));
                             Track.list2.remove(Track.list2.size() - 1);
                             break;
                         }
@@ -503,11 +509,11 @@ static Context context1;
                     if(combinedItem.getTextlayout2()!=null){
                         if(combinedItem.getTextlayout2().getId() == Track.list2.get(Track.list2.size() - 1).getTid()){
                             if(Track.list2.get(Track.list2.size()-1).isIsunderline()){
-                                Track.list.add(new Track(MainActivity.selectedLayer.getId(),false,true));
+                                Track.list.add(new Track(combinedItem.getTextlayout2().getId(),false,true));
                                 combinedItem.getTextlayout2().getTextView().setPaintFlags(combinedItem.getTextlayout2().getTextView().getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
                             }
                             else {
-                                Track.list.add(new Track(MainActivity.selectedLayer.getId(),true,true));
+                                Track.list.add(new Track(combinedItem.getTextlayout2().getId(),true,true));
 
                                 combinedItem.getTextlayout2().getTextView().setPaintFlags(combinedItem.getTextlayout2().getTextView().getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG));
                             }

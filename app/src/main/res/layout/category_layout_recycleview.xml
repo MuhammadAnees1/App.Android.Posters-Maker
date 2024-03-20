@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/category_title"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="@color/shimmer_color"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/seeAll_category"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="right"
+        android:layout_marginBottom="8dp"
+        android:background="@color/shimmer_color"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:ignore="RtlHardcoded" />
+
+    <com.cooltechworks.views.shimmer.ShimmerRecyclerView
+        android:id="@+id/inner_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/seeAll_category"
+        android:layout_alignStart="@+id/category_title"
+        android:layout_marginStart="0dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:shimmer_demo_angle="30"
+        app:shimmer_demo_layout="@layout/category_item_layout_recycleview"
+        app:shimmer_demo_layout_manager_type="linear_horizontal" />
+
+</RelativeLayout>

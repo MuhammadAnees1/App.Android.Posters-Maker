@@ -1,9 +1,6 @@
 package com.example.postersmaker;
 
-import static com.example.postersmaker.MainActivity.callSetDefaultState;
 import static com.example.postersmaker.MainActivity.container;
-import static com.example.postersmaker.MainActivity.imageView;
-import static com.example.postersmaker.MainActivity.parentLayout;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -15,7 +12,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -52,11 +48,11 @@ public class ImagePickerManager {
         if (activity instanceof MainActivity) {
             MainActivity mainActivity = (MainActivity) activity;
             FragmentTransaction fragmentTransaction = mainActivity.getSupportFragmentManager().beginTransaction();
-            HomeFragment homeFragment = new HomeFragment();
+            HomeFragment1 homeFragment1 = new HomeFragment1();
             Bundle bundle = new Bundle();
             bundle.putBoolean("openedFromImagePickerManager", true);
-            homeFragment.setArguments(bundle);
-            fragmentTransaction.replace(R.id.fragment_container3, homeFragment);
+            homeFragment1.setArguments(bundle);
+            fragmentTransaction.replace(R.id.fragment_container, homeFragment1);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
@@ -89,8 +85,6 @@ public class ImagePickerManager {
                 // Set the position of the frameLayout based on x and y
                 frameLayout.setX(x);
                 frameLayout.setY(y);
-                container.setVisibility(View.VISIBLE);
-
                 // Check if the frameLayout already has a parent
                 if (frameLayout.getParent() == null) {
                     viewGroup.addView(frameLayout);
